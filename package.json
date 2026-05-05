@@ -34,7 +34,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/uuid": "^10.0.0",
-    "@vitejs/plugin-react": "^6.0.1",
+    "@vitejs/plugin-react": "^4.3.4",
     "@vitest/ui": "^2.1.0",
     "eslint": "^9",
     "eslint-config-next": "15.5.15",
