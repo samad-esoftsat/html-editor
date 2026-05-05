@@ -1,4 +1,9 @@
 import { defineConfig, devices } from '@playwright/test';
+import dotenv from 'dotenv';
+
+dotenv.config({ path: '.env.local' });
+
+const hasE2EEnv = Boolean(process.env.E2E_EMAIL && process.env.E2E_PASSWORD);
 
 export default defineConfig({
   testDir: './tests/e2e',
@@ -13,10 +18,12 @@ export default defineConfig({
   projects: [
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
   ],
-  webServer: {
-    command: 'npm run dev',
-    url: 'http://localhost:3000',
-    reuseExistingServer: true,
-    timeout: 60_000,
-  },
+  webServer: hasE2EEnv
+    ? {
+        command: 'npm.cmd run dev',
+        url: 'http://localhost:3000',
+        reuseExistingServer: true,
+        timeout: 60_000,
+      }
+    : undefined,
 });
