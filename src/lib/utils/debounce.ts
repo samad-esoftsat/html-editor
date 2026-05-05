@@ -1,11 +1,11 @@
-export interface Debounced<F extends (...args: unknown[]) => void> {
+export interface Debounced<F extends (...args: unknown[]) => unknown> {
   (...args: Parameters<F>): void;
   flush(): void;
   cancel(): void;
   pending(): boolean;
 }
 
-export function debounce<F extends (...args: unknown[]) => void>(fn: F, ms: number): Debounced<F> {
+export function debounce<F extends (...args: unknown[]) => unknown>(fn: F, ms: number): Debounced<F> {
   let timer: ReturnType<typeof setTimeout> | null = null;
   let lastArgs: Parameters<F> | null = null;
 
