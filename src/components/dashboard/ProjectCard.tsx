@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
 import { Button } from '@/components/ui/Button';
 import { deleteProject, duplicateProject, patchProject, type ProjectSummary } from '@/lib/api/projects';
+import { confirmDialog } from '@/lib/utils/confirm';
 
 interface Props {
   project: ProjectSummary;
@@ -25,8 +26,14 @@ export function ProjectCard({ project, onChanged }: Props) {
     onChanged();
   }
 
-  function onDelete() {
-    if (!confirm(`Delete "${project.name}"? This cannot be undone.`)) return;
+  async function onDelete() {
+    const ok = await confirmDialog({
+      title: 'Delete project?',
+      message: `"${project.name}" will be permanently deleted. This cannot be undone.`,
+      confirmLabel: 'Delete',
+      danger: true,
+    });
+    if (!ok) return;
     start(async () => {
       await deleteProject(project.id);
       onChanged();

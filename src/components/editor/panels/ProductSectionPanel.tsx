@@ -9,6 +9,7 @@ import { ColorPicker } from '@/components/ui/ColorPicker';
 import { Field } from '@/components/ui/Field';
 import { ImageInput } from '../ImageInput';
 import { BulletList } from '../BulletList';
+import { confirmDialog } from '@/lib/utils/confirm';
 
 interface Props { section: ProductSection; index: number; total: number; }
 
@@ -28,7 +29,15 @@ export function ProductSectionPanel({ section, index, total }: Props) {
         <div className="flex items-center gap-1 text-muted-2">
           <button disabled={index === 0} onClick={() => store.getState().moveSection(section.id, 'up')} className="disabled:opacity-30 hover:text-fg"><ArrowUp size={12} /></button>
           <button disabled={index === total - 1} onClick={() => store.getState().moveSection(section.id, 'down')} className="disabled:opacity-30 hover:text-fg"><ArrowDown size={12} /></button>
-          <button onClick={() => { if (confirm(`Remove "${section.title}"?`)) store.getState().removeSection(section.id); }} className="hover:text-danger"><Trash2 size={12} /></button>
+          <button onClick={async () => {
+            const ok = await confirmDialog({
+              title: 'Remove section?',
+              message: `"${section.title}" will be removed.`,
+              confirmLabel: 'Remove',
+              danger: true,
+            });
+            if (ok) store.getState().removeSection(section.id);
+          }} className="hover:text-danger"><Trash2 size={12} /></button>
         </div>
       </div>
       {open && (
