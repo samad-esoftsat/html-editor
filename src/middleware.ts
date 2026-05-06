@@ -2,6 +2,9 @@ import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
 export async function middleware(req: NextRequest) {
+  const path = req.nextUrl.pathname;
+  if (path.startsWith('/api/')) return NextResponse.next({ request: req });
+
   let res = NextResponse.next({ request: req });
 
   const supabase = createServerClient(
@@ -25,7 +28,6 @@ export async function middleware(req: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const path = req.nextUrl.pathname;
   const isPublic = path.startsWith('/login')
                 || path.startsWith('/signup')
                 || path.startsWith('/reset')

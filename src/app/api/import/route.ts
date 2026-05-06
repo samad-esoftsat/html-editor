@@ -1,6 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { parseHtml } from '@/lib/import/parseHtml';
 
 const MAX_BYTES = 2 * 1024 * 1024;
 
@@ -19,6 +18,7 @@ export async function POST(req: NextRequest) {
     }
 
     const html = await file.text();
+    const { parseHtml } = await import('@/lib/import/parseHtml');
     const result = parseHtml(html);
     return NextResponse.json(result);
   } catch (error) {
