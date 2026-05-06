@@ -124,6 +124,7 @@ function importErrorMessage(error: string | undefined, status: number) {
   if (error === 'unauthorized' || status === 401) return 'Please sign in again before importing HTML.';
   if (error === 'too_large' || status === 413) return 'That HTML file is too large. Please use a file under 2 MB.';
   if (error === 'bad_type' || status === 415) return 'Please choose an HTML file.';
+  if (error) return `Could not analyse this HTML file (${error}).`;
   return 'Could not analyse this HTML file. Please try again.';
 }
 
