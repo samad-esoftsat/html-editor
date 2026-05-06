@@ -23,7 +23,7 @@ export async function GET(_req: NextRequest, { params }: Ctx) {
 export async function PATCH(req: NextRequest, { params }: Ctx) {
   const { id } = await params;
   const supabase = await createClient();
-  const ifUnmodifiedSince = req.headers.get('if-unmodified-since');
+  const ifUnmodifiedSince = req.headers.get('x-if-unmodified-since');
 
   const body = (await req.json()) as { name?: string; data?: ProjectData };
   const update: Record<string, unknown> = {};

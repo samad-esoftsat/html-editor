@@ -22,7 +22,7 @@ export async function patchProject(
   ifUnmodifiedSince?: string,
 ): Promise<ProjectSummary> {
   const headers: Record<string, string> = { 'content-type': 'application/json' };
-  if (ifUnmodifiedSince) headers['if-unmodified-since'] = ifUnmodifiedSince;
+  if (ifUnmodifiedSince) headers['x-if-unmodified-since'] = ifUnmodifiedSince;
   const res = await fetch(`/api/projects/${id}`, {
     method: 'PATCH',
     headers,
