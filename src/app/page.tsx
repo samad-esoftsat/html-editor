@@ -1,3 +1,4 @@
+import { ImportButton } from '@/components/dashboard/ImportButton';
 import { NewProjectButton } from '@/components/dashboard/NewProjectButton';
 import { ProjectGrid } from '@/components/dashboard/ProjectGrid';
 import { createClient } from '@/lib/supabase/server';
@@ -26,6 +27,7 @@ export default async function Dashboard() {
           <form action="/auth/signout" method="post">
             <button className="text-xs text-muted hover:text-fg">Sign out</button>
           </form>
+          <ImportButton />
           <NewProjectButton />
         </div>
       </header>
