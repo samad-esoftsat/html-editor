@@ -74,7 +74,7 @@ function renderSection(section: ProductSection, idx: number, data: ProjectData):
     .join('');
 
   const imageCell = `<td class="column column-1" width="50%" valign="top" style="padding: 16px;">
-<img src="${attrEscape(imageSrc)}" alt="${attrEscape(section.imageAlt)}" style="display: block; max-width: 100%; height: auto; border: 0;">
+<div style="max-width: 339px; margin: 0 auto;"><img src="${attrEscape(imageSrc)}" alt="${attrEscape(section.imageAlt)}" width="339" style="display: block; width: 100%; max-width: 100%; height: auto; border: 0;"></div>
 </td>`;
 
   const textCell = `<td class="column column-2" width="50%" valign="top" style="padding: 16px;">
