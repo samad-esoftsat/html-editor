@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Spinner } from '@/components/ui/Spinner';
 import { createProject } from '@/lib/api/projects';
+import { toast } from '@/lib/utils/toast';
 
 export function NewProjectButton() {
   const router = useRouter();
@@ -16,7 +17,7 @@ export function NewProjectButton() {
       const project = await createProject();
       router.push(`/p/${project.id}`);
     } catch (e) {
-      alert(`Couldn't create project: ${(e as Error).message}`);
+      toast.error(`Couldn't create project: ${(e as Error).message}`);
       setBusy(false);
     }
   }

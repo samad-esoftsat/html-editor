@@ -1,5 +1,6 @@
 import './globals.css';
 import type { Metadata } from 'next';
+import { ToastViewport } from '@/components/ui/Toast';
 
 export const metadata: Metadata = {
   title: 'GlobalTT Editor',
@@ -9,7 +10,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className="min-h-dvh">{children}</body>
+      <body className="min-h-dvh">
+        {children}
+        <ToastViewport />
+      </body>
     </html>
   );
 }
