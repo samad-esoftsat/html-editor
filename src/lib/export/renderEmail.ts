@@ -15,6 +15,8 @@ function renderHead(): string {
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="x-apple-disable-message-reformatting">
+<meta name="format-detection" content="telephone=no, date=no, address=no, email=no">
 <style>
   * { box-sizing: border-box; }
   body { margin: 0; padding: 0; }
@@ -23,28 +25,36 @@ function renderHead(): string {
   .row-content { width: 100%; max-width: 710px; margin: 0 auto; }
   .reverse .column-1 { order: 2; }
   .reverse .column-2 { order: 1; }
-  @media (max-width: 730px) {
+  @media (max-width: 600px) {
     .row-content { width: 100% !important; }
+    .row-content table { width: 100% !important; }
+    .row-content img { width: auto !important; max-width: 100% !important; height: auto !important; }
     .stack .column { width: 100% !important; display: block !important; }
   }
 </style>
 </head>`;
 }
 
+const MSO_OPEN = '<!--[if mso]><table role="presentation" width="710" align="center" border="0" cellpadding="0" cellspacing="0"><tr><td><![endif]-->';
+const MSO_CLOSE = '<!--[if mso]></td></tr></table><![endif]-->';
+
 function renderHeader(header: Header, contactUrl: string): string {
   const logoSrc = urlSafe(header.logoSrc);
   const bannerSrc = urlSafe(header.bannerSrc);
   const cu = urlSafe(contactUrl);
+  const logoWidth = Math.min(header.logoWidth, 600);
   return `<table role="presentation" class="row row-header" width="100%" border="0" cellpadding="0" cellspacing="0">
 <tr><td>
+${MSO_OPEN}
 <table role="presentation" class="row-content" width="710" border="0" cellpadding="0" cellspacing="0" align="center">
 <tr><td align="center" style="padding: 16px;">
-<a href="${attrEscape(cu)}" target="_blank"><img src="${attrEscape(logoSrc)}" alt="${attrEscape(header.logoAlt)}" width="${header.logoWidth}" style="display: block; max-width: 100%; height: auto; border: 0;"></a>
+<a href="${attrEscape(cu)}" target="_blank"><img src="${attrEscape(logoSrc)}" alt="${attrEscape(header.logoAlt)}" width="${logoWidth}" style="display: block; max-width: 100%; height: auto; border: 0;"></a>
 </td></tr>
 <tr><td align="center" style="padding: 8px 16px; font-size: ${header.titleFontSize}px; font-weight: bold;">${htmlEscape(header.title)}</td></tr>
 <tr><td align="center" style="padding: 8px 16px;"><img src="${attrEscape(bannerSrc)}" alt="${attrEscape(header.bannerAlt)}" style="display: block; max-width: 100%; height: auto; border: 0;"></td></tr>
 <tr><td align="center" style="padding: 16px; font-size: ${header.sectionHeadingFontSize}px; font-weight: bold;">${htmlEscape(header.sectionHeading)}</td></tr>
 </table>
+${MSO_CLOSE}
 </td></tr>
 </table>`;
 }
@@ -79,9 +89,11 @@ function renderSection(section: ProductSection, idx: number, data: ProjectData):
 
   return `<table role="presentation" ${reverse ? 'class="reverse"' : 'class="row-section"'} width="100%" border="0" cellpadding="0" cellspacing="0"${bgStyle}>
 <tr><td>
+${MSO_OPEN}
 <table role="presentation" class="row-content stack ${rowClass}" width="710" border="0" cellpadding="0" cellspacing="0" align="center">
 <tr>${cells}</tr>
 </table>
+${MSO_CLOSE}
 </td></tr>
 </table>`;
 }
@@ -117,6 +129,7 @@ function renderFooter(footer: Footer, data: ProjectData): string {
 
   return `<table role="presentation" class="row row-footer" width="100%" border="0" cellpadding="0" cellspacing="0" style="background-color: ${attrEscape(bg)};">
 <tr><td>
+${MSO_OPEN}
 <table role="presentation" class="row-content" width="710" border="0" cellpadding="0" cellspacing="0" align="center">
 <tr><td align="center" style="padding: 16px;"><img src="${attrEscape(bannerSrc)}" alt="${attrEscape(footer.bannerAlt)}" style="display: block; max-width: 100%; height: auto; border: 0;"></td></tr>
 <tr><td align="center" style="padding: 16px; color: ${attrEscape(fg)}; font-family: ${attrEscape(data.global.fontFamily)}; font-size: ${data.global.baseFontSize}px;">
@@ -128,6 +141,7 @@ ${websitesHtml}
 ${socialsHtml}
 </td></tr>
 </table>
+${MSO_CLOSE}
 </td></tr>
 </table>`;
 }
