@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { createClient } from '@/lib/supabase/client';
+import { getAuthCallbackUrl } from '@/lib/utils/siteUrl';
 
 export function LoginForm() {
   const router = useRouter();
@@ -36,7 +37,7 @@ export function LoginForm() {
     const supabase = createClient();
     await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}` },
+      options: { redirectTo: getAuthCallbackUrl(next) },
     });
   }
 

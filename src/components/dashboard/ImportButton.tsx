@@ -29,18 +29,24 @@ export function ImportButton() {
     if (!file) return;
     setStage('analysing');
     setError(null);
-    const fd = new FormData();
-    fd.append('file', file);
-    const res = await fetch('/api/import', { method: 'POST', body: fd });
-    if (!res.ok) {
-      setError('Could not analyse this HTML file.');
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      const res = await fetch('/api/import', { method: 'POST', body: fd });
+      if (!res.ok) {
+        const body = await res.json().catch(() => null) as { error?: string } | null;
+        setError(importErrorMessage(body?.error, res.status));
+        setStage('idle');
+        return;
+      }
+      const result = (await res.json()) as ParseResponse;
+      setParsed(result);
+      setName(file.name.replace(/\.html?$/i, ''));
+      setStage('review');
+    } catch {
+      setError('Could not analyse this HTML file. Please try again.');
       setStage('idle');
-      return;
     }
-    const result = (await res.json()) as ParseResponse;
-    setParsed(result);
-    setName(file.name.replace(/\.html?$/i, ''));
-    setStage('review');
   }
 
   async function confirm() {
@@ -62,9 +68,12 @@ export function ImportButton() {
 
   return (
     <>
-      <Button variant="secondary" onClick={pick} disabled={stage === 'analysing' || stage === 'creating'}>
-        <Upload size={14} /> Import HTML
-      </Button>
+      <div className="flex flex-col items-start gap-2">
+        <Button variant="secondary" onClick={pick} disabled={stage === 'analysing' || stage === 'creating'}>
+          <Upload size={14} /> Import HTML
+        </Button>
+        {error && stage === 'idle' && <div className="text-xs text-danger">{error}</div>}
+      </div>
       <input ref={inputRef} type="file" hidden accept=".html,text/html" onChange={onFile} />
 
       {(stage === 'review' || stage === 'creating') && parsed && (
@@ -109,6 +118,13 @@ export function ImportButton() {
       )}
     </>
   );
+}
+
+function importErrorMessage(error: string | undefined, status: number) {
+  if (error === 'unauthorized' || status === 401) return 'Please sign in again before importing HTML.';
+  if (error === 'too_large' || status === 413) return 'That HTML file is too large. Please use a file under 2 MB.';
+  if (error === 'bad_type' || status === 415) return 'Please choose an HTML file.';
+  return 'Could not analyse this HTML file. Please try again.';
 }
 
 function Found({ ok, label }: { ok: boolean; label: string }) {

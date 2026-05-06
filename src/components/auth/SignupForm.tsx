@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { createClient } from '@/lib/supabase/client';
+import { getAuthCallbackUrl } from '@/lib/utils/siteUrl';
 
 export function SignupForm() {
   const [email, setEmail] = useState('');
@@ -20,7 +21,7 @@ export function SignupForm() {
     const { error } = await supabase.auth.signUp({
       email,
       password,
-      options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+      options: { emailRedirectTo: getAuthCallbackUrl() },
     });
     setBusy(false);
     if (error) {
@@ -34,7 +35,7 @@ export function SignupForm() {
     const supabase = createClient();
     await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
+      options: { redirectTo: getAuthCallbackUrl() },
     });
   }
 
