@@ -1,11 +1,11 @@
 'use client';
 import Link from 'next/link';
 import { useEditor, useEditorStore } from '@/lib/editor/StoreProvider';
-import { Button } from '@/components/ui/Button';
 import { useState } from 'react';
 
 export function Topbar() {
   const name = useEditor((s) => s.name);
+  const projectId = useEditor((s) => s.projectId);
   const saving = useEditor((s) => s.saving);
   const lastError = useEditor((s) => s.lastError);
   const store = useEditorStore();
@@ -47,7 +47,13 @@ export function Topbar() {
       <span className={saving === 'error' ? 'text-danger' : 'text-muted'}>{status}</span>
       {lastError && <span className="text-danger text-xs">{lastError}</span>}
       <div className="ml-auto">
-        <Button disabled title="Phase 3 — HTML export">⬇ Download HTML</Button>
+        <a
+          href={`/api/projects/${projectId}/export`}
+          download
+          className="inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium bg-brand text-white hover:opacity-90"
+        >
+          ⬇ Download HTML
+        </a>
       </div>
     </div>
   );
