@@ -20,6 +20,15 @@ const eslintConfig = [
       "next-env.d.ts",
     ],
   },
+  {
+    files: ['src/components/**/*.{ts,tsx}', 'src/app/**/page.tsx', 'src/app/**/layout.tsx', 'src/lib/api/**/*.ts'],
+    rules: {
+      'no-restricted-syntax': ['error', {
+        selector: "MemberExpression[object.name='process'][property.name='env'] > Identifier[name='SUPABASE_SERVICE_ROLE_KEY']",
+        message: 'SUPABASE_SERVICE_ROLE_KEY must never be referenced in client-bundled code.',
+      }],
+    },
+  },
 ];
 
 export default eslintConfig;
