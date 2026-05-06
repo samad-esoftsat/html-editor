@@ -36,6 +36,7 @@ export function parseHtml(html: string): ImportResult {
   }
   const doc = dom.window.document;
 
+  try {
   const body = doc.body;
   const bg = body ? extractBgColor(body) : null;
   if (bg) data.global.backgroundColor = bg;
@@ -129,6 +130,14 @@ export function parseHtml(html: string): ImportResult {
     if (c) data.footer.backgroundColor = c;
   } else {
     warnings.push({ kind: 'no_footer', severity: 'warn', message: 'Footer not detected; using defaults.' });
+  }
+  } catch (error) {
+    console.error('html_import_extraction_failed', error);
+    warnings.push({
+      kind: 'extraction_failed',
+      severity: 'error',
+      message: 'Some HTML could not be read; imported the parts that were detected.',
+    });
   }
 
   return { data, warnings };

@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const form = await req.formData();
-    return handleImportForm(form);
+    return await handleImportForm(form);
   } catch (error) {
     console.error('import_form_read_failed', error);
     return NextResponse.json({ error: 'form_read_failed' }, { status: 400 });
@@ -46,8 +46,15 @@ async function handleImportForm(form: FormData) {
     return NextResponse.json({ error: 'file_read_failed' }, { status: 400 });
   }
 
+  let parseHtml: typeof import('@/lib/import/parseHtml').parseHtml;
   try {
-    const { parseHtml } = await import('@/lib/import/parseHtml');
+    ({ parseHtml } = await import('@/lib/import/parseHtml'));
+  } catch (error) {
+    console.error('import_parser_load_failed', error);
+    return NextResponse.json({ error: 'parser_load_failed' }, { status: 500 });
+  }
+
+  try {
     const result = parseHtml(html);
     return NextResponse.json(result);
   } catch (error) {
