@@ -21,7 +21,15 @@ export function useAutosave() {
       } catch (e) {
         const err = e as Error & { code?: string };
         if (err.code === 'conflict') {
-          store.getState().markSaving('error', 'This project changed in another tab. Reload to continue.');
+          try {
+            const res = await patchProject(projectId, { name, data });
+            store.getState().markSaved(res.updated_at);
+          } catch (retryError) {
+            store.getState().markSaving(
+              'error',
+              retryError instanceof Error ? retryError.message : 'Save failed.',
+            );
+          }
         } else {
           store.getState().markSaving('error', err.message);
         }

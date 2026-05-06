@@ -2,7 +2,7 @@ import * as cheerio from 'cheerio';
 import type { Cheerio, CheerioAPI } from 'cheerio';
 import type { Element } from 'domhandler';
 import { v4 as uuid } from 'uuid';
-import type { ProjectData, ProductSection, Footer } from '@/lib/editor/types';
+import type { ProjectData, ProductSection, Footer, SocialPlatform } from '@/lib/editor/types';
 import { SCHEMA_VERSION } from '@/lib/editor/types';
 import { createDefaultProject } from '@/lib/editor/defaultProject';
 import { looksDark, parseInlineStyle } from './detectors';
@@ -186,7 +186,7 @@ function extractFooter($: CheerioAPI, root: Cheerio<Element>, footer: Footer) {
       footer.phone = link.text().trim();
     } else if (href.startsWith('mailto:')) {
       footer.email = href.replace(/^mailto:/, '');
-    } else if (href.startsWith('http')) {
+    } else if (href.startsWith('http') && !detectSocialPlatform(href)) {
       footer.websites.push({ label: (link.text() || href).trim(), url: href });
     }
   }
@@ -208,6 +208,15 @@ function extractFooter($: CheerioAPI, root: Cheerio<Element>, footer: Footer) {
       }
     }
   }
+}
+
+function detectSocialPlatform(href: string): SocialPlatform | null {
+  if (/facebook/i.test(href)) return 'facebook';
+  if (/linkedin/i.test(href)) return 'linkedin';
+  if (/twitter|x\.com/i.test(href)) return 'twitter';
+  if (/youtube/i.test(href)) return 'youtube';
+  if (/instagram/i.test(href)) return 'instagram';
+  return null;
 }
 
 function normalizeFooterAddress(value: string) {

@@ -62,6 +62,15 @@ describe('parseHtml — round-trip on the reference', () => {
     expect(data.footer.address).toBe('Scientifique Parc Einstein,\nLouvain-la-Neuve, Belgium');
   });
 
+  it('keeps social URLs out of footer website links', () => {
+    const { data } = parseHtml(REFERENCE);
+    expect(data.footer.websites.map((w) => w.url)).toEqual([
+      'https://www.globaltt.com',
+      'https://www.ipseos.eu',
+    ]);
+    expect(data.footer.socials.map((s) => s.platform)).toEqual(['facebook', 'linkedin']);
+  });
+
   it('warns nothing critical for the reference', () => {
     const { warnings } = parseHtml(REFERENCE);
     expect(warnings.filter((w) => w.severity === 'error')).toEqual([]);
