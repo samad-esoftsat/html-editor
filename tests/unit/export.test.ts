@@ -91,3 +91,62 @@ describe('renderEmail (skeleton)', () => {
     expect(html).not.toContain('javascript:alert(1)');
   });
 });
+
+describe('renderEmail (reference fragments)', () => {
+  it('renders 710px max-width row-content layout', () => {
+    const html = renderEmail(createDefaultProject());
+    expect(html).toMatch(/width="710"/);
+  });
+
+  it('renders the header logo URL exactly as provided', () => {
+    const html = renderEmail(createDefaultProject());
+    expect(html).toContain(
+      'https://36af7d465b.imgdist.com/pub/bfra/wpnsx7uw/j2q/4ah/ptb/logo%20%282%29.png'
+    );
+  });
+
+  it('renders Starlink first bullet text', () => {
+    const html = renderEmail(createDefaultProject());
+    expect(html).toContain('NEW - Worldwide satellite internet.');
+  });
+
+  it('renders the address split across multiple <p> tags', () => {
+    const html = renderEmail(createDefaultProject());
+    expect(html).toContain('Scientifique Parc Einstein,');
+    expect(html).toContain('Louvain-la-Neuve, Belgium');
+  });
+
+  it('renders facebook and linkedin social icons via app-rsrc.getbee.io', () => {
+    const html = renderEmail(createDefaultProject());
+    expect(html).toContain(
+      'https://app-rsrc.getbee.io/public/resources/social-networks-icon-sets/circle-color/facebook@2x.png'
+    );
+    expect(html).toContain(
+      'https://app-rsrc.getbee.io/public/resources/social-networks-icon-sets/circle-color/linkedin@2x.png'
+    );
+  });
+
+  it('renders websites separated by " &amp; "', () => {
+    const html = renderEmail(createDefaultProject());
+    expect(html).toContain('www.globaltt.com');
+    expect(html).toContain('www.Ipseos.eu');
+    expect(html).toMatch(/www\.globaltt\.com<\/a> &amp; <a/);
+  });
+
+  it('renders tel: link for the footer phone', () => {
+    const html = renderEmail(createDefaultProject());
+    expect(html).toContain('tel:+3210395070');
+  });
+
+  it('renders the default brand button color #f1592a on CTA buttons', () => {
+    const html = renderEmail(createDefaultProject());
+    expect(html).toContain('background-color: #f1592a');
+  });
+
+  it('escapes & in any URL-derived attribute (no raw & character)', () => {
+    const data = createDefaultProject();
+    data.sections[0].ctaUrl = 'https://example.com/?a=1&b=2';
+    const html = renderEmail(data);
+    expect(html).toContain('https://example.com/?a=1&amp;b=2');
+  });
+});
