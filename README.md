@@ -1,36 +1,42 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# GlobalTT Email Editor
 
-## Getting Started
+Multi-tenant Next.js + Supabase web app for creating, customising, and exporting GlobalTT email campaigns. Replaces the manual HTML-editing workflow with a visual editor anyone on the team can use.
 
-First, run the development server:
+## Quick start
 
-```bash
+```powershell
+npm install
+cp .env.local.example .env.local      # then fill in Supabase URL + anon key
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Database
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Apply migrations once per Supabase project, in order:
 
-## Learn More
+1. Paste `supabase/migrations/0001_init.sql` into Supabase Dashboard → SQL Editor → Run.
+2. Paste `supabase/migrations/0002_storage.sql` → Run.
 
-To learn more about Next.js, take a look at the following resources:
+## Tests
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| Command | Scope |
+| --- | --- |
+| `npm test`        | Vitest unit tests (export, import, store, debounce). |
+| `npm run e2e`     | Playwright end-to-end (requires `E2E_EMAIL` / `E2E_PASSWORD` in `.env.local`). |
+| `npm run lint`    | ESLint. |
+| `npm run typecheck` | `tsc --noEmit`. |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Project layout
 
-## Deploy on Vercel
+See `docs/superpowers/plans/2026-05-05-globaltt-editor/SPEC.md` §3.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Deployment
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Hosted on Vercel. `main` branch auto-deploys to production. Required env vars on Vercel:
+
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY` (server only)
+- `NEXT_PUBLIC_SITE_URL`
