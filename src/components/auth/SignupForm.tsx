@@ -30,6 +30,14 @@ export function SignupForm() {
     setMsg({ kind: 'ok', text: 'Check your email to confirm your account.' });
   }
 
+  async function googleSignIn() {
+    const supabase = createClient();
+    await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: `${window.location.origin}/auth/callback` },
+    });
+  }
+
   return (
     <form
       onSubmit={onSubmit}
@@ -61,6 +69,9 @@ export function SignupForm() {
       )}
       <Button type="submit" className="w-full" disabled={busy}>
         {busy ? 'Creating...' : 'Sign Up'}
+      </Button>
+      <Button type="button" variant="secondary" className="w-full" onClick={googleSignIn}>
+        G &nbsp; Sign up with Google
       </Button>
       <div className="text-center text-xs text-muted-2">
         Already have an account? <Link href="/login" className="text-brand">Sign in</Link>

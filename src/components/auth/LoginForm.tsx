@@ -32,6 +32,14 @@ export function LoginForm() {
     router.refresh();
   }
 
+  async function googleSignIn() {
+    const supabase = createClient();
+    await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}` },
+    });
+  }
+
   return (
     <form
       onSubmit={onSubmit}
@@ -58,6 +66,9 @@ export function LoginForm() {
       {error && <div className="text-xs text-danger">{error}</div>}
       <Button type="submit" className="w-full" disabled={busy}>
         {busy ? 'Signing in...' : 'Sign In'}
+      </Button>
+      <Button type="button" variant="secondary" className="w-full" onClick={googleSignIn}>
+        G &nbsp; Continue with Google
       </Button>
       <div className="text-center text-xs text-muted-2">
         No account? <Link href="/signup" className="text-brand">Sign up</Link>
