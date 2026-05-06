@@ -174,8 +174,8 @@ function extractFooter($: CheerioAPI, root: Cheerio<Element>, footer: Footer) {
   const firstStrong = strongs.first();
   if (firstStrong.length && firstStrong.text()) footer.companyName = firstStrong.text().trim();
 
-  const paragraphs = root.find('p').toArray().map((p) => $(p).text().trim()).filter(Boolean);
-  if (paragraphs.length > 1) footer.address = paragraphs[1].replace(/\s*\n?/g, '\n').replace(/\n+/g, '\n').trim();
+  const paragraphs = root.find('p').toArray().map((p) => textWithLineBreaks($, $(p))).filter(Boolean);
+  if (paragraphs.length > 1) footer.address = normalizeFooterAddress(paragraphs[1]);
 
   const links = root.find('a').toArray();
   for (const a of links) {
@@ -208,4 +208,19 @@ function extractFooter($: CheerioAPI, root: Cheerio<Element>, footer: Footer) {
       }
     }
   }
+}
+
+function normalizeFooterAddress(value: string) {
+  return value
+    .replace(/\r\n?/g, '\n')
+    .split('\n')
+    .map((line) => line.replace(/[ \t]+/g, ' ').trim())
+    .filter(Boolean)
+    .join('\n');
+}
+
+function textWithLineBreaks($: CheerioAPI, el: Cheerio<Element>) {
+  const clone = el.clone();
+  clone.find('br').replaceWith('\n');
+  return normalizeFooterAddress(clone.text());
 }

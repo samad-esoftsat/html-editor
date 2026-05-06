@@ -57,6 +57,11 @@ describe('parseHtml — round-trip on the reference', () => {
     expect(data.footer.email).toBe('info@globaltt.com');
   });
 
+  it('preserves footer address lines', () => {
+    const { data } = parseHtml(REFERENCE);
+    expect(data.footer.address).toBe('Scientifique Parc Einstein,\nLouvain-la-Neuve, Belgium');
+  });
+
   it('warns nothing critical for the reference', () => {
     const { warnings } = parseHtml(REFERENCE);
     expect(warnings.filter((w) => w.severity === 'error')).toEqual([]);
