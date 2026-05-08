@@ -67,7 +67,7 @@ export function ProjectCard({ project, onChanged }: Props) {
       ) : (
         <div className="mb-1 truncate text-sm font-semibold text-fg">{project.name}</div>
       )}
-      <div className="mb-4 text-xs text-muted-2">
+      <div className="mb-4 text-xs text-muted-2" suppressHydrationWarning>
         Updated {new Date(project.updated_at).toLocaleString()}
       </div>
       <div className="flex gap-2">
