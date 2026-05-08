@@ -1,6 +1,6 @@
 'use client';
 import Link from 'next/link';
-import { useEditor, useEditorStore } from '@/lib/editor/StoreProvider';
+import { useEditor, useEditorStore, useTemporal } from '@/lib/editor/StoreProvider';
 import { useState } from 'react';
 
 export function Topbar() {
@@ -8,7 +8,19 @@ export function Topbar() {
   const projectId = useEditor((s) => s.projectId);
   const saving = useEditor((s) => s.saving);
   const lastError = useEditor((s) => s.lastError);
+  const isDirty = useEditor((s) => s.data !== s.lastSavedData || s.name !== s.lastSavedName);
+  const canUndo = useTemporal((s) => s.pastStates.length > 0);
+  const canRedo = useTemporal((s) => s.futureStates.length > 0);
+  const undo = useTemporal((s) => s.undo);
+  const redo = useTemporal((s) => s.redo);
   const store = useEditorStore();
+
+  const onUndo = () => { store.flushHistoryCooldown(); undo(); };
+  const onRedo = () => { store.flushHistoryCooldown(); redo(); };
+  const onReset = () => {
+    store.flushHistoryCooldown();
+    store.getState().resetToSaved();
+  };
 
   const [editing, setEditing] = useState(false);
   const [draftName, setDraftName] = useState(name);
@@ -46,7 +58,34 @@ export function Topbar() {
       )}
       <span className={saving === 'error' ? 'text-danger' : 'text-muted'}>{status}</span>
       {lastError && <span className="text-danger text-xs">{lastError}</span>}
-      <div className="ml-auto">
+      <div className="ml-auto flex items-center gap-2">
+        <button
+          type="button"
+          onClick={onUndo}
+          disabled={!canUndo}
+          title="Undo (Ctrl/Cmd+Z)"
+          className="rounded-md border border-border-strong px-2.5 py-1.5 text-xs text-fg hover:bg-panel disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          ↶ Undo
+        </button>
+        <button
+          type="button"
+          onClick={onRedo}
+          disabled={!canRedo}
+          title="Redo (Ctrl/Cmd+Shift+Z)"
+          className="rounded-md border border-border-strong px-2.5 py-1.5 text-xs text-fg hover:bg-panel disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          ↷ Redo
+        </button>
+        <button
+          type="button"
+          onClick={onReset}
+          disabled={!isDirty}
+          title="Discard unsaved changes and revert to last saved version"
+          className="rounded-md border border-border-strong px-2.5 py-1.5 text-xs text-fg hover:bg-panel disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          Reset to last saved
+        </button>
         <a
           href={`/api/projects/${projectId}/export`}
           download

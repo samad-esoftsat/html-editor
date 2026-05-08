@@ -1,6 +1,7 @@
 'use client';
 import { StoreProvider } from '@/lib/editor/StoreProvider';
 import { useAutosave } from '@/lib/editor/autosave';
+import { useUndoRedoShortcuts } from '@/lib/editor/useUndoRedoShortcuts';
 import { Topbar } from './Topbar';
 import { LeftPanel } from './LeftPanel';
 import { Preview } from './Preview';
@@ -15,6 +16,7 @@ interface Props {
 
 function Inner() {
   useAutosave();
+  useUndoRedoShortcuts();
   return (
     <div className="flex flex-col h-dvh">
       <Topbar />

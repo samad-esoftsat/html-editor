@@ -1,4 +1,5 @@
 import { createStore, type StoreApi } from 'zustand/vanilla';
+import { temporal, type TemporalState } from 'zundo';
 import { v4 as uuid } from 'uuid';
 import type { Footer, GlobalStyles, Header, ProductSection, ProjectData } from './types';
 
@@ -11,6 +12,8 @@ export interface EditorState {
   serverUpdatedAt: string;
   saving: SaveStatus;
   lastError: string | null;
+  lastSavedData: ProjectData;
+  lastSavedName: string;
 
   setName(name: string): void;
   setGlobal(patch: Partial<GlobalStyles>): void;
@@ -20,12 +23,21 @@ export interface EditorState {
   removeSection(id: string): void;
   moveSection(id: string, dir: 'up' | 'down'): void;
   setSection(id: string, patch: Partial<ProductSection>): void;
+  resetToSaved(): void;
 
   markSaving(status: SaveStatus, error?: string | null): void;
-  markSaved(updatedAt: string): void;
+  markSaved(updatedAt: string, data: ProjectData, name: string): void;
 }
 
-export type EditorStore = StoreApi<EditorState>;
+export type TrackedState = Pick<EditorState, 'data' | 'name'>;
+
+export interface EditorStoreApi extends StoreApi<EditorState> {
+  temporal: StoreApi<TemporalState<TrackedState>>;
+}
+
+export interface EditorStore extends EditorStoreApi {
+  flushHistoryCooldown(): void;
+}
 
 interface Init {
   projectId: string;
@@ -33,6 +45,9 @@ interface Init {
   data: ProjectData;
   serverUpdatedAt: string;
 }
+
+const HISTORY_THROTTLE_MS = 500;
+const HISTORY_LIMIT = 100;
 
 function blankSection(): ProductSection {
   return {
@@ -46,50 +61,86 @@ function blankSection(): ProductSection {
 }
 
 export function createEditorStore(init: Init): EditorStore {
-  return createStore<EditorState>((set) => ({
-    projectId: init.projectId,
-    name: init.name,
-    data: init.data,
-    serverUpdatedAt: init.serverUpdatedAt,
-    saving: 'idle',
-    lastError: null,
+  let cooldown: ReturnType<typeof setTimeout> | null = null;
+  const flushHistoryCooldown = () => {
+    if (cooldown) {
+      clearTimeout(cooldown);
+      cooldown = null;
+    }
+  };
 
-    setName: (name) => set({ name }),
-    setGlobal: (patch) => set((state) => ({
-      data: { ...state.data, global: { ...state.data.global, ...patch } },
-    })),
-    setHeader: (patch) => set((state) => ({
-      data: { ...state.data, header: { ...state.data.header, ...patch } },
-    })),
-    setFooter: (patch) => set((state) => ({
-      data: { ...state.data, footer: { ...state.data.footer, ...patch } },
-    })),
-    addSection: () => set((state) => ({
-      data: { ...state.data, sections: [...state.data.sections, blankSection()] },
-    })),
-    removeSection: (id) => set((state) => ({
-      data: { ...state.data, sections: state.data.sections.filter((section) => section.id !== id) },
-    })),
-    moveSection: (id, dir) => set((state) => {
-      const arr = state.data.sections;
-      const idx = arr.findIndex((section) => section.id === id);
-      if (idx === -1) return state;
-      const swap = dir === 'up' ? idx - 1 : idx + 1;
-      if (swap < 0 || swap >= arr.length) return state;
-      const next = arr.slice();
-      [next[idx], next[swap]] = [next[swap], next[idx]];
-      return { data: { ...state.data, sections: next } };
-    }),
-    setSection: (id, patch) => set((state) => ({
-      data: {
-        ...state.data,
-        sections: state.data.sections.map((section) => (
-          section.id === id ? { ...section, ...patch } : section
-        )),
+  const store = createStore<EditorState>()(
+    temporal(
+      (set) => ({
+        projectId: init.projectId,
+        name: init.name,
+        data: init.data,
+        serverUpdatedAt: init.serverUpdatedAt,
+        saving: 'idle',
+        lastError: null,
+        lastSavedData: init.data,
+        lastSavedName: init.name,
+
+        setName: (name) => set({ name }),
+        setGlobal: (patch) => set((state) => ({
+          data: { ...state.data, global: { ...state.data.global, ...patch } },
+        })),
+        setHeader: (patch) => set((state) => ({
+          data: { ...state.data, header: { ...state.data.header, ...patch } },
+        })),
+        setFooter: (patch) => set((state) => ({
+          data: { ...state.data, footer: { ...state.data.footer, ...patch } },
+        })),
+        addSection: () => set((state) => ({
+          data: { ...state.data, sections: [...state.data.sections, blankSection()] },
+        })),
+        removeSection: (id) => set((state) => ({
+          data: { ...state.data, sections: state.data.sections.filter((section) => section.id !== id) },
+        })),
+        moveSection: (id, dir) => set((state) => {
+          const arr = state.data.sections;
+          const idx = arr.findIndex((section) => section.id === id);
+          if (idx === -1) return state;
+          const swap = dir === 'up' ? idx - 1 : idx + 1;
+          if (swap < 0 || swap >= arr.length) return state;
+          const next = arr.slice();
+          [next[idx], next[swap]] = [next[swap], next[idx]];
+          return { data: { ...state.data, sections: next } };
+        }),
+        setSection: (id, patch) => set((state) => ({
+          data: {
+            ...state.data,
+            sections: state.data.sections.map((section) => (
+              section.id === id ? { ...section, ...patch } : section
+            )),
+          },
+        })),
+        resetToSaved: () => set((state) => ({
+          data: state.lastSavedData,
+          name: state.lastSavedName,
+        })),
+
+        markSaving: (status, error = null) => set({ saving: status, lastError: error }),
+        markSaved: (updatedAt, data, name) => set({
+          saving: 'idle',
+          serverUpdatedAt: updatedAt,
+          lastError: null,
+          lastSavedData: data,
+          lastSavedName: name,
+        }),
+      }),
+      {
+        partialize: (state): TrackedState => ({ data: state.data, name: state.name }),
+        limit: HISTORY_LIMIT,
+        equality: (a, b) => a.data === b.data && a.name === b.name,
+        handleSet: (snapshot) => (pastState, replace) => {
+          if (cooldown) return;
+          snapshot(pastState, replace);
+          cooldown = setTimeout(() => { cooldown = null; }, HISTORY_THROTTLE_MS);
+        },
       },
-    })),
+    ),
+  ) as EditorStoreApi;
 
-    markSaving: (status, error = null) => set({ saving: status, lastError: error }),
-    markSaved: (updatedAt) => set({ saving: 'idle', serverUpdatedAt: updatedAt, lastError: null }),
-  }));
+  return Object.assign(store, { flushHistoryCooldown });
 }

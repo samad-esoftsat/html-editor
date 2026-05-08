@@ -17,13 +17,13 @@ export function useAutosave() {
       store.getState().markSaving('saving');
       try {
         const res = await patchProject(projectId, { name, data }, serverUpdatedAt);
-        store.getState().markSaved(res.updated_at);
+        store.getState().markSaved(res.updated_at, data, name);
       } catch (e) {
         const err = e as Error & { code?: string };
         if (err.code === 'conflict') {
           try {
             const res = await patchProject(projectId, { name, data });
-            store.getState().markSaved(res.updated_at);
+            store.getState().markSaved(res.updated_at, data, name);
           } catch (retryError) {
             store.getState().markSaving(
               'error',

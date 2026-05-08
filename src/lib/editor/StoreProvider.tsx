@@ -2,7 +2,8 @@
 
 import { createContext, useContext, useRef, type ReactNode } from 'react';
 import { useStore } from 'zustand';
-import { createEditorStore, type EditorState, type EditorStore } from './store';
+import type { TemporalState } from 'zundo';
+import { createEditorStore, type EditorState, type EditorStore, type TrackedState } from './store';
 import type { ProjectData } from './types';
 
 interface ProviderProps {
@@ -38,4 +39,10 @@ export function useEditorStore(): EditorStore {
   const store = useContext(Ctx);
   if (!store) throw new Error('useEditorStore must be used within StoreProvider');
   return store;
+}
+
+export function useTemporal<T>(selector: (state: TemporalState<TrackedState>) => T): T {
+  const store = useContext(Ctx);
+  if (!store) throw new Error('useTemporal must be used within StoreProvider');
+  return useStore(store.temporal, selector);
 }
