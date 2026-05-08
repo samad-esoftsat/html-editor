@@ -1,30 +1,16 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
-import { Spinner } from '@/components/ui/Spinner';
-import { createProject } from '@/lib/api/projects';
-import { toast } from '@/lib/utils/toast';
+import { NewProjectDialog } from './NewProjectDialog';
 
 export function NewProjectButton() {
-  const router = useRouter();
-  const [busy, setBusy] = useState(false);
-
-  async function go() {
-    setBusy(true);
-    try {
-      const project = await createProject();
-      router.push(`/p/${project.id}`);
-    } catch (e) {
-      toast.error(`Couldn't create project: ${(e as Error).message}`);
-      setBusy(false);
-    }
-  }
+  const [open, setOpen] = useState(false);
 
   return (
-    <Button onClick={go} disabled={busy}>
-      {busy ? <Spinner /> : '+ New Project'}
-    </Button>
+    <>
+      <Button onClick={() => setOpen(true)}>+ New Project</Button>
+      <NewProjectDialog open={open} onClose={() => setOpen(false)} />
+    </>
   );
 }

@@ -6,11 +6,14 @@ export interface ProjectSummary {
   updated_at: string;
 }
 
-export async function createProject(name?: string): Promise<ProjectSummary> {
+export async function createProject(
+  name?: string,
+  template?: string,
+): Promise<ProjectSummary> {
   const res = await fetch('/api/projects', {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ name }),
+    body: JSON.stringify({ name, template }),
   });
   if (!res.ok) throw new Error(await res.text());
   return res.json();

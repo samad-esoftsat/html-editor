@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { createDefaultProject } from '@/lib/editor/defaultProject';
+import { getTemplate } from '@/lib/editor/templates';
 import { createClient } from '@/lib/supabase/server';
 
 export async function POST(req: NextRequest) {
@@ -13,14 +13,15 @@ export async function POST(req: NextRequest) {
   const name = typeof body.name === 'string' && body.name.trim().length > 0
     ? body.name.trim().slice(0, 200)
     : 'Untitled project';
+  const template = getTemplate(typeof body.template === 'string' ? body.template : null);
 
   const { data, error } = await supabase
     .from('projects')
     .insert({
       user_id: user.id,
       name,
-      data: createDefaultProject(),
-      template_source: 'default',
+      data: template.factory(),
+      template_source: template.id,
     })
     .select('id, name, updated_at')
     .single();
