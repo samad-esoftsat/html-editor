@@ -1,6 +1,7 @@
 import { ImportButton } from '@/components/dashboard/ImportButton';
 import { NewProjectButton } from '@/components/dashboard/NewProjectButton';
 import { ProjectGrid } from '@/components/dashboard/ProjectGrid';
+import { UserMenu } from '@/components/dashboard/UserMenu';
 import { createClient } from '@/lib/supabase/server';
 
 export const metadata = { title: 'My Projects - GlobalTT Editor' };
@@ -17,18 +18,15 @@ export default async function Dashboard() {
 
   return (
     <main className="mx-auto max-w-6xl p-8">
-      <header className="mb-8 flex items-center justify-between">
+      <header className="mb-10 flex items-center justify-between gap-4">
         <div>
-          <div className="mb-1 text-xs uppercase tracking-widest text-brand">Dashboard</div>
-          <h1 className="text-2xl font-bold">My Projects</h1>
-          <p className="mt-1 text-xs text-muted-2">{user?.email}</p>
+          <div className="mb-1.5 text-[11px] font-medium uppercase tracking-[0.18em] text-brand">Dashboard</div>
+          <h1 className="text-3xl font-bold tracking-tight text-fg">My Projects</h1>
         </div>
         <div className="flex items-center gap-2">
-          <form action="/auth/signout" method="post">
-            <button className="text-xs text-muted hover:text-fg">Sign out</button>
-          </form>
           <ImportButton />
           <NewProjectButton />
+          <UserMenu email={user?.email} />
         </div>
       </header>
       <ProjectGrid initial={projects ?? []} />

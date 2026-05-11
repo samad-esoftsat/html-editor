@@ -4,7 +4,9 @@ import { Copy, Pencil, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
+import { motion } from 'motion/react';
 import { Button } from '@/components/ui/Button';
+import { spring } from '@/lib/motion';
 import { deleteProject, duplicateProject, patchProject, type ProjectSummary } from '@/lib/api/projects';
 import { confirmDialog } from '@/lib/utils/confirm';
 
@@ -48,7 +50,12 @@ export function ProjectCard({ project, onChanged }: Props) {
   }
 
   return (
-    <div className="rounded-xl border border-border bg-panel p-5">
+    <motion.div
+      className="group rounded-xl border border-border bg-panel p-5 transition-colors duration-150 ease-out hover:border-brand/40 hover:shadow-lg hover:shadow-black/20"
+      whileHover={{ y: -2 }}
+      whileTap={{ scale: 0.98 }}
+      transition={spring.press}
+    >
       {renaming ? (
         <input
           autoFocus
@@ -73,13 +80,13 @@ export function ProjectCard({ project, onChanged }: Props) {
       <div className="flex gap-2">
         <Link
           href={`/p/${project.id}`}
-          className="inline-flex flex-1 items-center justify-center rounded border border-brand/30 bg-brand-soft px-3 py-1.5 text-xs font-semibold text-brand"
+          className="inline-flex h-9 flex-1 items-center justify-center rounded-md border border-brand/30 bg-brand-soft px-3 text-xs font-semibold text-brand transition-colors hover:bg-brand/20 hover:border-brand/60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
         >
           Open
         </Link>
         <Button
           variant="secondary"
-          className="px-2.5 py-1.5"
+          className="h-9 w-9 min-h-0 !px-0 !py-0"
           onClick={onDuplicate}
           disabled={pending}
           title="Duplicate"
@@ -89,7 +96,7 @@ export function ProjectCard({ project, onChanged }: Props) {
         </Button>
         <Button
           variant="secondary"
-          className="px-2.5 py-1.5"
+          className="h-9 w-9 min-h-0 !px-0 !py-0"
           onClick={() => setRenaming(true)}
           title="Rename"
           aria-label="Rename"
@@ -98,7 +105,7 @@ export function ProjectCard({ project, onChanged }: Props) {
         </Button>
         <Button
           variant="secondary"
-          className="px-2.5 py-1.5"
+          className="h-9 w-9 min-h-0 !px-0 !py-0"
           onClick={onDelete}
           disabled={pending}
           title="Delete"
@@ -107,6 +114,6 @@ export function ProjectCard({ project, onChanged }: Props) {
           <Trash2 size={14} />
         </Button>
       </div>
-    </div>
+    </motion.div>
   );
 }

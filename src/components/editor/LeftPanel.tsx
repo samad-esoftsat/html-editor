@@ -1,10 +1,12 @@
 'use client';
+import { AnimatePresence, motion } from 'motion/react';
 import { GlobalStylesPanel } from './panels/GlobalStylesPanel';
 import { HeaderPanel } from './panels/HeaderPanel';
 import { FooterPanel } from './panels/FooterPanel';
 import { ProductSectionPanel } from './panels/ProductSectionPanel';
 import { useEditor, useEditorStore } from '@/lib/editor/StoreProvider';
 import { Button } from '@/components/ui/Button';
+import { fadeUp } from '@/lib/motion';
 
 export function LeftPanel() {
   const sections = useEditor((s) => s.data.sections);
@@ -15,9 +17,20 @@ export function LeftPanel() {
       <GlobalStylesPanel />
       <HeaderPanel />
       <div className="text-[10px] uppercase tracking-widest text-muted-2 px-1 pt-3 pb-1">Products</div>
-      {sections.map((s, idx) => (
-        <ProductSectionPanel key={s.id} section={s} index={idx} total={sections.length} />
-      ))}
+      <AnimatePresence initial={false}>
+        {sections.map((s, idx) => (
+          <motion.div
+            key={s.id}
+            layout
+            variants={fadeUp}
+            initial="hidden"
+            animate="show"
+            exit="exit"
+          >
+            <ProductSectionPanel section={s} index={idx} total={sections.length} />
+          </motion.div>
+        ))}
+      </AnimatePresence>
       <Button variant="secondary" className="w-full" onClick={() => store.getState().addSection()}>
         + Add Product Section
       </Button>
