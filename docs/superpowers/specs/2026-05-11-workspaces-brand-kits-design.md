@@ -253,7 +253,7 @@ Owner opens `InviteDialog`, enters email + role. Server route:
 1. Validates role and that caller is owner of `[slug]`.
 2. Generates 32-byte URL-safe token.
 3. Inserts row in `organization_invites` with `expires_at = now() + interval '7 days'`.
-4. Sends email via **Resend** when `RESEND_API_KEY` is configured. If unset, the API still creates the invite row and returns the accept URL in the response so the owner can copy/share the link manually (no silent email failure). Email body contains `https://<app>/invite/<token>`.
+4. Sends the invite email via **Supabase only** — no third-party email provider. The server route uses the Supabase service-role client to call `auth.admin.inviteUserByEmail(email, { redirectTo: '<app>/invite/<token>' })`, which delivers through Supabase's configured SMTP using the "Invite user" email template. The accept URL with our `token` is preserved as the redirect target, so the existing `accept_invite()` flow (§7.4) still validates the token. If the Supabase send fails, the API still returns the accept URL in the response so the owner can copy/share the link manually (no silent failure). Configuring SMTP credentials in the Supabase project is a deployment prerequisite.
 
 ### 7.2 Accept page: `/invite/[token]`
 - If unauthenticated, push to `/login?next=/invite/<token>`.
