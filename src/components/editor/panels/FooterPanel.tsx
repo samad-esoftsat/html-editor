@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { ChevronDown, ChevronRight, X, Plus } from 'lucide-react';
 import { useEditor, useEditorStore } from '@/lib/editor/StoreProvider';
+import { useCanEdit } from '@/lib/editor/RoleProvider';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
 import { Select } from '@/components/ui/Select';
@@ -17,15 +18,16 @@ export function FooterPanel() {
   const [open, setOpen] = useState(false);
   const f = useEditor((s) => s.data.footer);
   const setFooter = useEditorStore().getState().setFooter;
+  const canEdit = useCanEdit();
 
   return (
     <div className="rounded-md bg-panel-2 border border-border overflow-hidden">
-      <button onClick={() => setOpen(o => !o)} className="w-full flex items-center justify-between px-3 py-2.5 text-sm font-medium text-fg">
-        <span>📞 Footer</span>
+      <button type="button" onClick={() => setOpen(o => !o)} className="w-full flex items-center justify-between px-3 py-2.5 text-sm font-medium text-fg">
+        <span>Footer</span>
         {open ? <ChevronDown size={14} className="text-muted-2" /> : <ChevronRight size={14} className="text-muted-2" />}
       </button>
       {open && (
-        <div className="space-y-3 p-3 border-t border-border">
+        <fieldset disabled={!canEdit} className="space-y-3 p-3 border-t border-border min-w-0 disabled:opacity-70">
           <Field label="Footer banner"><ImageInput value={f.bannerSrc} onChange={(v) => setFooter({ bannerSrc: v })} /></Field>
           <Field label="Banner alt"><Input value={f.bannerAlt} onChange={(e) => setFooter({ bannerAlt: e.target.value })} /></Field>
           <Field label="Company name"><Input value={f.companyName} onChange={(e) => setFooter({ companyName: e.target.value })} /></Field>
@@ -48,7 +50,9 @@ export function FooterPanel() {
                   <button onClick={() => setFooter({ websites: f.websites.filter((_, j) => j !== i) })} className="text-muted-2 hover:text-danger px-1"><X size={14} /></button>
                 </div>
               ))}
-              <Button variant="secondary" className="w-full" onClick={() => setFooter({ websites: [...f.websites, { label: '', url: '' }] })}><Plus size={14} /> Website</Button>
+              {canEdit && (
+                <Button variant="secondary" className="w-full" onClick={() => setFooter({ websites: [...f.websites, { label: '', url: '' }] })}><Plus size={14} /> Website</Button>
+              )}
             </div>
           </div>
 
@@ -66,7 +70,9 @@ export function FooterPanel() {
                   <button onClick={() => setFooter({ socials: f.socials.filter((_, j) => j !== i) })} className="text-muted-2 hover:text-danger px-1"><X size={14} /></button>
                 </div>
               ))}
-              <Button variant="secondary" className="w-full" onClick={() => setFooter({ socials: [...f.socials, { platform: 'facebook', url: '' }] })}><Plus size={14} /> Social</Button>
+              {canEdit && (
+                <Button variant="secondary" className="w-full" onClick={() => setFooter({ socials: [...f.socials, { platform: 'facebook', url: '' }] })}><Plus size={14} /> Social</Button>
+              )}
             </div>
           </div>
 
@@ -74,7 +80,7 @@ export function FooterPanel() {
             <Field label="Background override"><ColorPicker value={f.backgroundColor ?? ''} onChange={(v) => setFooter({ backgroundColor: v || undefined })} /></Field>
             <Field label="Text override"><ColorPicker value={f.textColor ?? ''} onChange={(v) => setFooter({ textColor: v || undefined })} /></Field>
           </div>
-        </div>
+        </fieldset>
       )}
     </div>
   );

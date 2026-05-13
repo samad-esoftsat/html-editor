@@ -3,10 +3,11 @@
 import { useEffect } from 'react';
 import { useEditorStore } from './StoreProvider';
 
-export function useUndoRedoShortcuts() {
+export function useUndoRedoShortcuts(enabled = true) {
   const store = useEditorStore();
 
   useEffect(() => {
+    if (!enabled) return;
     const onKeyDown = (e: KeyboardEvent) => {
       const mod = e.ctrlKey || e.metaKey;
       if (!mod) return;
@@ -30,5 +31,5 @@ export function useUndoRedoShortcuts() {
       window.removeEventListener('keydown', onKeyDown);
       document.removeEventListener('focusout', onFocusOut);
     };
-  }, [store]);
+  }, [store, enabled]);
 }

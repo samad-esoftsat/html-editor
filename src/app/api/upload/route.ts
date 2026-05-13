@@ -18,11 +18,11 @@ export async function POST(req: NextRequest) {
   if (!ALLOWED.has(file.type)) return NextResponse.json({ error: 'bad_type' }, { status: 415 });
   if (file.size > MAX_BYTES) return NextResponse.json({ error: 'too_large' }, { status: 413 });
 
-  const { data: row } = await supabase.from('projects').select('id').eq('id', projectId).maybeSingle();
-  if (!row) return NextResponse.json({ error: 'forbidden' }, { status: 403 });
+  const { data: row } = await supabase.from('projects').select('id, org_id').eq('id', projectId).maybeSingle();
+  if (!row?.org_id) return NextResponse.json({ error: 'forbidden' }, { status: 403 });
 
   const ext = file.type === 'image/png' ? 'png' : file.type === 'image/jpeg' ? 'jpg' : file.type === 'image/webp' ? 'webp' : 'gif';
-  const path = `${user.id}/${projectId}/${uuid()}.${ext}`;
+  const path = `${row.org_id}/${projectId}/${uuid()}.${ext}`;
   const buf = Buffer.from(await file.arrayBuffer());
   const { error } = await supabase.storage.from('project-assets').upload(path, buf, { contentType: file.type, upsert: false });
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });

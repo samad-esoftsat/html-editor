@@ -5,15 +5,23 @@ import type { Footer, GlobalStyles, Header, ProductSection, ProjectData } from '
 
 export type SaveStatus = 'idle' | 'pending' | 'saving' | 'error';
 
+export interface BrandKitSnapshot {
+  global?: Partial<GlobalStyles>;
+  footer?: Partial<Footer>;
+}
+
 export interface EditorState {
   projectId: string;
   name: string;
   data: ProjectData;
+  brandKitId: string | null;
+  workspaceSlug: string;
   serverUpdatedAt: string;
   saving: SaveStatus;
   lastError: string | null;
   lastSavedData: ProjectData;
   lastSavedName: string;
+  lastSavedBrandKitId: string | null;
 
   setName(name: string): void;
   setGlobal(patch: Partial<GlobalStyles>): void;
@@ -23,10 +31,12 @@ export interface EditorState {
   removeSection(id: string): void;
   moveSection(id: string, dir: 'up' | 'down'): void;
   setSection(id: string, patch: Partial<ProductSection>): void;
+  setProjectBrandKit(id: string | null): void;
+  applyBrandKit(snapshot: BrandKitSnapshot): void;
   resetToSaved(): void;
 
   markSaving(status: SaveStatus, error?: string | null): void;
-  markSaved(updatedAt: string, data: ProjectData, name: string): void;
+  markSaved(updatedAt: string, data: ProjectData, name: string, brandKitId: string | null): void;
 }
 
 export type TrackedState = Pick<EditorState, 'data' | 'name'>;
@@ -43,6 +53,8 @@ interface Init {
   projectId: string;
   name: string;
   data: ProjectData;
+  brandKitId: string | null;
+  workspaceSlug: string;
   serverUpdatedAt: string;
 }
 
@@ -75,11 +87,14 @@ export function createEditorStore(init: Init): EditorStore {
         projectId: init.projectId,
         name: init.name,
         data: init.data,
+        brandKitId: init.brandKitId,
+        workspaceSlug: init.workspaceSlug,
         serverUpdatedAt: init.serverUpdatedAt,
         saving: 'idle',
         lastError: null,
         lastSavedData: init.data,
         lastSavedName: init.name,
+        lastSavedBrandKitId: init.brandKitId,
 
         setName: (name) => set({ name }),
         setGlobal: (patch) => set((state) => ({
@@ -115,18 +130,35 @@ export function createEditorStore(init: Init): EditorStore {
             )),
           },
         })),
+        setProjectBrandKit: (id) => {
+          flushHistoryCooldown();
+          set({ brandKitId: id });
+        },
+        applyBrandKit: (snapshot) => set((state) => ({
+          data: {
+            ...state.data,
+            global: snapshot.global
+              ? { ...state.data.global, ...snapshot.global }
+              : state.data.global,
+            footer: snapshot.footer
+              ? { ...state.data.footer, ...snapshot.footer }
+              : state.data.footer,
+          },
+        })),
         resetToSaved: () => set((state) => ({
           data: state.lastSavedData,
           name: state.lastSavedName,
+          brandKitId: state.lastSavedBrandKitId,
         })),
 
         markSaving: (status, error = null) => set({ saving: status, lastError: error }),
-        markSaved: (updatedAt, data, name) => set({
+        markSaved: (updatedAt, data, name, brandKitId) => set({
           saving: 'idle',
           serverUpdatedAt: updatedAt,
           lastError: null,
           lastSavedData: data,
           lastSavedName: name,
+          lastSavedBrandKitId: brandKitId,
         }),
       }),
       {

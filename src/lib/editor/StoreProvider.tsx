@@ -10,6 +10,8 @@ interface ProviderProps {
   projectId: string;
   name: string;
   data: ProjectData;
+  brandKitId: string | null;
+  workspaceSlug: string;
   serverUpdatedAt: string;
   children: ReactNode;
 }
@@ -23,6 +25,8 @@ export function StoreProvider(props: ProviderProps) {
       projectId: props.projectId,
       name: props.name,
       data: props.data,
+      brandKitId: props.brandKitId,
+      workspaceSlug: props.workspaceSlug,
       serverUpdatedAt: props.serverUpdatedAt,
     });
   }

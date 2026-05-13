@@ -8,16 +8,16 @@ import type { ProjectSummary } from '@/lib/api/projects';
 import { EmptyState } from './EmptyState';
 import { ProjectCard } from './ProjectCard';
 
-export function ProjectGrid({ initial }: { initial: ProjectSummary[] }) {
+export function ProjectGrid({ initial, slug }: { initial: ProjectSummary[]; slug: string }) {
   const [items, setItems] = useState(initial);
   const [loading, setLoading] = useState(false);
 
   const reload = useCallback(async () => {
     setLoading(true);
-    const res = await fetch('/api/projects/list');
+    const res = await fetch(`/api/projects/list?slug=${encodeURIComponent(slug)}`);
     if (res.ok) setItems(await res.json());
     setLoading(false);
-  }, []);
+  }, [slug]);
 
   useEffect(() => {
     setItems(initial);
@@ -51,7 +51,7 @@ export function ProjectGrid({ initial }: { initial: ProjectSummary[] }) {
             exit="exit"
             layout
           >
-            <ProjectCard project={project} onChanged={reload} />
+            <ProjectCard project={project} onChanged={reload} slug={slug} />
           </motion.div>
         ))}
       </AnimatePresence>

@@ -13,7 +13,7 @@ interface ParseResponse {
   warnings: { kind: string; severity: 'info' | 'warn' | 'error'; message: string }[];
 }
 
-export function ImportButton() {
+export function ImportButton({ slug }: { slug: string }) {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const [stage, setStage] = useState<Stage>('idle');
@@ -54,7 +54,7 @@ export function ImportButton() {
     setStage('creating');
     const create = await fetch('/api/projects', {
       method: 'POST', headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ name: name || 'Imported campaign' }),
+      body: JSON.stringify({ slug, name: name || 'Imported campaign' }),
     });
     if (!create.ok) { setError('Could not create project.'); setStage('review'); return; }
     const { id } = await create.json();
@@ -63,7 +63,7 @@ export function ImportButton() {
       body: JSON.stringify({ data: parsed.data }),
     });
     if (!patch.ok) { setError('Could not save imported data.'); setStage('review'); return; }
-    router.push(`/p/${id}`);
+    router.push(`/w/${slug}/p/${id}`);
   }
 
   return (

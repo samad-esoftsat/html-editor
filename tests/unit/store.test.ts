@@ -9,6 +9,8 @@ function freshStore() {
     projectId: 'p1',
     name: 'Test',
     data: createDefaultProject(),
+    brandKitId: null,
+    workspaceSlug: 'test-ws',
     serverUpdatedAt: NOW,
   });
 }

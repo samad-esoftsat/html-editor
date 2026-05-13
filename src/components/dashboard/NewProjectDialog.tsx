@@ -10,19 +10,25 @@ import { createProject } from '@/lib/api/projects';
 import { TEMPLATES } from '@/lib/editor/templates';
 import { cn } from '@/lib/utils/cn';
 import { toast } from '@/lib/utils/toast';
+import { BrandKitPicker } from '@/components/brand-kit/BrandKitPicker';
 
 interface Props {
   open: boolean;
   onClose: () => void;
+  slug: string;
 }
 
-export function NewProjectDialog({ open, onClose }: Props) {
+export function NewProjectDialog({ open, onClose, slug }: Props) {
   const router = useRouter();
   const [selected, setSelected] = useState<string>(TEMPLATES[0].id);
+  const [brandKitId, setBrandKitId] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    if (open) setSelected(TEMPLATES[0].id);
+    if (open) {
+      setSelected(TEMPLATES[0].id);
+      setBrandKitId(null);
+    }
   }, [open]);
 
   useEffect(() => {
@@ -37,8 +43,8 @@ export function NewProjectDialog({ open, onClose }: Props) {
   async function go() {
     setBusy(true);
     try {
-      const project = await createProject(undefined, selected);
-      router.push(`/p/${project.id}`);
+      const project = await createProject(slug, undefined, selected, brandKitId);
+      router.push(`/w/${slug}/p/${project.id}`);
     } catch (e) {
       toast.error(`Couldn't create project: ${(e as Error).message}`);
       setBusy(false);
@@ -66,6 +72,19 @@ export function NewProjectDialog({ open, onClose }: Props) {
           >
             <div className="font-semibold text-fg mb-1">Start a new project</div>
             <div className="text-sm text-muted mb-5">Pick a template to start from.</div>
+
+            <div className="mb-5">
+              <label className="block text-xs font-medium uppercase tracking-[0.14em] text-muted mb-1.5">
+                Brand kit
+              </label>
+              <BrandKitPicker
+                slug={slug}
+                value={brandKitId}
+                onChange={setBrandKitId}
+                disabled={busy}
+                autoSelectDefault
+              />
+            </div>
 
             <div className="grid grid-cols-2 gap-3 mb-6">
               {TEMPLATES.map((t) => {

@@ -5,12 +5,14 @@ import { HeaderPanel } from './panels/HeaderPanel';
 import { FooterPanel } from './panels/FooterPanel';
 import { ProductSectionPanel } from './panels/ProductSectionPanel';
 import { useEditor, useEditorStore } from '@/lib/editor/StoreProvider';
+import { useCanEdit } from '@/lib/editor/RoleProvider';
 import { Button } from '@/components/ui/Button';
 import { fadeUp } from '@/lib/motion';
 
 export function LeftPanel() {
   const sections = useEditor((s) => s.data.sections);
   const store = useEditorStore();
+  const canEdit = useCanEdit();
 
   return (
     <aside className="w-[320px] shrink-0 border-r border-border bg-panel overflow-y-auto p-3 space-y-2">
@@ -31,9 +33,11 @@ export function LeftPanel() {
           </motion.div>
         ))}
       </AnimatePresence>
-      <Button variant="secondary" className="w-full" onClick={() => store.getState().addSection()}>
-        + Add Product Section
-      </Button>
+      {canEdit && (
+        <Button variant="secondary" className="w-full" onClick={() => store.getState().addSection()}>
+          + Add Product Section
+        </Button>
+      )}
       <FooterPanel />
     </aside>
   );

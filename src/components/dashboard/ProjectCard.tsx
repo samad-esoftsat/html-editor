@@ -13,9 +13,10 @@ import { confirmDialog } from '@/lib/utils/confirm';
 interface Props {
   project: ProjectSummary;
   onChanged: () => void;
+  slug: string;
 }
 
-export function ProjectCard({ project, onChanged }: Props) {
+export function ProjectCard({ project, onChanged, slug }: Props) {
   const router = useRouter();
   const [pending, start] = useTransition();
   const [renaming, setRenaming] = useState(false);
@@ -45,7 +46,7 @@ export function ProjectCard({ project, onChanged }: Props) {
   function onDuplicate() {
     start(async () => {
       const { id } = await duplicateProject(project.id);
-      router.push(`/p/${id}`);
+      router.push(`/w/${slug}/p/${id}`);
     });
   }
 
@@ -79,7 +80,7 @@ export function ProjectCard({ project, onChanged }: Props) {
       </div>
       <div className="flex gap-2">
         <Link
-          href={`/p/${project.id}`}
+          href={`/w/${slug}/p/${project.id}`}
           className="inline-flex h-9 flex-1 items-center justify-center rounded-md border border-brand/30 bg-brand-soft px-3 text-xs font-semibold text-brand transition-colors hover:bg-brand/20 hover:border-brand/60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
         >
           Open

@@ -7,23 +7,28 @@ import { useEditorStore } from './StoreProvider';
 
 const DEBOUNCE_MS = 800;
 
-export function useAutosave() {
+export function useAutosave(enabled = true) {
   const store = useEditorStore();
   const initialised = useRef(false);
 
   useEffect(() => {
+    if (!enabled) return;
     const save = async () => {
-      const { projectId, name, data, serverUpdatedAt } = store.getState();
+      const { projectId, name, data, brandKitId, serverUpdatedAt } = store.getState();
       store.getState().markSaving('saving');
       try {
-        const res = await patchProject(projectId, { name, data }, serverUpdatedAt);
-        store.getState().markSaved(res.updated_at, data, name);
+        const res = await patchProject(
+          projectId,
+          { name, data, brand_kit_id: brandKitId },
+          serverUpdatedAt,
+        );
+        store.getState().markSaved(res.updated_at, data, name, brandKitId);
       } catch (e) {
         const err = e as Error & { code?: string };
         if (err.code === 'conflict') {
           try {
-            const res = await patchProject(projectId, { name, data });
-            store.getState().markSaved(res.updated_at, data, name);
+            const res = await patchProject(projectId, { name, data, brand_kit_id: brandKitId });
+            store.getState().markSaved(res.updated_at, data, name, brandKitId);
           } catch (retryError) {
             store.getState().markSaving(
               'error',
@@ -42,7 +47,11 @@ export function useAutosave() {
         initialised.current = true;
         return;
       }
-      if (state.data === prev.data && state.name === prev.name) return;
+      if (
+        state.data === prev.data &&
+        state.name === prev.name &&
+        state.brandKitId === prev.brandKitId
+      ) return;
       state.markSaving('pending');
       debounced();
     });
@@ -61,5 +70,5 @@ export function useAutosave() {
       debounced.flush();
       window.removeEventListener('beforeunload', onUnload);
     };
-  }, [store]);
+  }, [store, enabled]);
 }

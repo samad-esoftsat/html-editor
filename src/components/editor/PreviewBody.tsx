@@ -29,7 +29,7 @@ export function PreviewBody() {
           {data.header.logoSrc ? (
             <img src={data.header.logoSrc} alt={data.header.logoAlt} style={{ maxWidth: data.header.logoWidth, width: '100%' }} />
           ) : (
-            <PlaceholderImg width={data.header.logoWidth} label="Logo image — add a URL or upload" />
+            <PlaceholderImg width={data.header.logoWidth} label="Logo image - add a URL or upload" />
           )}
         </div>
         {data.header.title && (
@@ -41,7 +41,7 @@ export function PreviewBody() {
           {data.header.bannerSrc ? (
             <img src={data.header.bannerSrc} alt={data.header.bannerAlt} style={{ width: '100%' }} />
           ) : (
-            <PlaceholderImg label="Header banner — add a URL or upload" />
+            <PlaceholderImg label="Header banner - add a URL or upload" />
           )}
         </div>
         {data.header.sectionHeading && (
@@ -65,7 +65,7 @@ export function PreviewBody() {
             {s.imageSrc ? (
               <img src={s.imageSrc} alt={s.imageAlt} style={{ maxWidth: 355, width: '100%' }} />
             ) : (
-              <PlaceholderImg label="Section image — add a URL or upload" />
+              <PlaceholderImg label="Section image - add a URL or upload" />
             )}
           </div>
         );
@@ -105,7 +105,7 @@ export function PreviewBody() {
         {data.footer.bannerSrc ? (
           <img src={data.footer.bannerSrc} alt={data.footer.bannerAlt} style={{ maxWidth: 710, width: '100%' }} />
         ) : (
-          <PlaceholderImg width={710} label="Footer banner — add a URL or upload" />
+          <PlaceholderImg width={710} label="Footer banner - add a URL or upload" />
         )}
         <p style={{ fontWeight: 700, margin: '12px 0 0' }}>{data.footer.companyName}</p>
         <p style={{ whiteSpace: 'pre-line', margin: 0 }}>{data.footer.address}</p>

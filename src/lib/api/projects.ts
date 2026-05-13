@@ -7,13 +7,15 @@ export interface ProjectSummary {
 }
 
 export async function createProject(
+  slug: string,
   name?: string,
   template?: string,
+  brandKitId?: string | null,
 ): Promise<ProjectSummary> {
   const res = await fetch('/api/projects', {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ name, template }),
+    body: JSON.stringify({ slug, name, template, brand_kit_id: brandKitId ?? null }),
   });
   if (!res.ok) throw new Error(await res.text());
   return res.json();
@@ -21,7 +23,7 @@ export async function createProject(
 
 export async function patchProject(
   id: string,
-  patch: { name?: string; data?: ProjectData },
+  patch: { name?: string; data?: ProjectData; brand_kit_id?: string | null },
   ifUnmodifiedSince?: string,
 ): Promise<ProjectSummary> {
   const headers: Record<string, string> = { 'content-type': 'application/json' };

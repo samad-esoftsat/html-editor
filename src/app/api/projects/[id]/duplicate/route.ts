@@ -25,10 +25,12 @@ export async function POST(_req: NextRequest, { params }: Ctx) {
     .from('projects')
     .insert({
       user_id: user.id,
+      org_id: src.org_id,
       name: `${src.name} (copy)`,
       data: src.data,
       template_source: src.template_source,
       raw_html_path: src.raw_html_path,
+      brand_kit_id: src.brand_kit_id,
     })
     .select('id')
     .single();
