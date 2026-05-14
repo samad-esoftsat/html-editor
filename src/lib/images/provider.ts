@@ -20,8 +20,8 @@ export type EditOpts = {
 };
 
 export type ChatTurn =
-  | { role: 'user'; text: string }
-  | { role: 'model'; image: ReferenceImage };
+  | { role: 'user'; text: string; images?: ReferenceImage[] }
+  | { role: 'model'; image: ReferenceImage; thoughtSignature?: string };
 
 export type ChatEditOpts = {
   turns: ChatTurn[];
@@ -32,6 +32,7 @@ export type GeneratedImage = {
   mimeType: string;
   width: number | null;
   height: number | null;
+  thoughtSignature?: string;
 };
 
 export interface ImageProvider {

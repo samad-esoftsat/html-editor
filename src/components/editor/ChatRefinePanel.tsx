@@ -19,23 +19,43 @@ interface Props {
 
 type Turn =
   | { id: string; role: 'user'; text: string }
-  | { id: string; role: 'model'; assetId: string; url: string };
+  | { id: string; role: 'model'; assetId: string; url: string; thoughtSignature?: string };
 
 const MAX_TURNS = 20;
 
 export function ChatRefinePanel({ workspaceSlug, canEdit, seed, onUse, onTurnCommitted }: Props) {
-  const [turns, setTurns] = useState<Turn[]>(() => [
-    { id: `model-${seed.id}`, role: 'model', assetId: seed.id, url: seed.url },
-  ]);
+  const [turns, setTurns] = useState<Turn[]>([]);
   const [draft, setDraft] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const requestKeyRef = useRef<string | undefined>(undefined);
 
+  function buildWire(displayTurns: Turn[]): ChatEditWireTurn[] {
+    const wire: ChatEditWireTurn[] = [];
+    let attachedSeed = false;
+    for (const turn of displayTurns) {
+      if (turn.role === 'user') {
+        if (!attachedSeed) {
+          wire.push({ role: 'user', text: turn.text, imageAssetIds: [seed.id] });
+          attachedSeed = true;
+        } else {
+          wire.push({ role: 'user', text: turn.text });
+        }
+        continue;
+      }
+      wire.push({
+        role: 'model',
+        assetId: turn.assetId,
+        ...(turn.thoughtSignature ? { thoughtSignature: turn.thoughtSignature } : {}),
+      });
+    }
+    return wire;
+  }
+
   async function onSend() {
     const text = draft.trim();
     if (!canEdit || !text || busy) return;
-    if (turns.length + 1 > MAX_TURNS) {
+    if (turns.length + 2 > MAX_TURNS) {
       setError(`Conversation limit reached (${MAX_TURNS} turns). Start a new refine session.`);
       return;
     }
@@ -49,11 +69,8 @@ export function ChatRefinePanel({ workspaceSlug, canEdit, seed, onUse, onTurnCom
     requestKeyRef.current = requestKey;
 
     try {
-      const wire: ChatEditWireTurn[] = nextTurns.map((t) =>
-        t.role === 'user' ? { role: 'user', text: t.text } : { role: 'model', assetId: t.assetId },
-      );
       const result = await chatEditImage({
-        turns: wire,
+        turns: buildWire(nextTurns),
         workspaceSlug,
         requestKey,
       });
@@ -63,6 +80,7 @@ export function ChatRefinePanel({ workspaceSlug, canEdit, seed, onUse, onTurnCom
         role: 'model',
         assetId: result.asset.assetId,
         url: result.asset.url,
+        ...(result.asset.thoughtSignature ? { thoughtSignature: result.asset.thoughtSignature } : {}),
       };
       setTurns((prev) => [...prev, modelTurn]);
       onTurnCommitted();
@@ -97,8 +115,18 @@ export function ChatRefinePanel({ workspaceSlug, canEdit, seed, onUse, onTurnCom
       </div>
       <div className="flex-1 min-h-0 overflow-y-auto rounded-lg border border-border bg-panel-2 p-3">
         <div className="flex flex-col gap-3">
+          <div className="self-start max-w-[80%]">
+            <div className="mb-1 text-[10px] uppercase tracking-wide text-muted">Starting image</div>
+            <div className="overflow-hidden rounded-lg border border-border-strong bg-panel">
+              <img src={seed.url} alt={seed.alt_text ?? ''} className="block max-h-56 w-full object-contain" />
+            </div>
+          </div>
           {turns.map((turn) => (
-            <TurnBubble key={turn.id} turn={turn} onUse={(assetId, url) => onUse({ assetId, url, width: null, height: null })} />
+            <TurnBubble
+              key={turn.id}
+              turn={turn}
+              onUse={(assetId, url) => onUse({ assetId, url, width: null, height: null })}
+            />
           ))}
           {busy && (
             <div className="flex items-center gap-2 text-xs text-muted">

@@ -87,21 +87,48 @@ describe('gemini image provider helpers', () => {
     expect(content.parts[2]).toMatchObject({ inlineData: { mimeType: 'image/png' } });
   });
 
-  it('builds a chat-edit payload preserving roles and turn order', () => {
+  it('builds a chat-edit payload with seed image on first user turn and signature on model turn', () => {
     const params = buildGeminiChatEditBody({
       turns: [
-        { role: 'user', text: 'Make a cat illustration' },
-        { role: 'model', image: { bytes: PNG_BYTES, mimeType: 'image/png' } },
-        { role: 'user', text: 'Now give it sunglasses' },
+        {
+          role: 'user',
+          text: 'Add sunglasses',
+          images: [{ bytes: PNG_BYTES, mimeType: 'image/png' }],
+        },
+        {
+          role: 'model',
+          image: { bytes: PNG_BYTES, mimeType: 'image/png' },
+          thoughtSignature: 'sig-A',
+        },
+        { role: 'user', text: 'Now make it night' },
       ],
     });
-    expect(Array.isArray(params.contents)).toBe(true);
-    const contents = params.contents as Array<{ role: string; parts: unknown[] }>;
+    const contents = params.contents as Array<{ role: string; parts: Array<Record<string, unknown>> }>;
     expect(contents).toHaveLength(3);
-    expect(contents[0]).toEqual({ role: 'user', parts: [{ text: 'Make a cat illustration' }] });
+    expect(contents[0].role).toBe('user');
+    expect(contents[0].parts[0]).toMatchObject({ inlineData: { mimeType: 'image/png' } });
+    expect(contents[0].parts[1]).toEqual({ text: 'Add sunglasses' });
     expect(contents[1].role).toBe('model');
-    expect(contents[1].parts[0]).toMatchObject({ inlineData: { mimeType: 'image/png' } });
-    expect(contents[2]).toEqual({ role: 'user', parts: [{ text: 'Now give it sunglasses' }] });
+    expect(contents[1].parts[0]).toMatchObject({
+      inlineData: { mimeType: 'image/png' },
+      thoughtSignature: 'sig-A',
+    });
+    expect(contents[2]).toEqual({ role: 'user', parts: [{ text: 'Now make it night' }] });
+  });
+
+  it('parses thoughtSignature from response when present', () => {
+    const parsed = parseGeminiGeneratedImage({
+      candidates: [
+        {
+          content: {
+            parts: [
+              { inlineData: { mimeType: 'image/png', data: PNG_BASE64 }, thoughtSignature: 'sig-B' },
+            ],
+          },
+        },
+      ],
+    }, { width: null, height: null });
+    expect(parsed.thoughtSignature).toBe('sig-B');
   });
 
   it('parses returned inline image data into bytes and dimensions', () => {

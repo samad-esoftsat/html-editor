@@ -12,8 +12,8 @@ const MAX_TURNS = 20;
 const REFERENCE_MIME_TYPES = new Set(['image/png', 'image/jpeg', 'image/webp']);
 
 type WireTurn =
-  | { role: 'user'; text: string }
-  | { role: 'model'; assetId: string };
+  | { role: 'user'; text: string; imageAssetIds?: string[] }
+  | { role: 'model'; assetId: string; thoughtSignature?: string };
 
 type RequestRow = {
   org_id: string;
@@ -175,6 +175,7 @@ export async function POST(req: NextRequest) {
       url: assetUrlFromPath(asset.storage_path),
       width: asset.width,
       height: asset.height,
+      ...(result.thoughtSignature ? { thoughtSignature: result.thoughtSignature } : {}),
     });
   } catch (error) {
     await supabase.rpc('refund_image_quota', { p_org_id: workspace.org.id });
@@ -196,10 +197,16 @@ function parseTurns(raw: unknown): WireTurn[] | null {
     const t = item as Record<string, unknown>;
     if (t.role === 'user') {
       if (typeof t.text !== 'string' || !t.text.trim()) return null;
-      turns.push({ role: 'user', text: t.text.trim() });
+      let imageAssetIds: string[] | undefined;
+      if (t.imageAssetIds !== undefined && t.imageAssetIds !== null) {
+        if (!Array.isArray(t.imageAssetIds) || !t.imageAssetIds.every((v) => typeof v === 'string')) return null;
+        imageAssetIds = t.imageAssetIds as string[];
+      }
+      turns.push({ role: 'user', text: t.text.trim(), ...(imageAssetIds ? { imageAssetIds } : {}) });
     } else if (t.role === 'model') {
       if (typeof t.assetId !== 'string' || !t.assetId) return null;
-      turns.push({ role: 'model', assetId: t.assetId });
+      const thoughtSignature = typeof t.thoughtSignature === 'string' ? t.thoughtSignature : undefined;
+      turns.push({ role: 'model', assetId: t.assetId, ...(thoughtSignature ? { thoughtSignature } : {}) });
     } else {
       return null;
     }
@@ -213,7 +220,12 @@ async function materializeTurns(
   orgId: string,
   turns: WireTurn[],
 ): Promise<ChatTurn[]> {
-  const assetIds = Array.from(new Set(turns.filter((t) => t.role === 'model').map((t) => (t as { assetId: string }).assetId)));
+  const assetIdSet = new Set<string>();
+  for (const t of turns) {
+    if (t.role === 'model') assetIdSet.add(t.assetId);
+    else if (t.imageAssetIds) for (const id of t.imageAssetIds) assetIdSet.add(id);
+  }
+  const assetIds = Array.from(assetIdSet);
   let assetsById = new Map<string, { id: string; storage_path: string; mime_type: string }>();
   if (assetIds.length > 0) {
     const { data: assets, error } = await supabase
@@ -228,13 +240,8 @@ async function materializeTurns(
     assetsById = new Map(assets.map((a) => [a.id, a]));
   }
 
-  const out: ChatTurn[] = [];
-  for (const turn of turns) {
-    if (turn.role === 'user') {
-      out.push({ role: 'user', text: turn.text });
-      continue;
-    }
-    const asset = assetsById.get(turn.assetId);
+  async function loadImage(assetId: string) {
+    const asset = assetsById.get(assetId);
     if (!asset) throw new ProviderError('Conversation asset not found.', 404, 'reference_not_found');
     if (!REFERENCE_MIME_TYPES.has(asset.mime_type)) {
       throw new ProviderError('Conversation image type not supported.', 400, 'reference_invalid_type');
@@ -246,7 +253,24 @@ async function materializeTurns(
       throw new ProviderError(downloadError?.message ?? 'Reference download failed.', 500, 'reference_download_failed');
     }
     const bytes = Buffer.from(await blob.arrayBuffer());
-    out.push({ role: 'model', image: { bytes, mimeType: asset.mime_type } });
+    return { bytes, mimeType: asset.mime_type };
+  }
+
+  const out: ChatTurn[] = [];
+  for (const turn of turns) {
+    if (turn.role === 'user') {
+      const images = turn.imageAssetIds && turn.imageAssetIds.length > 0
+        ? await Promise.all(turn.imageAssetIds.map(loadImage))
+        : undefined;
+      out.push({ role: 'user', text: turn.text, ...(images ? { images } : {}) });
+      continue;
+    }
+    const image = await loadImage(turn.assetId);
+    out.push({
+      role: 'model',
+      image,
+      ...(turn.thoughtSignature ? { thoughtSignature: turn.thoughtSignature } : {}),
+    });
   }
   return out;
 }

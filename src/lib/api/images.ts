@@ -70,15 +70,19 @@ export async function generateImage(payload: GenerateImagePayload): Promise<{ re
 }
 
 export type ChatEditWireTurn =
-  | { role: 'user'; text: string }
-  | { role: 'model'; assetId: string };
+  | { role: 'user'; text: string; imageAssetIds?: string[] }
+  | { role: 'model'; assetId: string; thoughtSignature?: string };
+
+export interface ChatEditedAsset extends GeneratedAsset {
+  thoughtSignature?: string;
+}
 
 export async function chatEditImage(options: {
   turns: ChatEditWireTurn[];
   workspaceSlug: string;
   requestKey?: string;
   timeoutMs?: number;
-}): Promise<{ requestKey: string; asset: GeneratedAsset }> {
+}): Promise<{ requestKey: string; asset: ChatEditedAsset }> {
   const requestKey = options.requestKey ?? createRequestKey();
   const res = await fetch('/api/images/chat-edit', {
     method: 'POST',
@@ -90,7 +94,7 @@ export async function chatEditImage(options: {
     }),
     signal: makeAbortSignal(options.timeoutMs ?? 45000),
   });
-  const asset = await parseImageResponse<GeneratedAsset>(res);
+  const asset = await parseImageResponse<ChatEditedAsset>(res);
   return { requestKey, asset };
 }
 

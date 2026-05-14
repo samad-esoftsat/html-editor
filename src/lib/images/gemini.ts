@@ -76,19 +76,29 @@ export function buildGeminiChatEditBody(opts: ChatEditOpts): GeminiCallParams {
   return {
     contents: opts.turns.map((turn) => {
       if (turn.role === 'user') {
-        return { role: 'user', parts: [{ text: turn.text }] };
-      }
-      return {
-        role: 'model',
-        parts: [
-          {
+        const parts: Array<{ text?: string; inlineData?: { mimeType: string; data: string } }> = [];
+        for (const image of turn.images ?? []) {
+          parts.push({
             inlineData: {
-              mimeType: turn.image.mimeType,
-              data: turn.image.bytes.toString('base64'),
+              mimeType: image.mimeType,
+              data: image.bytes.toString('base64'),
             },
-          },
-        ],
+          });
+        }
+        if (turn.text) parts.push({ text: turn.text });
+        return { role: 'user', parts };
+      }
+      const modelPart: {
+        inlineData: { mimeType: string; data: string };
+        thoughtSignature?: string;
+      } = {
+        inlineData: {
+          mimeType: turn.image.mimeType,
+          data: turn.image.bytes.toString('base64'),
+        },
       };
+      if (turn.thoughtSignature) modelPart.thoughtSignature = turn.thoughtSignature;
+      return { role: 'model', parts: [modelPart] };
     }),
     config: {
       responseModalities: ['IMAGE'],
@@ -100,6 +110,7 @@ export function buildGeminiChatEditBody(opts: ChatEditOpts): GeminiCallParams {
 type GeminiCandidatePart = {
   text?: string;
   inlineData?: { mimeType?: string; data?: string };
+  thoughtSignature?: string;
 };
 
 type GeminiResponseLike = {
@@ -122,11 +133,13 @@ export function parseGeminiGeneratedImage(
   const bytes = Buffer.from(inline.inlineData.data, 'base64');
   const mimeType = inline.inlineData.mimeType || inferMimeType(bytes);
   const dims = getImageDimensions(bytes, mimeType);
+  const thoughtSignature = parts.find((part) => typeof part.thoughtSignature === 'string' && part.thoughtSignature.length > 0)?.thoughtSignature;
   return {
     bytes,
     mimeType,
     width: dims?.width ?? fallback.width,
     height: dims?.height ?? fallback.height,
+    ...(thoughtSignature ? { thoughtSignature } : {}),
   };
 }
 
