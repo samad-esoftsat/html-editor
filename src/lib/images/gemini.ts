@@ -27,12 +27,19 @@ interface GeminiResponse {
 }
 
 export function buildGeminiGenerateBody(opts: GenerateOpts) {
-  return {
-    contents: [
-      {
-        parts: [{ text: opts.prompt }],
+  const parts: Array<{ text?: string; inlineData?: { mimeType: string; data: string } }> = [
+    { text: opts.prompt },
+  ];
+  for (const ref of opts.references ?? []) {
+    parts.push({
+      inlineData: {
+        mimeType: ref.mimeType,
+        data: ref.bytes.toString('base64'),
       },
-    ],
+    });
+  }
+  return {
+    contents: [{ parts }],
     generationConfig: {
       responseModalities: ['Image'],
       imageConfig: {

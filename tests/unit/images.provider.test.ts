@@ -23,6 +23,22 @@ describe('gemini image provider helpers', () => {
     });
   });
 
+  it('appends reference inlineData parts when references are provided', () => {
+    const body = buildGeminiGenerateBody({
+      prompt: 'Stylize like these references',
+      aspectRatio: '1:1',
+      count: 1,
+      references: [
+        { bytes: PNG_BYTES, mimeType: 'image/png' },
+        { bytes: PNG_BYTES, mimeType: 'image/jpeg' },
+      ],
+    });
+    expect(body.contents[0]?.parts).toHaveLength(3);
+    expect(body.contents[0]?.parts[0]).toEqual({ text: 'Stylize like these references' });
+    expect(body.contents[0]?.parts[1]).toMatchObject({ inlineData: { mimeType: 'image/png' } });
+    expect(body.contents[0]?.parts[2]).toMatchObject({ inlineData: { mimeType: 'image/jpeg' } });
+  });
+
   it('builds an edit payload with inline image and mask data', () => {
     const body = buildGeminiEditBody({
       prompt: 'Replace the product background with a soft beige gradient',

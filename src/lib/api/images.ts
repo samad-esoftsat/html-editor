@@ -25,6 +25,7 @@ export type GenerateImagePayload = {
   count: 1 | 2 | 4;
   workspaceSlug: string;
   requestKey?: string;
+  referenceAssetIds?: string[];
   timeoutMs?: number;
 };
 
@@ -58,6 +59,7 @@ export async function generateImage(payload: GenerateImagePayload): Promise<{ re
       count: payload.count,
       workspaceSlug: payload.workspaceSlug,
       requestKey,
+      referenceAssetIds: payload.referenceAssetIds ?? [],
     }),
     signal: makeAbortSignal(payload.timeoutMs ?? 45000),
   });

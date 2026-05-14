@@ -2,14 +2,16 @@ import { randomUUID } from 'node:crypto';
 import { NextResponse, type NextRequest } from 'next/server';
 import { findWorkspace, resolveMinRole } from '@/lib/auth/workspace';
 import { ASSET_BUCKET, assetUrlFromPath, buildAssetPath } from '@/lib/images/assets';
-import { asProviderError } from '@/lib/images/errors';
+import { asProviderError, ProviderError } from '@/lib/images/errors';
 import { getImageProvider } from '@/lib/images';
-import type { AspectRatio } from '@/lib/images/provider';
+import type { AspectRatio, ReferenceImage } from '@/lib/images/provider';
 import { validateRequestKey } from '@/lib/images/request-key';
 import { createClient } from '@/lib/supabase/server';
 
 const COUNTS = new Set([1, 2, 4]);
 const RATIOS = new Set<AspectRatio>(['1:1', '4:3', '9:16', '16:9']);
+const MAX_REFERENCES = 3;
+const REFERENCE_MIME_TYPES = new Set(['image/png', 'image/jpeg', 'image/webp']);
 
 type RequestRow = {
   org_id: string;
@@ -36,6 +38,7 @@ export async function POST(req: NextRequest) {
     count?: unknown;
     workspaceSlug?: unknown;
     requestKey?: unknown;
+    referenceAssetIds?: unknown;
   };
 
   if (typeof body.prompt !== 'string' || !body.prompt.trim()) {
@@ -52,6 +55,17 @@ export async function POST(req: NextRequest) {
   }
   if (typeof body.count !== 'number' || !COUNTS.has(body.count)) {
     return NextResponse.json({ error: 'invalid_count' }, { status: 400 });
+  }
+
+  let referenceAssetIds: string[] = [];
+  if (body.referenceAssetIds !== undefined && body.referenceAssetIds !== null) {
+    if (!Array.isArray(body.referenceAssetIds) || !body.referenceAssetIds.every((v) => typeof v === 'string')) {
+      return NextResponse.json({ error: 'invalid_reference_asset_ids' }, { status: 400 });
+    }
+    if (body.referenceAssetIds.length > MAX_REFERENCES) {
+      return NextResponse.json({ error: 'too_many_references' }, { status: 400 });
+    }
+    referenceAssetIds = body.referenceAssetIds as string[];
   }
 
   const workspace = await findWorkspace(body.workspaceSlug);
@@ -130,8 +144,9 @@ export async function POST(req: NextRequest) {
   const generatedPaths: string[] = [];
 
   try {
+    const references = await loadReferenceImages(supabase, workspace.org.id, referenceAssetIds);
     const provider = getImageProvider();
-    const images = await provider.generate({ prompt, aspectRatio, count });
+    const images = await provider.generate({ prompt, aspectRatio, count, references });
 
     const results = [];
     for (const image of images) {
@@ -218,4 +233,41 @@ async function failRequest(
 ) {
   await markRequestFailed(supabase, orgId, requestKey, 'server_error');
   return NextResponse.json({ error: message }, { status });
+}
+
+async function loadReferenceImages(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  orgId: string,
+  assetIds: string[],
+): Promise<ReferenceImage[]> {
+  if (assetIds.length === 0) return [];
+
+  const { data: assets, error } = await supabase
+    .from('assets')
+    .select('id, storage_path, mime_type')
+    .eq('org_id', orgId)
+    .in('id', assetIds);
+  if (error) throw new ProviderError(error.message, 500, 'reference_lookup_failed');
+  if (!assets || assets.length !== assetIds.length) {
+    throw new ProviderError('Reference asset not found.', 404, 'reference_not_found');
+  }
+
+  const byId = new Map(assets.map((a) => [a.id, a]));
+  const references: ReferenceImage[] = [];
+  for (const id of assetIds) {
+    const asset = byId.get(id);
+    if (!asset) throw new ProviderError('Reference asset not found.', 404, 'reference_not_found');
+    if (!REFERENCE_MIME_TYPES.has(asset.mime_type)) {
+      throw new ProviderError('Reference image type not supported.', 400, 'reference_invalid_type');
+    }
+    const { data: blob, error: downloadError } = await supabase.storage
+      .from(ASSET_BUCKET)
+      .download(asset.storage_path);
+    if (downloadError || !blob) {
+      throw new ProviderError(downloadError?.message ?? 'Reference download failed.', 500, 'reference_download_failed');
+    }
+    const bytes = Buffer.from(await blob.arrayBuffer());
+    references.push({ bytes, mimeType: asset.mime_type });
+  }
+  return references;
 }

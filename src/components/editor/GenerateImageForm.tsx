@@ -1,7 +1,9 @@
 'use client';
 
 import { useRef, useState } from 'react';
+import { X } from 'lucide-react';
 import { generateImage, ImageApiError, type GeneratedAsset } from '@/lib/api/images';
+import { uploadWorkspaceAsset } from '@/lib/api/assets';
 import { createRequestKey } from '@/lib/images/request-key';
 import { Button } from '@/components/ui/Button';
 import { Select } from '@/components/ui/Select';
@@ -15,6 +17,10 @@ interface Props {
   onGenerated(): void;
 }
 
+const MAX_REFERENCES = 3;
+
+type Reference = { assetId: string; url: string };
+
 export function GenerateImageForm({ workspaceSlug, canEdit, onUse, onGenerated }: Props) {
   const [prompt, setPrompt] = useState('');
   const [aspectRatio, setAspectRatio] = useState<'1:1' | '16:9' | '9:16' | '4:3'>('16:9');
@@ -23,7 +29,10 @@ export function GenerateImageForm({ workspaceSlug, canEdit, onUse, onGenerated }
   const [elapsed, setElapsed] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [assets, setAssets] = useState<GeneratedAsset[]>([]);
+  const [references, setReferences] = useState<Reference[]>([]);
+  const [refUploadBusy, setRefUploadBusy] = useState(false);
   const requestKeyRef = useRef<string | undefined>(undefined);
+  const refInputRef = useRef<HTMLInputElement | null>(null);
 
   async function onSubmit() {
     if (!canEdit || !prompt.trim()) return;
@@ -42,6 +51,7 @@ export function GenerateImageForm({ workspaceSlug, canEdit, onUse, onGenerated }
         count,
         workspaceSlug,
         requestKey,
+        referenceAssetIds: references.map((r) => r.assetId),
       });
       requestKeyRef.current = undefined;
       setAssets(result.assets);
@@ -69,6 +79,25 @@ export function GenerateImageForm({ workspaceSlug, canEdit, onUse, onGenerated }
     }
   }
 
+  async function onAddReference(file: File) {
+    if (references.length >= MAX_REFERENCES) return;
+    setRefUploadBusy(true);
+    setError(null);
+    try {
+      const uploaded = await uploadWorkspaceAsset(workspaceSlug, file);
+      setReferences((prev) => [...prev, { assetId: uploaded.assetId, url: uploaded.url }]);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to attach reference.');
+    } finally {
+      setRefUploadBusy(false);
+      if (refInputRef.current) refInputRef.current.value = '';
+    }
+  }
+
+  function onRemoveReference(assetId: string) {
+    setReferences((prev) => prev.filter((r) => r.assetId !== assetId));
+  }
+
   return (
     <div className="space-y-3">
       <Textarea
@@ -78,6 +107,51 @@ export function GenerateImageForm({ workspaceSlug, canEdit, onUse, onGenerated }
         placeholder="Describe the image you want to create..."
         disabled={!canEdit || busy}
       />
+      <div className="space-y-1.5">
+        <div className="flex items-center justify-between">
+          <div className="text-xs font-medium text-fg">Reference images (optional)</div>
+          <div className="text-xs text-muted">{references.length}/{MAX_REFERENCES}</div>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {references.map((ref) => (
+            <div key={ref.assetId} className="relative h-16 w-16 overflow-hidden rounded-md border border-border-strong bg-panel-2">
+              <img src={ref.url} alt="" className="h-full w-full object-cover" />
+              <button
+                type="button"
+                onClick={() => onRemoveReference(ref.assetId)}
+                disabled={busy}
+                className="absolute right-0.5 top-0.5 rounded-full bg-black/60 p-0.5 text-white hover:bg-black/80 disabled:opacity-50"
+                aria-label="Remove reference"
+              >
+                <X size={12} />
+              </button>
+            </div>
+          ))}
+          {references.length < MAX_REFERENCES && (
+            <button
+              type="button"
+              onClick={() => refInputRef.current?.click()}
+              disabled={!canEdit || busy || refUploadBusy}
+              className="flex h-16 w-16 items-center justify-center rounded-md border border-dashed border-border-strong bg-panel-2 text-xs text-muted hover:border-brand hover:text-fg disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              {refUploadBusy ? <Spinner size={14} /> : '+ Add'}
+            </button>
+          )}
+        </div>
+        <input
+          ref={refInputRef}
+          type="file"
+          hidden
+          accept="image/png,image/jpeg,image/webp"
+          onChange={(event) => {
+            const file = event.target.files?.[0];
+            if (file) void onAddReference(file);
+          }}
+        />
+        {references.length > 0 && (
+          <div className="text-xs text-muted">References guide the style or subject of the output.</div>
+        )}
+      </div>
       <div className="grid grid-cols-2 gap-2">
         <Select
           value={aspectRatio}

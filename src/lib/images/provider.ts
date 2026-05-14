@@ -1,9 +1,15 @@
 export type AspectRatio = '1:1' | '16:9' | '9:16' | '4:3';
 
+export type ReferenceImage = {
+  bytes: Buffer;
+  mimeType: string;
+};
+
 export type GenerateOpts = {
   prompt: string;
   aspectRatio: AspectRatio;
   count: 1 | 2 | 4;
+  references?: ReferenceImage[];
 };
 
 export type EditOpts = {
