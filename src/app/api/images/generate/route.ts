@@ -127,7 +127,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'quota_exhausted', resetsOn: quotaData?.quota_period }, { status: 429 });
   }
 
-  let generatedPaths: string[] = [];
+  const generatedPaths: string[] = [];
 
   try {
     const provider = getImageProvider();
