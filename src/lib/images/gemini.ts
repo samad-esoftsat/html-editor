@@ -38,7 +38,14 @@ export function buildGeminiGenerateBody(opts: GenerateOpts) {
       },
     });
   }
-  return {
+  const body: {
+    contents: Array<{ parts: typeof parts }>;
+    tools?: Array<{ googleSearch: Record<string, never> }>;
+    generationConfig: {
+      responseModalities: string[];
+      imageConfig: { aspectRatio: string; imageSize: string };
+    };
+  } = {
     contents: [{ parts }],
     generationConfig: {
       responseModalities: ['Image'],
@@ -48,6 +55,10 @@ export function buildGeminiGenerateBody(opts: GenerateOpts) {
       },
     },
   };
+  if (opts.useGoogleSearch) {
+    body.tools = [{ googleSearch: {} }];
+  }
+  return body;
 }
 
 export function buildGeminiEditBody(opts: EditOpts) {

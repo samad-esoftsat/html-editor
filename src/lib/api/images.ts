@@ -26,6 +26,7 @@ export type GenerateImagePayload = {
   workspaceSlug: string;
   requestKey?: string;
   referenceAssetIds?: string[];
+  useGoogleSearch?: boolean;
   timeoutMs?: number;
 };
 
@@ -60,6 +61,7 @@ export async function generateImage(payload: GenerateImagePayload): Promise<{ re
       workspaceSlug: payload.workspaceSlug,
       requestKey,
       referenceAssetIds: payload.referenceAssetIds ?? [],
+      useGoogleSearch: payload.useGoogleSearch === true,
     }),
     signal: makeAbortSignal(payload.timeoutMs ?? 45000),
   });

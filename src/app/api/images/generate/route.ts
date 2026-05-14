@@ -39,6 +39,7 @@ export async function POST(req: NextRequest) {
     workspaceSlug?: unknown;
     requestKey?: unknown;
     referenceAssetIds?: unknown;
+    useGoogleSearch?: unknown;
   };
 
   if (typeof body.prompt !== 'string' || !body.prompt.trim()) {
@@ -67,6 +68,8 @@ export async function POST(req: NextRequest) {
     }
     referenceAssetIds = body.referenceAssetIds as string[];
   }
+
+  const useGoogleSearch = body.useGoogleSearch === true;
 
   const workspace = await findWorkspace(body.workspaceSlug);
   if (!workspace) return NextResponse.json({ error: 'not_found' }, { status: 404 });
@@ -146,7 +149,7 @@ export async function POST(req: NextRequest) {
   try {
     const references = await loadReferenceImages(supabase, workspace.org.id, referenceAssetIds);
     const provider = getImageProvider();
-    const images = await provider.generate({ prompt, aspectRatio, count, references });
+    const images = await provider.generate({ prompt, aspectRatio, count, references, useGoogleSearch });
 
     const results = [];
     for (const image of images) {

@@ -10,6 +10,7 @@ export type GenerateOpts = {
   aspectRatio: AspectRatio;
   count: 1 | 2 | 4;
   references?: ReferenceImage[];
+  useGoogleSearch?: boolean;
 };
 
 export type EditOpts = {

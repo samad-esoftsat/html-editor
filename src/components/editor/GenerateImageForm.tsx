@@ -31,6 +31,7 @@ export function GenerateImageForm({ workspaceSlug, canEdit, onUse, onGenerated }
   const [assets, setAssets] = useState<GeneratedAsset[]>([]);
   const [references, setReferences] = useState<Reference[]>([]);
   const [refUploadBusy, setRefUploadBusy] = useState(false);
+  const [useGoogleSearch, setUseGoogleSearch] = useState(false);
   const requestKeyRef = useRef<string | undefined>(undefined);
   const refInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -52,6 +53,7 @@ export function GenerateImageForm({ workspaceSlug, canEdit, onUse, onGenerated }
         workspaceSlug,
         requestKey,
         referenceAssetIds: references.map((r) => r.assetId),
+        useGoogleSearch,
       });
       requestKeyRef.current = undefined;
       setAssets(result.assets);
@@ -173,6 +175,19 @@ export function GenerateImageForm({ workspaceSlug, canEdit, onUse, onGenerated }
           <option value="4">4 variants</option>
         </Select>
       </div>
+      <label className="flex items-start gap-2 text-xs text-fg">
+        <input
+          type="checkbox"
+          checked={useGoogleSearch}
+          onChange={(event) => setUseGoogleSearch(event.target.checked)}
+          disabled={!canEdit || busy}
+          className="mt-0.5 h-3.5 w-3.5 cursor-pointer accent-brand"
+        />
+        <span>
+          <span className="font-medium">Use Google Search</span>
+          <span className="ml-1 text-muted">— ground the image in fresh web context (slower, recommended for current events, brands, real places).</span>
+        </span>
+      </label>
       <Button
         type="button"
         variant="secondary"

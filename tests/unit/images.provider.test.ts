@@ -39,6 +39,25 @@ describe('gemini image provider helpers', () => {
     expect(body.contents[0]?.parts[2]).toMatchObject({ inlineData: { mimeType: 'image/jpeg' } });
   });
 
+  it('omits the tools field when useGoogleSearch is not set', () => {
+    const body = buildGeminiGenerateBody({
+      prompt: 'hello',
+      aspectRatio: '1:1',
+      count: 1,
+    });
+    expect('tools' in body).toBe(false);
+  });
+
+  it('adds googleSearch tool when useGoogleSearch is true', () => {
+    const body = buildGeminiGenerateBody({
+      prompt: 'latest news headline as an image',
+      aspectRatio: '16:9',
+      count: 1,
+      useGoogleSearch: true,
+    });
+    expect(body.tools).toEqual([{ googleSearch: {} }]);
+  });
+
   it('builds an edit payload with inline image and mask data', () => {
     const body = buildGeminiEditBody({
       prompt: 'Replace the product background with a soft beige gradient',
