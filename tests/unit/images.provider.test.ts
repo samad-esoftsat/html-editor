@@ -48,14 +48,23 @@ describe('gemini image provider helpers', () => {
     expect('tools' in body).toBe(false);
   });
 
-  it('adds googleSearch tool when useGoogleSearch is true', () => {
+  it('adds google_search tool with both web and image search when useGoogleSearch is true', () => {
     const body = buildGeminiGenerateBody({
       prompt: 'latest news headline as an image',
       aspectRatio: '16:9',
       count: 1,
       useGoogleSearch: true,
     });
-    expect(body.tools).toEqual([{ googleSearch: {} }]);
+    expect(body.tools).toEqual([
+      {
+        google_search: {
+          searchTypes: {
+            webSearch: {},
+            imageSearch: {},
+          },
+        },
+      },
+    ]);
   });
 
   it('builds an edit payload with inline image and mask data', () => {

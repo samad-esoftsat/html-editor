@@ -40,7 +40,11 @@ export function buildGeminiGenerateBody(opts: GenerateOpts) {
   }
   const body: {
     contents: Array<{ parts: typeof parts }>;
-    tools?: Array<{ googleSearch: Record<string, never> }>;
+    tools?: Array<{
+      google_search: {
+        searchTypes: { webSearch: Record<string, never>; imageSearch: Record<string, never> };
+      };
+    }>;
     generationConfig: {
       responseModalities: string[];
       imageConfig: { aspectRatio: string; imageSize: string };
@@ -56,7 +60,14 @@ export function buildGeminiGenerateBody(opts: GenerateOpts) {
     },
   };
   if (opts.useGoogleSearch) {
-    body.tools = [{ googleSearch: {} }];
+    body.tools = [{
+      google_search: {
+        searchTypes: {
+          webSearch: {},
+          imageSearch: {},
+        },
+      },
+    }];
   }
   return body;
 }

@@ -185,7 +185,7 @@ export function GenerateImageForm({ workspaceSlug, canEdit, onUse, onGenerated }
         />
         <span>
           <span className="font-medium">Use Google Search</span>
-          <span className="ml-1 text-muted">— ground the image in fresh web context (slower, recommended for current events, brands, real places).</span>
+          <span className="ml-1 text-muted">— ground in web + image search results (slower; great for current events, brands, real places).</span>
         </span>
       </label>
       <Button
