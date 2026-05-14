@@ -28,7 +28,7 @@ describe('gemini image provider helpers', () => {
       role: 'user',
       parts: [{ text: 'Create a banner for a travel email' }],
     });
-    expect(params.config.responseModalities).toEqual(['IMAGE']);
+    expect(params.config.responseModalities).toEqual(['TEXT', 'IMAGE']);
     expect(params.config.imageConfig).toEqual({ aspectRatio: '16:9', imageSize: '2K' });
     expect(params.config.tools).toBeUndefined();
   });
@@ -114,6 +114,28 @@ describe('gemini image provider helpers', () => {
       thoughtSignature: 'sig-A',
     });
     expect(contents[2]).toEqual({ role: 'user', parts: [{ text: 'Now make it night' }] });
+  });
+
+  it('surfaces prompt-block reason as a 400 ProviderError', () => {
+    expect(() =>
+      parseGeminiGeneratedImage(
+        { promptFeedback: { blockReason: 'SAFETY', blockReasonMessage: 'unsafe content' } },
+        { width: null, height: null },
+      ),
+    ).toThrowError(/Prompt blocked by Gemini safety filters \(SAFETY\): unsafe content/);
+  });
+
+  it('surfaces non-STOP finishReason when no image is returned', () => {
+    expect(() =>
+      parseGeminiGeneratedImage(
+        {
+          candidates: [
+            { content: { parts: [{ text: 'cannot help with that' }] }, finishReason: 'RECITATION' },
+          ],
+        },
+        { width: null, height: null },
+      ),
+    ).toThrowError(/Gemini finished without an image \(RECITATION\)/);
   });
 
   it('parses thoughtSignature from response when present', () => {

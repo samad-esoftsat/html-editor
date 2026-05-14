@@ -23,7 +23,7 @@ export function buildGeminiGenerateBody(opts: GenerateOpts): GeminiCallParams {
     });
   }
   const config: GenerateContentConfig = {
-    responseModalities: ['IMAGE'],
+    responseModalities: ['TEXT', 'IMAGE'],
     imageConfig: {
       aspectRatio: opts.aspectRatio,
       imageSize: '2K',
@@ -66,7 +66,7 @@ export function buildGeminiEditBody(opts: EditOpts): GeminiCallParams {
       },
     ],
     config: {
-      responseModalities: ['IMAGE'],
+      responseModalities: ['TEXT', 'IMAGE'],
       imageConfig: { imageSize: '2K' },
     },
   };
@@ -101,7 +101,7 @@ export function buildGeminiChatEditBody(opts: ChatEditOpts): GeminiCallParams {
       return { role: 'model', parts: [modelPart] };
     }),
     config: {
-      responseModalities: ['IMAGE'],
+      responseModalities: ['TEXT', 'IMAGE'],
       imageConfig: { imageSize: '2K' },
     },
   };
@@ -118,17 +118,48 @@ type GeminiResponseLike = {
     content?: {
       parts?: GeminiCandidatePart[];
     };
+    finishReason?: string;
+    finishMessage?: string;
   }>;
+  promptFeedback?: {
+    blockReason?: string;
+    blockReasonMessage?: string;
+  };
 };
 
 export function parseGeminiGeneratedImage(
   payload: GeminiResponseLike,
   fallback: { width: number | null; height: number | null },
 ): GeneratedImage {
-  const parts = payload.candidates?.[0]?.content?.parts ?? [];
+  if (payload.promptFeedback?.blockReason) {
+    const reason = payload.promptFeedback.blockReason;
+    const detail = payload.promptFeedback.blockReasonMessage;
+    throw new ProviderError(
+      `Prompt blocked by Gemini safety filters (${reason})${detail ? `: ${detail}` : ''}. Try rephrasing.`,
+      400,
+      `prompt_blocked_${reason.toLowerCase()}`,
+    );
+  }
+  const candidate = payload.candidates?.[0];
+  const parts = candidate?.content?.parts ?? [];
   const inline = parts.find((part) => part.inlineData?.data);
   if (!inline?.inlineData?.data) {
-    throw new ProviderError('Provider returned no image.', 502, 'provider_empty');
+    const finish = candidate?.finishReason;
+    const textPart = parts.find((part) => typeof part.text === 'string' && part.text.trim().length > 0)?.text?.trim();
+    if (finish && finish !== 'STOP') {
+      throw new ProviderError(
+        `Gemini finished without an image (${finish})${textPart ? `: ${textPart}` : ''}. Try rephrasing or a different reference.`,
+        finish === 'SAFETY' || finish === 'RECITATION' || finish === 'PROHIBITED_CONTENT' ? 400 : 502,
+        `finish_${finish.toLowerCase()}`,
+      );
+    }
+    throw new ProviderError(
+      textPart
+        ? `Gemini returned text instead of an image: ${textPart}`
+        : 'Gemini returned no image. Try rephrasing the prompt.',
+      502,
+      'provider_empty',
+    );
   }
   const bytes = Buffer.from(inline.inlineData.data, 'base64');
   const mimeType = inline.inlineData.mimeType || inferMimeType(bytes);
@@ -192,12 +223,19 @@ export class GeminiImageProvider implements ImageProvider {
       });
       return response as unknown as GeminiResponseLike;
     } catch (error) {
+      if (error instanceof ProviderError) throw error;
       const status = typeof (error as { status?: number }).status === 'number'
         ? (error as { status: number }).status
         : 502;
-      const message = error instanceof Error ? error.message : 'Provider unavailable.';
-      const code = (error as { name?: string }).name === 'ApiError' ? 'provider_api_error' : 'provider_error';
-      throw new ProviderError(message, status >= 400 && status < 500 ? 400 : 502, code);
+      const rawMessage = error instanceof Error && error.message ? error.message : '';
+      const message = rawMessage || `Gemini call failed (status ${status}). Try again.`;
+      const isClient = status >= 400 && status < 500;
+      const code = isClient
+        ? 'provider_api_error'
+        : status >= 500
+          ? 'provider_upstream_error'
+          : 'provider_error';
+      throw new ProviderError(message, isClient ? 400 : 502, code);
     }
   }
 }
