@@ -1,30 +1,40 @@
 import { describe, expect, it } from 'vitest';
-import { buildGeminiEditBody, buildGeminiGenerateBody, parseGeminiGeneratedImage } from '@/lib/images/gemini';
+import {
+  buildGeminiChatEditBody,
+  buildGeminiEditBody,
+  buildGeminiGenerateBody,
+  parseGeminiGeneratedImage,
+} from '@/lib/images/gemini';
 
 const PNG_BASE64 =
   'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+yN7sAAAAASUVORK5CYII=';
 const PNG_BYTES = Buffer.from(PNG_BASE64, 'base64');
 
+function firstContent(contents: unknown): { role?: string; parts: unknown[] } {
+  if (!Array.isArray(contents) || contents.length === 0) {
+    throw new Error('expected contents array');
+  }
+  return contents[0] as { role?: string; parts: unknown[] };
+}
+
 describe('gemini image provider helpers', () => {
   it('builds a generate payload with image response config', () => {
-    expect(buildGeminiGenerateBody({
+    const params = buildGeminiGenerateBody({
       prompt: 'Create a banner for a travel email',
       aspectRatio: '16:9',
       count: 2,
-    })).toEqual({
-      contents: [{ parts: [{ text: 'Create a banner for a travel email' }] }],
-      generationConfig: {
-        responseModalities: ['Image'],
-        imageConfig: {
-          aspectRatio: '16:9',
-          imageSize: '2K',
-        },
-      },
     });
+    expect(firstContent(params.contents)).toEqual({
+      role: 'user',
+      parts: [{ text: 'Create a banner for a travel email' }],
+    });
+    expect(params.config.responseModalities).toEqual(['IMAGE']);
+    expect(params.config.imageConfig).toEqual({ aspectRatio: '16:9', imageSize: '2K' });
+    expect(params.config.tools).toBeUndefined();
   });
 
   it('appends reference inlineData parts when references are provided', () => {
-    const body = buildGeminiGenerateBody({
+    const params = buildGeminiGenerateBody({
       prompt: 'Stylize like these references',
       aspectRatio: '1:1',
       count: 1,
@@ -33,57 +43,65 @@ describe('gemini image provider helpers', () => {
         { bytes: PNG_BYTES, mimeType: 'image/jpeg' },
       ],
     });
-    expect(body.contents[0]?.parts).toHaveLength(3);
-    expect(body.contents[0]?.parts[0]).toEqual({ text: 'Stylize like these references' });
-    expect(body.contents[0]?.parts[1]).toMatchObject({ inlineData: { mimeType: 'image/png' } });
-    expect(body.contents[0]?.parts[2]).toMatchObject({ inlineData: { mimeType: 'image/jpeg' } });
+    const content = firstContent(params.contents);
+    expect(content.parts).toHaveLength(3);
+    expect(content.parts[0]).toEqual({ text: 'Stylize like these references' });
+    expect(content.parts[1]).toMatchObject({ inlineData: { mimeType: 'image/png' } });
+    expect(content.parts[2]).toMatchObject({ inlineData: { mimeType: 'image/jpeg' } });
   });
 
-  it('omits the tools field when useGoogleSearch is not set', () => {
-    const body = buildGeminiGenerateBody({
+  it('omits tools when useGoogleSearch is not set', () => {
+    const params = buildGeminiGenerateBody({
       prompt: 'hello',
       aspectRatio: '1:1',
       count: 1,
     });
-    expect('tools' in body).toBe(false);
+    expect(params.config.tools).toBeUndefined();
   });
 
-  it('adds google_search tool with both web and image search when useGoogleSearch is true', () => {
-    const body = buildGeminiGenerateBody({
+  it('adds googleSearch tool with both web and image search when useGoogleSearch is true', () => {
+    const params = buildGeminiGenerateBody({
       prompt: 'latest news headline as an image',
       aspectRatio: '16:9',
       count: 1,
       useGoogleSearch: true,
     });
-    expect(body.tools).toEqual([
+    expect(params.config.tools).toEqual([
       {
-        google_search: {
-          searchTypes: {
-            webSearch: {},
-            imageSearch: {},
-          },
+        googleSearch: {
+          searchTypes: { webSearch: {}, imageSearch: {} },
         },
       },
     ]);
   });
 
   it('builds an edit payload with inline image and mask data', () => {
-    const body = buildGeminiEditBody({
+    const params = buildGeminiEditBody({
       prompt: 'Replace the product background with a soft beige gradient',
       image: PNG_BYTES,
       mask: PNG_BYTES,
     });
-    expect(body.contents[0]?.parts).toHaveLength(3);
-    expect(body.contents[0]?.parts[1]).toMatchObject({
-      inlineData: {
-        mimeType: 'image/png',
-      },
+    const content = firstContent(params.contents);
+    expect(content.parts).toHaveLength(3);
+    expect(content.parts[1]).toMatchObject({ inlineData: { mimeType: 'image/png' } });
+    expect(content.parts[2]).toMatchObject({ inlineData: { mimeType: 'image/png' } });
+  });
+
+  it('builds a chat-edit payload preserving roles and turn order', () => {
+    const params = buildGeminiChatEditBody({
+      turns: [
+        { role: 'user', text: 'Make a cat illustration' },
+        { role: 'model', image: { bytes: PNG_BYTES, mimeType: 'image/png' } },
+        { role: 'user', text: 'Now give it sunglasses' },
+      ],
     });
-    expect(body.contents[0]?.parts[2]).toMatchObject({
-      inlineData: {
-        mimeType: 'image/png',
-      },
-    });
+    expect(Array.isArray(params.contents)).toBe(true);
+    const contents = params.contents as Array<{ role: string; parts: unknown[] }>;
+    expect(contents).toHaveLength(3);
+    expect(contents[0]).toEqual({ role: 'user', parts: [{ text: 'Make a cat illustration' }] });
+    expect(contents[1].role).toBe('model');
+    expect(contents[1].parts[0]).toMatchObject({ inlineData: { mimeType: 'image/png' } });
+    expect(contents[2]).toEqual({ role: 'user', parts: [{ text: 'Now give it sunglasses' }] });
   });
 
   it('parses returned inline image data into bytes and dimensions', () => {

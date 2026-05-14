@@ -1,4 +1,4 @@
-import type { EditOpts, GenerateOpts, GeneratedImage, ImageProvider } from './provider';
+import type { ChatEditOpts, EditOpts, GenerateOpts, GeneratedImage, ImageProvider } from './provider';
 
 export class GptImage2Provider implements ImageProvider {
   name = 'gpt-image-2' as const;
@@ -8,6 +8,10 @@ export class GptImage2Provider implements ImageProvider {
   }
 
   async edit(_opts: EditOpts): Promise<GeneratedImage> {
+    throw new Error('Not implemented');
+  }
+
+  async chatEdit(_opts: ChatEditOpts): Promise<GeneratedImage> {
     throw new Error('Not implemented');
   }
 }

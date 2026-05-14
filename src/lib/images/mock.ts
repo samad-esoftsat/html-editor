@@ -1,5 +1,5 @@
 import { aspectRatioDimensions } from './assets';
-import type { EditOpts, GenerateOpts, GeneratedImage, ImageProvider } from './provider';
+import type { ChatEditOpts, EditOpts, GenerateOpts, GeneratedImage, ImageProvider } from './provider';
 
 const ONE_PIXEL_PNG = Buffer.from(
   'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+yN7sAAAAASUVORK5CYII=',
@@ -20,6 +20,15 @@ export class MockImageProvider implements ImageProvider {
   }
 
   async edit(_opts: EditOpts): Promise<GeneratedImage> {
+    return {
+      bytes: ONE_PIXEL_PNG,
+      mimeType: 'image/png',
+      width: 1024,
+      height: 1024,
+    };
+  }
+
+  async chatEdit(_opts: ChatEditOpts): Promise<GeneratedImage> {
     return {
       bytes: ONE_PIXEL_PNG,
       mimeType: 'image/png',

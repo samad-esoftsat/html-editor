@@ -1,32 +1,16 @@
+import { GoogleGenAI, type ContentListUnion, type GenerateContentConfig } from '@google/genai';
 import { aspectRatioDimensions, getImageDimensions, inferMimeType } from './assets';
 import { ProviderError } from './errors';
-import type { EditOpts, GenerateOpts, GeneratedImage, ImageProvider } from './provider';
+import type { ChatEditOpts, EditOpts, GenerateOpts, GeneratedImage, ImageProvider } from './provider';
 
 const DEFAULT_MODEL = 'gemini-3.1-flash-image-preview';
-const API_ROOT = 'https://generativelanguage.googleapis.com/v1beta/models';
 
-interface GeminiInlineDataPart {
-  inlineData?: {
-    mimeType?: string;
-    data?: string;
-  };
-  text?: string;
-}
+export type GeminiCallParams = {
+  contents: ContentListUnion;
+  config: GenerateContentConfig;
+};
 
-interface GeminiResponse {
-  candidates?: Array<{
-    content?: {
-      parts?: GeminiInlineDataPart[];
-    };
-  }>;
-  error?: {
-    message?: string;
-    code?: number;
-    status?: string;
-  };
-}
-
-export function buildGeminiGenerateBody(opts: GenerateOpts) {
+export function buildGeminiGenerateBody(opts: GenerateOpts): GeminiCallParams {
   const parts: Array<{ text?: string; inlineData?: { mimeType: string; data: string } }> = [
     { text: opts.prompt },
   ];
@@ -38,44 +22,32 @@ export function buildGeminiGenerateBody(opts: GenerateOpts) {
       },
     });
   }
-  const body: {
-    contents: Array<{ parts: typeof parts }>;
-    tools?: Array<{
-      google_search: {
-        searchTypes: { webSearch: Record<string, never>; imageSearch: Record<string, never> };
-      };
-    }>;
-    generationConfig: {
-      responseModalities: string[];
-      imageConfig: { aspectRatio: string; imageSize: string };
-    };
-  } = {
-    contents: [{ parts }],
-    generationConfig: {
-      responseModalities: ['Image'],
-      imageConfig: {
-        aspectRatio: opts.aspectRatio,
-        imageSize: '2K',
-      },
+  const config: GenerateContentConfig = {
+    responseModalities: ['IMAGE'],
+    imageConfig: {
+      aspectRatio: opts.aspectRatio,
+      imageSize: '2K',
     },
   };
   if (opts.useGoogleSearch) {
-    body.tools = [{
-      google_search: {
-        searchTypes: {
-          webSearch: {},
-          imageSearch: {},
+    // Combined web + image search grounding per
+    // https://ai.google.dev/gemini-api/docs/image-generation#image-search
+    config.tools = [
+      {
+        googleSearch: {
+          searchTypes: { webSearch: {}, imageSearch: {} },
         },
-      },
-    }];
+      } as unknown as NonNullable<GenerateContentConfig['tools']>[number],
+    ];
   }
-  return body;
+  return { contents: [{ role: 'user', parts }], config };
 }
 
-export function buildGeminiEditBody(opts: EditOpts) {
+export function buildGeminiEditBody(opts: EditOpts): GeminiCallParams {
   return {
     contents: [
       {
+        role: 'user',
         parts: [
           { text: opts.prompt },
           {
@@ -93,17 +65,53 @@ export function buildGeminiEditBody(opts: EditOpts) {
         ],
       },
     ],
-    generationConfig: {
-      responseModalities: ['Image'],
-      imageConfig: {
-        imageSize: '2K',
-      },
+    config: {
+      responseModalities: ['IMAGE'],
+      imageConfig: { imageSize: '2K' },
     },
   };
 }
 
+export function buildGeminiChatEditBody(opts: ChatEditOpts): GeminiCallParams {
+  return {
+    contents: opts.turns.map((turn) => {
+      if (turn.role === 'user') {
+        return { role: 'user', parts: [{ text: turn.text }] };
+      }
+      return {
+        role: 'model',
+        parts: [
+          {
+            inlineData: {
+              mimeType: turn.image.mimeType,
+              data: turn.image.bytes.toString('base64'),
+            },
+          },
+        ],
+      };
+    }),
+    config: {
+      responseModalities: ['IMAGE'],
+      imageConfig: { imageSize: '2K' },
+    },
+  };
+}
+
+type GeminiCandidatePart = {
+  text?: string;
+  inlineData?: { mimeType?: string; data?: string };
+};
+
+type GeminiResponseLike = {
+  candidates?: Array<{
+    content?: {
+      parts?: GeminiCandidatePart[];
+    };
+  }>;
+};
+
 export function parseGeminiGeneratedImage(
-  payload: GeminiResponse,
+  payload: GeminiResponseLike,
   fallback: { width: number | null; height: number | null },
 ): GeneratedImage {
   const parts = payload.candidates?.[0]?.content?.parts ?? [];
@@ -125,48 +133,58 @@ export function parseGeminiGeneratedImage(
 export class GeminiImageProvider implements ImageProvider {
   name = 'gemini-image' as const;
   private model: string;
-  private apiKey: string;
+  private client: GoogleGenAI | null;
 
   constructor(model = process.env.GEMINI_IMAGE_MODEL ?? DEFAULT_MODEL, apiKey = process.env.GEMINI_API_KEY ?? '') {
     this.model = model;
-    this.apiKey = apiKey;
+    this.client = apiKey ? new GoogleGenAI({ apiKey }) : null;
   }
 
   async generate(opts: GenerateOpts): Promise<GeneratedImage[]> {
-    if (!this.apiKey) {
-      throw new ProviderError('GEMINI_API_KEY is not configured.', 502, 'provider_not_configured');
-    }
-
+    const client = this.requireClient();
     const fallback = aspectRatioDimensions(opts.aspectRatio);
+    const params = buildGeminiGenerateBody(opts);
     const requests = Array.from({ length: opts.count }, async () => {
-      const response = await this.callGemini(buildGeminiGenerateBody(opts));
+      const response = await this.invoke(client, params);
       return parseGeminiGeneratedImage(response, fallback);
     });
     return Promise.all(requests);
   }
 
   async edit(opts: EditOpts): Promise<GeneratedImage> {
-    if (!this.apiKey) {
-      throw new ProviderError('GEMINI_API_KEY is not configured.', 502, 'provider_not_configured');
-    }
-    const response = await this.callGemini(buildGeminiEditBody(opts));
+    const client = this.requireClient();
+    const response = await this.invoke(client, buildGeminiEditBody(opts));
     return parseGeminiGeneratedImage(response, { width: null, height: null });
   }
 
-  private async callGemini(body: unknown): Promise<GeminiResponse> {
-    const response = await fetch(`${API_ROOT}/${this.model}:generateContent`, {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        'x-goog-api-key': this.apiKey,
-      },
-      body: JSON.stringify(body),
-    });
-    const json = (await response.json().catch(() => ({}))) as GeminiResponse;
-    if (!response.ok) {
-      const status = response.status >= 400 && response.status < 500 ? 400 : 502;
-      throw new ProviderError(json.error?.message ?? 'Provider unavailable.', status, json.error?.status ?? 'provider_error');
+  async chatEdit(opts: ChatEditOpts): Promise<GeneratedImage> {
+    const client = this.requireClient();
+    const response = await this.invoke(client, buildGeminiChatEditBody(opts));
+    return parseGeminiGeneratedImage(response, { width: null, height: null });
+  }
+
+  private requireClient(): GoogleGenAI {
+    if (!this.client) {
+      throw new ProviderError('GEMINI_API_KEY is not configured.', 502, 'provider_not_configured');
     }
-    return json;
+    return this.client;
+  }
+
+  private async invoke(client: GoogleGenAI, params: GeminiCallParams): Promise<GeminiResponseLike> {
+    try {
+      const response = await client.models.generateContent({
+        model: this.model,
+        contents: params.contents,
+        config: params.config,
+      });
+      return response as unknown as GeminiResponseLike;
+    } catch (error) {
+      const status = typeof (error as { status?: number }).status === 'number'
+        ? (error as { status: number }).status
+        : 502;
+      const message = error instanceof Error ? error.message : 'Provider unavailable.';
+      const code = (error as { name?: string }).name === 'ApiError' ? 'provider_api_error' : 'provider_error';
+      throw new ProviderError(message, status >= 400 && status < 500 ? 400 : 502, code);
+    }
   }
 }

@@ -12,10 +12,11 @@ import { Input } from '@/components/ui/Input';
 import { Spinner } from '@/components/ui/Spinner';
 import { Textarea } from '@/components/ui/Textarea';
 import { AssetLibraryGrid } from './AssetLibraryGrid';
+import { ChatRefinePanel } from './ChatRefinePanel';
 import { GenerateImageForm } from './GenerateImageForm';
 import { MaskCanvas, type MaskCanvasHandle } from './MaskCanvas';
 
-type Tab = 'library' | 'upload' | 'generate' | 'edit';
+type Tab = 'library' | 'upload' | 'generate' | 'edit' | 'chat';
 
 interface Props {
   workspaceSlug: string;
@@ -161,6 +162,7 @@ export function AssetPicker({ workspaceSlug, value, altText, onSelect, onClose }
           <TabButton active={tab === 'upload'} disabled={!canEdit} onClick={() => setTab('upload')}>Upload</TabButton>
           <TabButton active={tab === 'generate'} disabled={!canEdit} onClick={() => setTab('generate')}>Generate</TabButton>
           {editingAsset && <TabButton active={tab === 'edit'} disabled={!canEdit} onClick={() => setTab('edit')}>Edit</TabButton>}
+          {editingAsset && <TabButton active={tab === 'chat'} disabled={!canEdit} onClick={() => setTab('chat')}>Chat refine</TabButton>}
         </div>
 
         <div className="flex-1 overflow-y-auto p-4">
@@ -187,6 +189,10 @@ export function AssetPicker({ workspaceSlug, value, altText, onSelect, onClose }
                     setEditingAsset(asset);
                     setEditPrompt(asset.prompt ?? '');
                     setTab('edit');
+                  }}
+                  onChatRefine={(asset) => {
+                    setEditingAsset(asset);
+                    setTab('chat');
                   }}
                   onRemoveBg={(asset) => {
                     setEditingAsset(asset);
@@ -233,6 +239,18 @@ export function AssetPicker({ workspaceSlug, value, altText, onSelect, onClose }
               canEdit={canEdit}
               onUse={(asset) => onSelect(asset.url)}
               onGenerated={() => {
+                void refresh();
+              }}
+            />
+          )}
+
+          {tab === 'chat' && editingAsset && (
+            <ChatRefinePanel
+              workspaceSlug={workspaceSlug}
+              canEdit={canEdit}
+              seed={editingAsset}
+              onUse={(asset) => onSelect(asset.url)}
+              onTurnCommitted={() => {
                 void refresh();
               }}
             />

@@ -19,6 +19,14 @@ export type EditOpts = {
   prompt: string;
 };
 
+export type ChatTurn =
+  | { role: 'user'; text: string }
+  | { role: 'model'; image: ReferenceImage };
+
+export type ChatEditOpts = {
+  turns: ChatTurn[];
+};
+
 export type GeneratedImage = {
   bytes: Buffer;
   mimeType: string;
@@ -30,4 +38,5 @@ export interface ImageProvider {
   name: 'gemini-image' | 'gpt-image-2' | 'mock';
   generate(opts: GenerateOpts): Promise<GeneratedImage[]>;
   edit(opts: EditOpts): Promise<GeneratedImage>;
+  chatEdit(opts: ChatEditOpts): Promise<GeneratedImage>;
 }

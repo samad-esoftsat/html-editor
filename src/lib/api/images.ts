@@ -69,6 +69,31 @@ export async function generateImage(payload: GenerateImagePayload): Promise<{ re
   return { requestKey, assets };
 }
 
+export type ChatEditWireTurn =
+  | { role: 'user'; text: string }
+  | { role: 'model'; assetId: string };
+
+export async function chatEditImage(options: {
+  turns: ChatEditWireTurn[];
+  workspaceSlug: string;
+  requestKey?: string;
+  timeoutMs?: number;
+}): Promise<{ requestKey: string; asset: GeneratedAsset }> {
+  const requestKey = options.requestKey ?? createRequestKey();
+  const res = await fetch('/api/images/chat-edit', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({
+      workspaceSlug: options.workspaceSlug,
+      requestKey,
+      turns: options.turns,
+    }),
+    signal: makeAbortSignal(options.timeoutMs ?? 45000),
+  });
+  const asset = await parseImageResponse<GeneratedAsset>(res);
+  return { requestKey, asset };
+}
+
 export async function editImage(options: {
   image: File;
   mask: Blob;

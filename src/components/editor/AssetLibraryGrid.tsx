@@ -9,6 +9,7 @@ interface Props {
   onUse(asset: WorkspaceAsset): void;
   onArchive(asset: WorkspaceAsset): void;
   onEdit(asset: WorkspaceAsset): void;
+  onChatRefine(asset: WorkspaceAsset): void;
   onRemoveBg(asset: WorkspaceAsset): void;
 }
 
@@ -18,6 +19,7 @@ export function AssetLibraryGrid({
   onUse,
   onArchive,
   onEdit,
+  onChatRefine,
   onRemoveBg,
 }: Props) {
   if (assets.length === 0) {
@@ -46,6 +48,9 @@ export function AssetLibraryGrid({
                 <>
                   <Button type="button" variant="ghost" className="min-h-8 px-2 py-1 text-xs" onClick={() => onEdit(asset)}>
                     Edit
+                  </Button>
+                  <Button type="button" variant="ghost" className="min-h-8 px-2 py-1 text-xs" onClick={() => onChatRefine(asset)}>
+                    Chat refine
                   </Button>
                   <Button type="button" variant="ghost" className="min-h-8 px-2 py-1 text-xs" onClick={() => onRemoveBg(asset)}>
                     Remove BG
