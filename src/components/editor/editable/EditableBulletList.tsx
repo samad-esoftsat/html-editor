@@ -35,13 +35,15 @@ export function EditableBulletList({
 }: EditableBulletListProps) {
   const items = bullets.length > 0 ? bullets : [''];
   const focusRequest = useRef<{ index: number; caret: 'start' | 'end' } | null>(null);
+  const ulRef = useRef<HTMLUListElement | null>(null);
 
   useLayoutEffect(() => {
     const req = focusRequest.current;
     if (!req) return;
     focusRequest.current = null;
-    const liNodes = document.querySelectorAll(`[data-bullet-list="${ariaLabel}"] > li`);
-    const li = liNodes[req.index] as HTMLElement | undefined;
+    const ul = ulRef.current;
+    if (!ul) return;
+    const li = ul.children[req.index] as HTMLElement | undefined;
     if (!li) return;
     const target = li.querySelector('[role="textbox"]') as HTMLElement | null;
     if (!target) return;
@@ -101,6 +103,7 @@ export function EditableBulletList({
 
   return (
     <ul
+      ref={ulRef}
       role="list"
       aria-label={ariaLabel}
       data-bullet-list={ariaLabel}

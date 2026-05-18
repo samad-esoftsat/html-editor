@@ -207,7 +207,7 @@ export function PreviewBody() {
           {data.footer.socials.map((s, i) => {
             const Icon = ICONS[s.platform];
             return (
-              <a key={i} href={s.url} target="_blank" rel="noreferrer" style={{ margin: '0 10px', display: 'inline-block' }}>
+              <a key={i} href={s.url} onClick={(e) => e.preventDefault()} target="_blank" rel="noreferrer" style={{ margin: '0 10px', display: 'inline-block' }}>
                 <Icon size={32} color={g.footerTextColor} />
               </a>
             );
