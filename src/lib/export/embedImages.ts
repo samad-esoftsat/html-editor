@@ -17,7 +17,9 @@ export function isFetchableImageUrl(value: string): boolean {
     return false;
   }
   if (url.protocol !== 'http:' && url.protocol !== 'https:') return false;
-  const host = url.hostname.toLowerCase();
+  let host = url.hostname.toLowerCase();
+  if (host.startsWith('[')) return false;
+  host = host.replace(/\.$/, '');
   if (host === 'localhost') return false;
   if (host.startsWith('127.')) return false;
   if (host.startsWith('10.')) return false;

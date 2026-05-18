@@ -37,6 +37,19 @@ describe('isFetchableImageUrl', () => {
     expect(isFetchableImageUrl('not a url')).toBe(false);
     expect(isFetchableImageUrl('')).toBe(false);
   });
+
+  it('rejects IPv6 literals', () => {
+    expect(isFetchableImageUrl('http://[::1]/x.png')).toBe(false);
+    expect(isFetchableImageUrl('http://[::ffff:127.0.0.1]/x.png')).toBe(false);
+    expect(isFetchableImageUrl('http://[fe80::1]/x.png')).toBe(false);
+    expect(isFetchableImageUrl('http://[fc00::1]/x.png')).toBe(false);
+    expect(isFetchableImageUrl('https://[2001:db8::1]/x.png')).toBe(false);
+  });
+
+  it('rejects hostnames with a trailing dot variant of localhost/127.x', () => {
+    expect(isFetchableImageUrl('http://localhost./x.png')).toBe(false);
+    expect(isFetchableImageUrl('http://127.0.0.1./x.png')).toBe(false);
+  });
 });
 
 function pngBytes(): Uint8Array {
