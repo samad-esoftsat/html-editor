@@ -8,6 +8,7 @@ import { useState } from 'react';
 import { fade } from '@/lib/motion';
 import { WorkspaceSwitcher, type WorkspaceOption } from '@/components/workspace/WorkspaceSwitcher';
 import { DownloadMenu } from './DownloadMenu';
+import { TranslateMenu } from './TranslateMenu';
 
 interface TopbarProps {
   slug: string;
@@ -133,6 +134,7 @@ export function Topbar({ slug, currentWorkspace, workspaces }: TopbarProps) {
             </button>
           </>
         )}
+        <TranslateMenu projectId={projectId} projectName={name} slug={slug} />
         <DownloadMenu projectId={projectId} slug={slug} />
       </div>
     </div>
