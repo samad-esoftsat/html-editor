@@ -5,6 +5,7 @@ import { useAutosave } from '@/lib/editor/autosave';
 import { useUndoRedoShortcuts } from '@/lib/editor/useUndoRedoShortcuts';
 import { useRole } from '@/lib/editor/RoleProvider';
 import { AssetPickerProvider } from './AssetPickerProvider';
+import { EditorModeProvider } from './EditorModeProvider';
 import { Topbar } from './Topbar';
 import { LeftPanel } from './LeftPanel';
 import { Preview } from './Preview';
@@ -38,15 +39,17 @@ function Inner({
   useAutosave(canEdit);
   useUndoRedoShortcuts(canEdit);
   return (
-    <AssetPickerProvider workspaceSlug={workspaceSlug}>
-      <div className="flex flex-col h-dvh">
-        <Topbar slug={workspaceSlug} currentWorkspace={currentWorkspace} workspaces={workspaces} />
-        <div className="flex flex-1 overflow-hidden">
-          <LeftPanel />
-          <div className="flex-1 bg-[#080808]"><Preview /></div>
+    <EditorModeProvider>
+      <AssetPickerProvider workspaceSlug={workspaceSlug}>
+        <div className="flex flex-col h-dvh">
+          <Topbar slug={workspaceSlug} currentWorkspace={currentWorkspace} workspaces={workspaces} />
+          <div className="flex flex-1 overflow-hidden">
+            <LeftPanel />
+            <div className="flex-1 bg-[#080808]"><Preview /></div>
+          </div>
         </div>
-      </div>
-    </AssetPickerProvider>
+      </AssetPickerProvider>
+    </EditorModeProvider>
   );
 }
 
