@@ -44,10 +44,10 @@ body {
   outline-offset: 2px;
 }
 .inline-editable:hover {
-  outline: 1px solid color-mix(in oklab, var(--brand, #6366f1) 40%, transparent);
+  outline: 1px solid color-mix(in oklab, var(--color-brand, #f1592a) 40%, transparent);
 }
 .inline-editable:focus {
-  outline: 1.5px solid var(--brand, #6366f1);
+  outline: 1.5px solid var(--color-brand, #f1592a);
 }
 .inline-editable[data-empty='true']::before {
   content: attr(aria-placeholder);
