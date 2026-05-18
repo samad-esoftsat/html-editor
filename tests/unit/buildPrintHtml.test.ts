@@ -27,6 +27,13 @@ describe('buildPrintHtml', () => {
     expect(out).toMatch(/@media print[\s\S]*?\.no-print[\s\S]*?display:\s*none/);
   });
 
+  it('forces background and color rendering with print-color-adjust on all elements', () => {
+    const out = buildPrintHtml(SAMPLE);
+    expect(out).toContain('print-color-adjust: exact');
+    expect(out).toContain('-webkit-print-color-adjust: exact');
+    expect(out).toMatch(/\*\s*\{[\s\S]*?print-color-adjust:\s*exact\s*!important/);
+  });
+
   it('leaves the original email body content intact', () => {
     const out = buildPrintHtml(SAMPLE);
     expect(out).toContain('<p>hello</p>');

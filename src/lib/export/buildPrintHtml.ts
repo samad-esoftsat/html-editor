@@ -1,7 +1,10 @@
 const PRINT_STYLE = `<style>
 @page { size: A4 portrait; margin: 12mm; }
+* {
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+}
 @media print {
-  body { background: white; }
   .no-print { display: none !important; }
 }
 .no-print {
