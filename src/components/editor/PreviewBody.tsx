@@ -19,7 +19,7 @@ export function PreviewBody() {
   const setSection = store.getState().setSection;
 
   return (
-    <div style={{ background: g.backgroundColor, padding: 0, minHeight: '100%', fontFamily: g.fontFamily }}>
+    <div className="preview-canvas" style={{ background: g.backgroundColor, padding: 0, minHeight: '100%', fontFamily: g.fontFamily }}>
       {/* Header */}
       <div style={{ maxWidth: 710, margin: '0 auto', padding: '20px' }}>
         <div style={{ textAlign: 'center' }}>

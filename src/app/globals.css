@@ -69,3 +69,48 @@ body {
   border-color: var(--color-brand, #f1592a) !important;
   color: var(--color-brand, #f1592a) !important;
 }
+
+.preview-canvas img {
+  display: inline;
+  max-width: 100%;
+}
+.preview-canvas ul {
+  list-style: disc;
+  margin: 1em 0;
+  padding-inline-start: 40px;
+}
+.preview-canvas ol {
+  list-style: decimal;
+  margin: 1em 0;
+  padding-inline-start: 40px;
+}
+.preview-canvas li {
+  display: list-item;
+}
+.preview-canvas h1 {
+  font-size: 2em;
+  font-weight: bold;
+  margin: 0.67em 0;
+}
+.preview-canvas h2 {
+  font-size: 1.5em;
+  font-weight: bold;
+  margin: 0.83em 0;
+}
+.preview-canvas h3 {
+  font-size: 1.17em;
+  font-weight: bold;
+  margin: 1em 0;
+}
+.preview-canvas h4 {
+  font-size: 1em;
+  font-weight: bold;
+  margin: 1.33em 0;
+}
+.preview-canvas p {
+  margin: 1em 0;
+}
+.preview-canvas a {
+  color: -webkit-link;
+  text-decoration: underline;
+}
