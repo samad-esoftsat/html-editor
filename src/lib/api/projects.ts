@@ -43,8 +43,13 @@ export async function deleteProject(id: string): Promise<void> {
   if (!res.ok && res.status !== 204) throw new Error(await res.text());
 }
 
-export async function duplicateProject(id: string): Promise<{ id: string }> {
-  const res = await fetch(`/api/projects/${id}/duplicate`, { method: 'POST' });
+export async function duplicateProject(id: string, name?: string): Promise<{ id: string }> {
+  const init: RequestInit = { method: 'POST' };
+  if (typeof name === 'string') {
+    init.headers = { 'content-type': 'application/json' };
+    init.body = JSON.stringify({ name });
+  }
+  const res = await fetch(`/api/projects/${id}/duplicate`, init);
   if (!res.ok) throw new Error(await res.text());
   return res.json();
 }
