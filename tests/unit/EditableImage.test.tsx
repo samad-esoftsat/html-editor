@@ -86,6 +86,63 @@ describe('EditableImage', () => {
   });
 });
 
+describe('EditableImage alt caption', () => {
+  it('renders no alt strip when onAltChange is not provided', () => {
+    render(
+      <AssetPickerProvider workspaceSlug="ws">
+        <EditorModeProvider>
+          <EditableImage value="x.png" onChange={() => {}} alt="hello" placeholderLabel="ph" />
+        </EditorModeProvider>
+      </AssetPickerProvider>
+    );
+    expect(screen.queryByLabelText(/alt text/i)).toBeNull();
+  });
+
+  it('renders an editable alt strip when onAltChange is provided', () => {
+    const onAltChange = vi.fn();
+    render(
+      <AssetPickerProvider workspaceSlug="ws">
+        <EditorModeProvider>
+          <EditableImage
+            value="x.png"
+            onChange={() => {}}
+            alt="hello"
+            placeholderLabel="ph"
+            altLabel="Section image alt text"
+            onAltChange={onAltChange}
+          />
+        </EditorModeProvider>
+      </AssetPickerProvider>
+    );
+    const strip = screen.getByLabelText('Section image alt text');
+    expect(strip.textContent).toBe('hello');
+  });
+
+  it('does not render alt strip in preview mode', () => {
+    function ForcePreview() {
+      const { setMode } = useEditorMode();
+      React.useEffect(() => { setMode('preview'); }, [setMode]);
+      return null;
+    }
+    render(
+      <AssetPickerProvider workspaceSlug="ws">
+        <EditorModeProvider>
+          <ForcePreview />
+          <EditableImage
+            value="x.png"
+            onChange={() => {}}
+            alt="hello"
+            placeholderLabel="ph"
+            altLabel="Section image alt text"
+            onAltChange={() => {}}
+          />
+        </EditorModeProvider>
+      </AssetPickerProvider>
+    );
+    expect(screen.queryByLabelText('Section image alt text')).toBeNull();
+  });
+});
+
 describe('EditableImage — preview mode', () => {
   function renderPreview(ui: React.ReactNode) {
     return render(

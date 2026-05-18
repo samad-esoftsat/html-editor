@@ -124,3 +124,12 @@ body {
 .editable-link-icon:focus-visible {
   opacity: 1;
 }
+
+.editable-image-alt {
+  opacity: 0;
+  transition: opacity 100ms;
+}
+.editable-image-wrap:hover .editable-image-alt,
+.editable-image-wrap:focus-within .editable-image-alt {
+  opacity: 1;
+}

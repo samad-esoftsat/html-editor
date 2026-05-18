@@ -1,6 +1,7 @@
 'use client';
 import { useAssetPicker } from '../AssetPickerProvider';
 import { useEditorMode } from '../EditorModeProvider';
+import { EditableText } from './EditableText';
 
 export interface EditableImageProps {
   value: string;
@@ -10,6 +11,8 @@ export interface EditableImageProps {
   placeholderWidth?: number;
   placeholderHeight?: number;
   imgStyle?: React.CSSProperties;
+  altLabel?: string;
+  onAltChange?: (next: string) => void;
 }
 
 export function EditableImage({
@@ -20,6 +23,8 @@ export function EditableImage({
   placeholderWidth,
   placeholderHeight,
   imgStyle,
+  altLabel,
+  onAltChange,
 }: EditableImageProps) {
   const { openAssetPicker } = useAssetPicker();
   const { mode } = useEditorMode();
@@ -38,7 +43,7 @@ export function EditableImage({
   }
 
   if (value) {
-    return (
+    const img = (
       <img
         src={value}
         alt={alt}
@@ -46,6 +51,22 @@ export function EditableImage({
         className="inline-editable-image"
         style={{ cursor: 'pointer', ...imgStyle }}
       />
+    );
+    if (!onAltChange) return img;
+    return (
+      <span className="editable-image-wrap inline-flex flex-col items-stretch">
+        {img}
+        <span className="editable-image-alt block text-[12px] text-muted mt-1 px-1">
+          Alt:{' '}
+          <EditableText
+            value={alt}
+            onChange={onAltChange}
+            singleLine
+            placeholder="click to add"
+            ariaLabel={altLabel ?? 'Image alt text'}
+          />
+        </span>
+      </span>
     );
   }
 
