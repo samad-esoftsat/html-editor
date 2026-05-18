@@ -53,3 +53,19 @@ export async function duplicateProject(id: string, name?: string): Promise<{ id:
   if (!res.ok) throw new Error(await res.text());
   return res.json();
 }
+
+export async function translateProject(
+  id: string,
+  opts: { name?: string; language: string; tone?: string },
+): Promise<{ id: string; name: string }> {
+  const res = await fetch(`/api/projects/${id}/translate`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(opts),
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(text || `translate failed: ${res.status}`);
+  }
+  return res.json();
+}
