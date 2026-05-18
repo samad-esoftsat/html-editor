@@ -36,3 +36,23 @@ body {
   outline-offset: 2px;
   border-radius: 6px;
 }
+
+.inline-editable {
+  cursor: text;
+  border-radius: 2px;
+  transition: outline-color 100ms ease-out;
+  outline-offset: 2px;
+}
+.inline-editable:hover {
+  outline: 1px solid color-mix(in oklab, var(--brand, #6366f1) 40%, transparent);
+}
+.inline-editable:focus {
+  outline: 1.5px solid var(--brand, #6366f1);
+}
+.inline-editable[data-empty='true']::before {
+  content: attr(aria-placeholder);
+  pointer-events: none;
+}
+.inline-editable[data-empty='true']:focus::before {
+  content: none;
+}
