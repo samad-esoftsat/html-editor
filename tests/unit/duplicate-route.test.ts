@@ -19,4 +19,8 @@ describe('resolveDuplicateName', () => {
     expect(resolveDuplicateName(123 as unknown, 'Original')).toBe('Original (copy)');
     expect(resolveDuplicateName(null, 'Original')).toBe('Original (copy)');
   });
+
+  it('caps the requested name at 200 characters', () => {
+    expect(resolveDuplicateName('a'.repeat(250), 'Original').length).toBe(200);
+  });
 });
