@@ -114,3 +114,13 @@ body {
   color: -webkit-link;
   text-decoration: underline;
 }
+
+.editable-link-icon {
+  opacity: 0;
+  transition: opacity 100ms;
+}
+.inline-link-wrap:hover .editable-link-icon,
+.inline-link-wrap:focus-within .editable-link-icon,
+.editable-link-icon:focus-visible {
+  opacity: 1;
+}
