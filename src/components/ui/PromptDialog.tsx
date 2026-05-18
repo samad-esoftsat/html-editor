@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { Button } from './Button';
 import { fade, scaleFade } from '@/lib/motion';
@@ -25,6 +25,16 @@ export function PromptDialog() {
     return () => cancelAnimationFrame(id);
   }, [state]);
 
+  const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      state!.resolve(value);
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      state!.resolve(null);
+    }
+  };
+
   return (
     <AnimatePresence>
       {state && (
@@ -46,28 +56,28 @@ export function PromptDialog() {
             {state.message && (
               <div className="text-sm text-muted mb-4">{state.message}</div>
             )}
-            {state.label && (
-              <label className="block text-xs font-medium text-muted-2 mb-1">
-                {state.label}
+            {state.label ? (
+              <label className="mb-6 block text-xs font-medium text-muted-2">
+                <span className="mb-1 block">{state.label}</span>
+                <input
+                  ref={inputRef}
+                  className="w-full rounded border border-border-strong bg-panel-2 px-2 py-1.5 text-sm text-fg focus:outline-none focus:border-brand"
+                  value={value}
+                  placeholder={state.placeholder}
+                  onChange={(e) => setValue(e.target.value)}
+                  onKeyDown={onKeyDown}
+                />
               </label>
+            ) : (
+              <input
+                ref={inputRef}
+                className="mb-6 w-full rounded border border-border-strong bg-panel-2 px-2 py-1.5 text-sm text-fg focus:outline-none focus:border-brand"
+                value={value}
+                placeholder={state.placeholder}
+                onChange={(e) => setValue(e.target.value)}
+                onKeyDown={onKeyDown}
+              />
             )}
-            <input
-              ref={inputRef}
-              className="mb-2 w-full rounded border border-border-strong bg-panel-2 px-2 py-1.5 text-sm text-fg focus:outline-none focus:border-brand"
-              value={value}
-              placeholder={state.placeholder}
-              onChange={(e) => setValue(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault();
-                  state.resolve(value);
-                } else if (e.key === 'Escape') {
-                  e.preventDefault();
-                  state.resolve(null);
-                }
-              }}
-            />
-            <div className="text-xs text-muted-2 mb-6">Leave blank to use the default name.</div>
             <div className="flex gap-2 justify-end">
               <Button variant="ghost" onClick={() => state.resolve(null)}>Cancel</Button>
               <Button variant="primary" onClick={() => state.resolve(value)}>
