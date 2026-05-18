@@ -1,12 +1,13 @@
 'use client';
 import Link from 'next/link';
-import { AlertCircle, ArrowLeft, Check, Download, Loader2, Redo2, Undo2 } from 'lucide-react';
+import { AlertCircle, ArrowLeft, Check, Loader2, Redo2, Undo2 } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useEditor, useEditorStore, useTemporal } from '@/lib/editor/StoreProvider';
 import { useCanEdit } from '@/lib/editor/RoleProvider';
 import { useState } from 'react';
 import { fade } from '@/lib/motion';
 import { WorkspaceSwitcher, type WorkspaceOption } from '@/components/workspace/WorkspaceSwitcher';
+import { DownloadMenu } from './DownloadMenu';
 
 interface TopbarProps {
   slug: string;
@@ -132,13 +133,7 @@ export function Topbar({ slug, currentWorkspace, workspaces }: TopbarProps) {
             </button>
           </>
         )}
-        <a
-          href={`/api/projects/${projectId}/export`}
-          download
-          className="inline-flex items-center justify-center gap-1.5 rounded-md px-4 py-2 text-sm font-medium bg-brand text-white shadow-sm shadow-brand/20 hover:bg-brand/90 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
-        >
-          <Download size={14} /> Download HTML
-        </a>
+        <DownloadMenu projectId={projectId} slug={slug} />
       </div>
     </div>
   );
