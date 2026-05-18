@@ -5,6 +5,7 @@ import type { SocialPlatform } from '@/lib/editor/types';
 import { EditableText } from './editable/EditableText';
 import { EditableBulletList } from './editable/EditableBulletList';
 import { EditableImage } from './editable/EditableImage';
+import { EditableLink } from './editable/EditableLink';
 import { useEditorMode } from './EditorModeProvider';
 
 const ICONS: Record<SocialPlatform, React.ComponentType<{ size?: number; color?: string }>> = {
@@ -33,6 +34,8 @@ export function PreviewBody() {
             placeholderLabel="Logo image - click to add"
             placeholderWidth={data.header.logoWidth}
             imgStyle={{ maxWidth: data.header.logoWidth, width: '100%' }}
+            altLabel="Header logo alt text"
+            onAltChange={(v) => setHeader({ logoAlt: v })}
           />
         </div>
         <h1 style={{ textAlign: 'center', fontSize: data.header.titleFontSize, color: g.textColor, fontWeight: 400, margin: '20px 0' }}>
@@ -51,6 +54,8 @@ export function PreviewBody() {
             alt={data.header.bannerAlt}
             placeholderLabel="Header banner - click to add"
             imgStyle={{ width: '100%' }}
+            altLabel="Header banner alt text"
+            onAltChange={(v) => setHeader({ bannerAlt: v })}
           />
         </div>
         <h3 style={{ textAlign: 'center', fontSize: data.header.sectionHeadingFontSize, color: g.textColor, fontWeight: 400, margin: '12px 0' }}>
@@ -81,6 +86,8 @@ export function PreviewBody() {
               alt={s.imageAlt}
               placeholderLabel="Section image - click to add"
               imgStyle={{ maxWidth: 355, width: '100%' }}
+              altLabel={`Section ${idx + 1} image alt text`}
+              onAltChange={(v) => setSection(s.id, { imageAlt: v })}
             />
           </div>
         );
@@ -111,14 +118,21 @@ export function PreviewBody() {
                 padding: '10px 30px', borderRadius: 10, fontWeight: 700, fontSize: 16, textDecoration: 'none',
               }}
             >
-              <EditableText
-                value={s.ctaText}
-                onChange={(v) => setSection(s.id, { ctaText: v })}
-                singleLine
-                placeholder="Click to add CTA text"
-                ariaLabel={`Section ${idx + 1} CTA text`}
-                style={{ color: g.buttonTextColor }}
-              />
+              <span className="inline-link-wrap inline-flex items-center gap-1">
+                <EditableText
+                  value={s.ctaText}
+                  onChange={(v) => setSection(s.id, { ctaText: v })}
+                  singleLine
+                  placeholder="Click to add CTA text"
+                  ariaLabel={`Section ${idx + 1} CTA text`}
+                  style={{ color: g.buttonTextColor }}
+                />
+                <EditableLink
+                  value={s.ctaUrl ?? ''}
+                  onChange={(v) => setSection(s.id, { ctaUrl: v })}
+                  ariaLabel={`Edit section ${idx + 1} CTA URL`}
+                />
+              </span>
             </a>
           </div>
         );
@@ -143,6 +157,8 @@ export function PreviewBody() {
           placeholderLabel="Footer banner - click to add"
           placeholderWidth={710}
           imgStyle={{ maxWidth: 710, width: '100%' }}
+          altLabel="Footer banner alt text"
+          onAltChange={(v) => setFooter({ bannerAlt: v })}
         />
         <p style={{ fontWeight: 700, margin: '12px 0 0' }}>
           <EditableText
@@ -164,14 +180,21 @@ export function PreviewBody() {
         <p style={{ marginTop: 12 }}>
           Tel:{' '}
           <a href={`tel:${data.footer.phoneTel}`} onClick={blockNav} style={{ color: g.accentColor, textDecoration: 'none' }}>
-            <EditableText
-              value={data.footer.phone}
-              onChange={(v) => setFooter({ phone: v })}
-              singleLine
-              placeholder="Click to add phone"
-              ariaLabel="Footer phone"
-              style={{ color: g.accentColor }}
-            />
+            <span className="inline-link-wrap inline-flex items-center gap-1">
+              <EditableText
+                value={data.footer.phone}
+                onChange={(v) => setFooter({ phone: v })}
+                singleLine
+                placeholder="Click to add phone"
+                ariaLabel="Footer phone"
+                style={{ color: g.accentColor }}
+              />
+              <EditableLink
+                value={data.footer.phoneTel}
+                onChange={(v) => setFooter({ phoneTel: v })}
+                ariaLabel="Edit phone dial URL"
+              />
+            </span>
           </a>
           <br />
           Email:{' '}
@@ -190,18 +213,29 @@ export function PreviewBody() {
             <span key={i}>
               {i > 0 ? ' · ' : ''}
               <a href={w.url} onClick={blockNav} style={{ color: g.accentColor, textDecoration: 'none' }}>
-                <EditableText
-                  value={w.label}
-                  onChange={(v) => {
-                    const next = data.footer.websites.slice();
-                    next[i] = { ...next[i], label: v };
-                    setFooter({ websites: next });
-                  }}
-                  singleLine
-                  placeholder="Website label"
-                  ariaLabel={`Website ${i + 1} label`}
-                  style={{ color: g.accentColor }}
-                />
+                <span className="inline-link-wrap inline-flex items-center gap-1">
+                  <EditableText
+                    value={w.label}
+                    onChange={(v) => {
+                      const next = data.footer.websites.slice();
+                      next[i] = { ...next[i], label: v };
+                      setFooter({ websites: next });
+                    }}
+                    singleLine
+                    placeholder="Website label"
+                    ariaLabel={`Website ${i + 1} label`}
+                    style={{ color: g.accentColor }}
+                  />
+                  <EditableLink
+                    value={w.url}
+                    onChange={(v) => {
+                      const next = data.footer.websites.slice();
+                      next[i] = { ...next[i], url: v };
+                      setFooter({ websites: next });
+                    }}
+                    ariaLabel={`Edit website ${i + 1} URL`}
+                  />
+                </span>
               </a>
             </span>
           ))}
@@ -210,9 +244,22 @@ export function PreviewBody() {
           {data.footer.socials.map((s, i) => {
             const Icon = ICONS[s.platform];
             return (
-              <a key={i} href={s.url} onClick={blockNav} target="_blank" rel="noreferrer" style={{ margin: '0 10px', display: 'inline-block' }}>
-                <Icon size={32} color={g.footerTextColor} />
-              </a>
+              <span key={i} className="relative inline-block" style={{ margin: '0 10px' }}>
+                <a href={s.url} onClick={blockNav} target="_blank" rel="noreferrer" style={{ display: 'inline-block' }}>
+                  <Icon size={32} color={g.footerTextColor} />
+                </a>
+                <EditableLink
+                  value={s.url}
+                  onChange={(v) => {
+                    const next = data.footer.socials.slice();
+                    next[i] = { ...next[i], url: v };
+                    setFooter({ socials: next });
+                  }}
+                  ariaLabel={`Edit ${s.platform} URL`}
+                  alwaysVisible
+                  className="absolute -top-2 -right-2 bg-panel-2 rounded-full border border-border-strong"
+                />
+              </span>
             );
           })}
         </div>
