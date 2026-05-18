@@ -1,54 +1,64 @@
 'use client';
-import { useEditor } from '@/lib/editor/StoreProvider';
+import { useEditor, useEditorStore } from '@/lib/editor/StoreProvider';
 import { Facebook, Linkedin, Twitter, Youtube, Instagram } from 'lucide-react';
 import type { SocialPlatform } from '@/lib/editor/types';
+import { EditableText } from './editable/EditableText';
+import { EditableBulletList } from './editable/EditableBulletList';
+import { EditableImage } from './editable/EditableImage';
 
 const ICONS: Record<SocialPlatform, React.ComponentType<{ size?: number; color?: string }>> = {
   facebook: Facebook, linkedin: Linkedin, twitter: Twitter, youtube: Youtube, instagram: Instagram,
 };
 
-function PlaceholderImg({ width, height, label }: { width?: number; height?: number; label: string }) {
-  return (
-    <div style={{
-      width: '100%', maxWidth: width ?? 355, aspectRatio: width && height ? `${width} / ${height}` : '4/3',
-      display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-      background: '#eaeaea', color: '#888', border: '1px dashed #bbb', fontSize: 12,
-    }}>{label}</div>
-  );
-}
-
 export function PreviewBody() {
   const data = useEditor((s) => s.data);
+  const store = useEditorStore();
   const g = data.global;
+  const setHeader = store.getState().setHeader;
+  const setFooter = store.getState().setFooter;
+  const setSection = store.getState().setSection;
 
   return (
     <div style={{ background: g.backgroundColor, padding: 0, minHeight: '100%', fontFamily: g.fontFamily }}>
       {/* Header */}
       <div style={{ maxWidth: 710, margin: '0 auto', padding: '20px' }}>
         <div style={{ textAlign: 'center' }}>
-          {data.header.logoSrc ? (
-            <img src={data.header.logoSrc} alt={data.header.logoAlt} style={{ maxWidth: data.header.logoWidth, width: '100%' }} />
-          ) : (
-            <PlaceholderImg width={data.header.logoWidth} label="Logo image - add a URL or upload" />
-          )}
+          <EditableImage
+            value={data.header.logoSrc}
+            onChange={(v) => setHeader({ logoSrc: v })}
+            alt={data.header.logoAlt}
+            placeholderLabel="Logo image - click to add"
+            placeholderWidth={data.header.logoWidth}
+            imgStyle={{ maxWidth: data.header.logoWidth, width: '100%' }}
+          />
         </div>
-        {data.header.title && (
-          <h1 style={{ textAlign: 'center', fontSize: data.header.titleFontSize, color: g.textColor, fontWeight: 400, margin: '20px 0' }}>
-            {data.header.title}
-          </h1>
-        )}
+        <h1 style={{ textAlign: 'center', fontSize: data.header.titleFontSize, color: g.textColor, fontWeight: 400, margin: '20px 0' }}>
+          <EditableText
+            value={data.header.title}
+            onChange={(v) => setHeader({ title: v })}
+            singleLine
+            placeholder="Click to add a title"
+            ariaLabel="Header title"
+          />
+        </h1>
         <div style={{ textAlign: 'center' }}>
-          {data.header.bannerSrc ? (
-            <img src={data.header.bannerSrc} alt={data.header.bannerAlt} style={{ width: '100%' }} />
-          ) : (
-            <PlaceholderImg label="Header banner - add a URL or upload" />
-          )}
+          <EditableImage
+            value={data.header.bannerSrc}
+            onChange={(v) => setHeader({ bannerSrc: v })}
+            alt={data.header.bannerAlt}
+            placeholderLabel="Header banner - click to add"
+            imgStyle={{ width: '100%' }}
+          />
         </div>
-        {data.header.sectionHeading && (
-          <h3 style={{ textAlign: 'center', fontSize: data.header.sectionHeadingFontSize, color: g.textColor, fontWeight: 400, margin: '12px 0' }}>
-            {data.header.sectionHeading}
-          </h3>
-        )}
+        <h3 style={{ textAlign: 'center', fontSize: data.header.sectionHeadingFontSize, color: g.textColor, fontWeight: 400, margin: '12px 0' }}>
+          <EditableText
+            value={data.header.sectionHeading}
+            onChange={(v) => setHeader({ sectionHeading: v })}
+            singleLine
+            placeholder="Click to add a section heading"
+            ariaLabel="Section heading"
+          />
+        </h3>
       </div>
 
       {/* Sections */}
@@ -62,29 +72,50 @@ export function PreviewBody() {
 
         const ImageCol = (
           <div style={{ width: '50%', padding: 20, verticalAlign: 'middle', display: 'inline-block' }}>
-            {s.imageSrc ? (
-              <img src={s.imageSrc} alt={s.imageAlt} style={{ maxWidth: 355, width: '100%' }} />
-            ) : (
-              <PlaceholderImg label="Section image - add a URL or upload" />
-            )}
+            <EditableImage
+              value={s.imageSrc}
+              onChange={(v) => setSection(s.id, { imageSrc: v })}
+              alt={s.imageAlt}
+              placeholderLabel="Section image - click to add"
+              imgStyle={{ maxWidth: 355, width: '100%' }}
+            />
           </div>
         );
         const TextCol = (
           <div style={{ width: '50%', padding: 20, verticalAlign: 'middle', display: 'inline-block' }}>
-            <h1 style={{ fontSize: titleSize, color: textColor, fontWeight: 700, margin: 0 }}>{s.title}</h1>
-            <ul style={{ fontSize: bulletSize, color: textColor, lineHeight: '150%' }}>
-              {s.bullets.map((b, i) => <li key={i}>{b}</li>)}
-            </ul>
+            <h1 style={{ fontSize: titleSize, color: textColor, fontWeight: 700, margin: 0 }}>
+              <EditableText
+                value={s.title}
+                onChange={(v) => setSection(s.id, { title: v })}
+                singleLine
+                placeholder="Click to add a section title"
+                ariaLabel={`Section ${idx + 1} title`}
+              />
+            </h1>
+            <EditableBulletList
+              bullets={s.bullets}
+              onChange={(next) => setSection(s.id, { bullets: next })}
+              ariaLabel={`Section ${idx + 1} bullets`}
+              itemStyle={{ fontSize: bulletSize, color: textColor, lineHeight: '150%' }}
+            />
             <a
               href={s.ctaUrl ?? g.contactUrl}
               target="_blank"
               rel="noreferrer"
+              onClick={(e) => e.preventDefault()}
               style={{
                 display: 'inline-block', background: buttonColor, color: g.buttonTextColor,
                 padding: '10px 30px', borderRadius: 10, fontWeight: 700, fontSize: 16, textDecoration: 'none',
               }}
             >
-              {s.ctaText}
+              <EditableText
+                value={s.ctaText}
+                onChange={(v) => setSection(s.id, { ctaText: v })}
+                singleLine
+                placeholder="Click to add CTA text"
+                ariaLabel={`Section ${idx + 1} CTA text`}
+                style={{ color: g.buttonTextColor }}
+              />
             </a>
           </div>
         );
@@ -102,20 +133,73 @@ export function PreviewBody() {
         color: data.footer.textColor ?? g.footerTextColor,
         textAlign: 'center', padding: '20px',
       }}>
-        {data.footer.bannerSrc ? (
-          <img src={data.footer.bannerSrc} alt={data.footer.bannerAlt} style={{ maxWidth: 710, width: '100%' }} />
-        ) : (
-          <PlaceholderImg width={710} label="Footer banner - add a URL or upload" />
-        )}
-        <p style={{ fontWeight: 700, margin: '12px 0 0' }}>{data.footer.companyName}</p>
-        <p style={{ whiteSpace: 'pre-line', margin: 0 }}>{data.footer.address}</p>
+        <EditableImage
+          value={data.footer.bannerSrc}
+          onChange={(v) => setFooter({ bannerSrc: v })}
+          alt={data.footer.bannerAlt}
+          placeholderLabel="Footer banner - click to add"
+          placeholderWidth={710}
+          imgStyle={{ maxWidth: 710, width: '100%' }}
+        />
+        <p style={{ fontWeight: 700, margin: '12px 0 0' }}>
+          <EditableText
+            value={data.footer.companyName}
+            onChange={(v) => setFooter({ companyName: v })}
+            singleLine
+            placeholder="Click to add company name"
+            ariaLabel="Footer company name"
+          />
+        </p>
+        <p style={{ whiteSpace: 'pre-line', margin: 0 }}>
+          <EditableText
+            value={data.footer.address}
+            onChange={(v) => setFooter({ address: v })}
+            placeholder="Click to add address (multiple lines allowed)"
+            ariaLabel="Footer address"
+          />
+        </p>
         <p style={{ marginTop: 12 }}>
-          Tel: <a href={`tel:${data.footer.phoneTel}`} style={{ color: g.accentColor, textDecoration: 'none' }}>{data.footer.phone}</a><br />
-          Email: <a href={`mailto:${data.footer.email}`} style={{ color: g.accentColor, textDecoration: 'none' }}>{data.footer.email}</a><br />
+          Tel:{' '}
+          <a href={`tel:${data.footer.phoneTel}`} onClick={(e) => e.preventDefault()} style={{ color: g.accentColor, textDecoration: 'none' }}>
+            <EditableText
+              value={data.footer.phone}
+              onChange={(v) => setFooter({ phone: v })}
+              singleLine
+              placeholder="Click to add phone"
+              ariaLabel="Footer phone"
+              style={{ color: g.accentColor }}
+            />
+          </a>
+          <br />
+          Email:{' '}
+          <a href={`mailto:${data.footer.email}`} onClick={(e) => e.preventDefault()} style={{ color: g.accentColor, textDecoration: 'none' }}>
+            <EditableText
+              value={data.footer.email}
+              onChange={(v) => setFooter({ email: v })}
+              singleLine
+              placeholder="Click to add email"
+              ariaLabel="Footer email"
+              style={{ color: g.accentColor }}
+            />
+          </a>
+          <br />
           {data.footer.websites.map((w, i) => (
             <span key={i}>
               {i > 0 ? ' · ' : ''}
-              <a href={w.url} style={{ color: g.accentColor, textDecoration: 'none' }}>{w.label}</a>
+              <a href={w.url} onClick={(e) => e.preventDefault()} style={{ color: g.accentColor, textDecoration: 'none' }}>
+                <EditableText
+                  value={w.label}
+                  onChange={(v) => {
+                    const next = data.footer.websites.slice();
+                    next[i] = { ...next[i], label: v };
+                    setFooter({ websites: next });
+                  }}
+                  singleLine
+                  placeholder="Website label"
+                  ariaLabel={`Website ${i + 1} label`}
+                  style={{ color: g.accentColor }}
+                />
+              </a>
             </span>
           ))}
         </p>
