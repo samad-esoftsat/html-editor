@@ -9,6 +9,7 @@ import { fade } from '@/lib/motion';
 import { WorkspaceSwitcher, type WorkspaceOption } from '@/components/workspace/WorkspaceSwitcher';
 import { DownloadMenu } from './DownloadMenu';
 import { TranslateMenu } from './TranslateMenu';
+import { useEditorMode } from './EditorModeProvider';
 
 interface TopbarProps {
   slug: string;
@@ -103,6 +104,7 @@ export function Topbar({ slug, currentWorkspace, workspaces }: TopbarProps) {
       )}
       {lastError && <span className="text-danger text-xs">{lastError}</span>}
       <div className="ml-auto flex items-center gap-2">
+        {canEdit && <ModeToggle />}
         {canEdit && (
           <>
             <button
@@ -137,6 +139,31 @@ export function Topbar({ slug, currentWorkspace, workspaces }: TopbarProps) {
         )}
         <DownloadMenu projectId={projectId} slug={slug} />
       </div>
+    </div>
+  );
+}
+
+function ModeToggle() {
+  const { mode, setMode } = useEditorMode();
+  const baseBtn = 'px-2.5 py-1 text-xs transition-colors';
+  return (
+    <div className="inline-flex items-center rounded-md border border-border-strong overflow-hidden">
+      <button
+        type="button"
+        aria-pressed={mode === 'edit'}
+        onClick={() => setMode('edit')}
+        className={`${baseBtn} ${mode === 'edit' ? 'bg-brand text-white' : 'text-fg hover:bg-panel'}`}
+      >
+        Edit
+      </button>
+      <button
+        type="button"
+        aria-pressed={mode === 'preview'}
+        onClick={() => setMode('preview')}
+        className={`${baseBtn} ${mode === 'preview' ? 'bg-brand text-white' : 'text-fg hover:bg-panel'}`}
+      >
+        Preview
+      </button>
     </div>
   );
 }

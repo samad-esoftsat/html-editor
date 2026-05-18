@@ -5,6 +5,7 @@ import type { SocialPlatform } from '@/lib/editor/types';
 import { EditableText } from './editable/EditableText';
 import { EditableBulletList } from './editable/EditableBulletList';
 import { EditableImage } from './editable/EditableImage';
+import { useEditorMode } from './EditorModeProvider';
 
 const ICONS: Record<SocialPlatform, React.ComponentType<{ size?: number; color?: string }>> = {
   facebook: Facebook, linkedin: Linkedin, twitter: Twitter, youtube: Youtube, instagram: Instagram,
@@ -13,6 +14,8 @@ const ICONS: Record<SocialPlatform, React.ComponentType<{ size?: number; color?:
 export function PreviewBody() {
   const data = useEditor((s) => s.data);
   const store = useEditorStore();
+  const { mode } = useEditorMode();
+  const blockNav = mode === 'edit' ? (e: React.MouseEvent) => e.preventDefault() : undefined;
   const g = data.global;
   const setHeader = store.getState().setHeader;
   const setFooter = store.getState().setFooter;
@@ -102,7 +105,7 @@ export function PreviewBody() {
               href={s.ctaUrl ?? g.contactUrl}
               target="_blank"
               rel="noreferrer"
-              onClick={(e) => e.preventDefault()}
+              onClick={blockNav}
               style={{
                 display: 'inline-block', background: buttonColor, color: g.buttonTextColor,
                 padding: '10px 30px', borderRadius: 10, fontWeight: 700, fontSize: 16, textDecoration: 'none',
@@ -160,7 +163,7 @@ export function PreviewBody() {
         </p>
         <p style={{ marginTop: 12 }}>
           Tel:{' '}
-          <a href={`tel:${data.footer.phoneTel}`} onClick={(e) => e.preventDefault()} style={{ color: g.accentColor, textDecoration: 'none' }}>
+          <a href={`tel:${data.footer.phoneTel}`} onClick={blockNav} style={{ color: g.accentColor, textDecoration: 'none' }}>
             <EditableText
               value={data.footer.phone}
               onChange={(v) => setFooter({ phone: v })}
@@ -172,7 +175,7 @@ export function PreviewBody() {
           </a>
           <br />
           Email:{' '}
-          <a href={`mailto:${data.footer.email}`} onClick={(e) => e.preventDefault()} style={{ color: g.accentColor, textDecoration: 'none' }}>
+          <a href={`mailto:${data.footer.email}`} onClick={blockNav} style={{ color: g.accentColor, textDecoration: 'none' }}>
             <EditableText
               value={data.footer.email}
               onChange={(v) => setFooter({ email: v })}
@@ -186,7 +189,7 @@ export function PreviewBody() {
           {data.footer.websites.map((w, i) => (
             <span key={i}>
               {i > 0 ? ' · ' : ''}
-              <a href={w.url} onClick={(e) => e.preventDefault()} style={{ color: g.accentColor, textDecoration: 'none' }}>
+              <a href={w.url} onClick={blockNav} style={{ color: g.accentColor, textDecoration: 'none' }}>
                 <EditableText
                   value={w.label}
                   onChange={(v) => {
@@ -207,7 +210,7 @@ export function PreviewBody() {
           {data.footer.socials.map((s, i) => {
             const Icon = ICONS[s.platform];
             return (
-              <a key={i} href={s.url} onClick={(e) => e.preventDefault()} target="_blank" rel="noreferrer" style={{ margin: '0 10px', display: 'inline-block' }}>
+              <a key={i} href={s.url} onClick={blockNav} target="_blank" rel="noreferrer" style={{ margin: '0 10px', display: 'inline-block' }}>
                 <Icon size={32} color={g.footerTextColor} />
               </a>
             );
