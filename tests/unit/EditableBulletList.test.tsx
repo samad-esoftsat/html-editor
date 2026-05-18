@@ -1,10 +1,22 @@
+import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { render, screen, fireEvent, within } from '@testing-library/react';
 import { EditableBulletList } from '@/components/editor/editable/EditableBulletList';
+import { EditorModeProvider, useEditorMode } from '@/components/editor/EditorModeProvider';
+
+function ForcePreview() {
+  const { setMode } = useEditorMode();
+  React.useEffect(() => { setMode('preview'); }, [setMode]);
+  return null;
+}
 
 function setup(bullets: string[]) {
   const onChange = vi.fn();
-  render(<EditableBulletList bullets={bullets} onChange={onChange} ariaLabel="Bullets" />);
+  render(
+    <EditorModeProvider>
+      <EditableBulletList bullets={bullets} onChange={onChange} ariaLabel="Bullets" />
+    </EditorModeProvider>,
+  );
   return { onChange };
 }
 
@@ -64,5 +76,24 @@ describe('EditableBulletList', () => {
   it('rendering with zero bullets shows an empty list and renders a single empty editable to start with', () => {
     setup([]);
     expect(items().length).toBe(1);
+  });
+});
+
+describe('EditableBulletList — preview mode', () => {
+  it('renders plain <li> elements with no role="textbox" descendants', () => {
+    render(
+      <EditorModeProvider>
+        <ForcePreview />
+        <EditableBulletList bullets={['Alpha', 'Beta']} onChange={() => {}} ariaLabel="Bullets" />
+      </EditorModeProvider>,
+    );
+    const list = screen.getByRole('list', { name: 'Bullets' });
+    // No interactive textbox descendants
+    expect(within(list).queryAllByRole('textbox').length).toBe(0);
+    // Plain list items with text content
+    const listItems = within(list).getAllByRole('listitem');
+    expect(listItems.length).toBe(2);
+    expect(listItems[0].textContent).toBe('Alpha');
+    expect(listItems[1].textContent).toBe('Beta');
   });
 });

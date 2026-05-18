@@ -1,5 +1,6 @@
 'use client';
 import React, { useEffect, useRef } from 'react';
+import { useEditorMode } from '../EditorModeProvider';
 
 export interface EditableTextProps {
   value: string;
@@ -22,6 +23,7 @@ export function EditableText({
   style,
   as,
 }: EditableTextProps) {
+  const { mode } = useEditorMode();
   const ref = useRef<HTMLElement | null>(null);
   const committedRef = useRef<string>(value);
 
@@ -77,6 +79,11 @@ export function EditableText({
       const el = ref.current;
       if (el) el.textContent = (el.textContent ?? '') + text;
     }
+  }
+
+  if (mode === 'preview') {
+    const PreviewTag = (as ?? 'span') as React.ElementType;
+    return <PreviewTag className={className} style={style}>{value}</PreviewTag>;
   }
 
   const Tag = (as ?? 'span') as React.ElementType;

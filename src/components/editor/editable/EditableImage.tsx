@@ -1,5 +1,6 @@
 'use client';
 import { useAssetPicker } from '../AssetPickerProvider';
+import { useEditorMode } from '../EditorModeProvider';
 
 export interface EditableImageProps {
   value: string;
@@ -21,6 +22,12 @@ export function EditableImage({
   imgStyle,
 }: EditableImageProps) {
   const { openAssetPicker } = useAssetPicker();
+  const { mode } = useEditorMode();
+
+  if (mode === 'preview') {
+    if (!value) return null;
+    return <img src={value} alt={alt} style={imgStyle} />;
+  }
 
   function open() {
     openAssetPicker({

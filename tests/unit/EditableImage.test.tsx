@@ -1,7 +1,14 @@
+import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { EditableImage } from '@/components/editor/editable/EditableImage';
 import { AssetPickerProvider } from '@/components/editor/AssetPickerProvider';
+import { EditorModeProvider, useEditorMode } from '@/components/editor/EditorModeProvider';
+
+function ForcePreview() {
+  const { setMode } = useEditorMode();
+  React.useEffect(() => { setMode('preview'); }, [setMode]);
+  return null;}
 
 vi.mock('@/components/editor/AssetPicker', () => ({
   AssetPicker: ({ onSelect, onClose }: { onSelect: (url: string) => void; onClose: () => void }) => (
@@ -13,7 +20,11 @@ vi.mock('@/components/editor/AssetPicker', () => ({
 }));
 
 function renderWithProvider(ui: React.ReactNode) {
-  return render(<AssetPickerProvider workspaceSlug="ws">{ui}</AssetPickerProvider>);
+  return render(
+    <AssetPickerProvider workspaceSlug="ws">
+      <EditorModeProvider>{ui}</EditorModeProvider>
+    </AssetPickerProvider>,
+  );
 }
 
 describe('EditableImage', () => {
@@ -72,5 +83,48 @@ describe('EditableImage', () => {
     );
     fireEvent.click(screen.getByRole('img', { name: 'Logo' }));
     expect(screen.getByRole('dialog', { name: 'Mock asset picker' })).toBeInTheDocument();
+  });
+});
+
+describe('EditableImage — preview mode', () => {
+  function renderPreview(ui: React.ReactNode) {
+    return render(
+      <AssetPickerProvider workspaceSlug="ws">
+        <EditorModeProvider>
+          <ForcePreview />
+          {ui}
+        </EditorModeProvider>
+      </AssetPickerProvider>,
+    );
+  }
+
+  it('renders a plain <img> with no onClick / no inline-editable-image class when value is set', () => {
+    renderPreview(
+      <EditableImage
+        value="https://example.com/a.png"
+        onChange={() => {}}
+        alt="Logo"
+        placeholderLabel="Logo"
+      />,
+    );
+    const img = screen.getByRole('img', { name: 'Logo' });
+    expect(img).toBeInTheDocument();
+    expect(img.classList.contains('inline-editable-image')).toBe(false);
+    // Clicking must NOT open the asset picker
+    fireEvent.click(img);
+    expect(screen.queryByRole('dialog', { name: 'Mock asset picker' })).toBeNull();
+  });
+
+  it('renders nothing (no placeholder button) when value is empty', () => {
+    renderPreview(
+      <EditableImage
+        value=""
+        onChange={() => {}}
+        alt=""
+        placeholderLabel="Logo image - click to add"
+      />,
+    );
+    expect(screen.queryByRole('button', { name: /Logo image/i })).toBeNull();
+    expect(screen.queryByRole('img')).toBeNull();
   });
 });

@@ -1,16 +1,28 @@
+import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { EditableText } from '@/components/editor/editable/EditableText';
+import { EditorModeProvider, useEditorMode } from '@/components/editor/EditorModeProvider';
+
+function ForcePreview() {
+  const { setMode } = useEditorMode();
+  React.useEffect(() => { setMode('preview'); }, [setMode]);
+  return null;
+}
+
+function renderEdit(ui: React.ReactNode) {
+  return render(<EditorModeProvider>{ui}</EditorModeProvider>);
+}
 
 describe('EditableText', () => {
   it('renders the value as textContent', () => {
-    render(<EditableText value="Hello" onChange={() => {}} ariaLabel="Title" />);
+    renderEdit(<EditableText value="Hello" onChange={() => {}} ariaLabel="Title" />);
     const el = screen.getByRole('textbox', { name: 'Title' });
     expect(el.textContent).toBe('Hello');
   });
 
   it('renders the placeholder when value is empty', () => {
-    render(<EditableText value="" onChange={() => {}} ariaLabel="Title" placeholder="Click to add" />);
+    renderEdit(<EditableText value="" onChange={() => {}} ariaLabel="Title" placeholder="Click to add" />);
     const el = screen.getByRole('textbox', { name: 'Title' });
     expect(el.getAttribute('data-empty')).toBe('true');
     expect(el.getAttribute('aria-placeholder')).toBe('Click to add');
@@ -18,7 +30,7 @@ describe('EditableText', () => {
 
   it('commits draft on blur', () => {
     const onChange = vi.fn();
-    render(<EditableText value="Old" onChange={onChange} ariaLabel="Title" />);
+    renderEdit(<EditableText value="Old" onChange={onChange} ariaLabel="Title" />);
     const el = screen.getByRole('textbox', { name: 'Title' });
     el.textContent = 'New';
     fireEvent.input(el);
@@ -28,7 +40,7 @@ describe('EditableText', () => {
 
   it('does not call onChange on blur when value is unchanged', () => {
     const onChange = vi.fn();
-    render(<EditableText value="Old" onChange={onChange} ariaLabel="Title" />);
+    renderEdit(<EditableText value="Old" onChange={onChange} ariaLabel="Title" />);
     const el = screen.getByRole('textbox', { name: 'Title' });
     fireEvent.blur(el);
     expect(onChange).not.toHaveBeenCalled();
@@ -36,7 +48,7 @@ describe('EditableText', () => {
 
   it('commits on Enter and prevents the default newline for single-line fields', () => {
     const onChange = vi.fn();
-    render(<EditableText value="Old" onChange={onChange} ariaLabel="Title" singleLine />);
+    renderEdit(<EditableText value="Old" onChange={onChange} ariaLabel="Title" singleLine />);
     const el = screen.getByRole('textbox', { name: 'Title' });
     el.textContent = 'New';
     fireEvent.input(el);
@@ -47,7 +59,7 @@ describe('EditableText', () => {
 
   it('does NOT commit on Enter for multiline fields (allows newline)', () => {
     const onChange = vi.fn();
-    render(<EditableText value="Old" onChange={onChange} ariaLabel="Address" />);
+    renderEdit(<EditableText value="Old" onChange={onChange} ariaLabel="Address" />);
     const el = screen.getByRole('textbox', { name: 'Address' });
     el.textContent = 'A\nB';
     fireEvent.input(el);
@@ -59,7 +71,7 @@ describe('EditableText', () => {
 
   it('reverts to the committed value on Escape and does not call onChange', () => {
     const onChange = vi.fn();
-    render(<EditableText value="Old" onChange={onChange} ariaLabel="Title" />);
+    renderEdit(<EditableText value="Old" onChange={onChange} ariaLabel="Title" />);
     const el = screen.getByRole('textbox', { name: 'Title' });
     el.textContent = 'Changed';
     fireEvent.input(el);
@@ -71,7 +83,7 @@ describe('EditableText', () => {
 
   it('strips HTML on paste by inserting only plain text', () => {
     const onChange = vi.fn();
-    render(<EditableText value="" onChange={onChange} ariaLabel="Title" />);
+    renderEdit(<EditableText value="" onChange={onChange} ariaLabel="Title" />);
     const el = screen.getByRole('textbox', { name: 'Title' });
     el.focus();
     const dt = new DataTransfer();
@@ -84,10 +96,37 @@ describe('EditableText', () => {
   });
 
   it('updates the DOM when external value changes while not focused', () => {
-    const { rerender } = render(<EditableText value="A" onChange={() => {}} ariaLabel="Title" />);
+    const { rerender } = renderEdit(<EditableText value="A" onChange={() => {}} ariaLabel="Title" />);
     const el = screen.getByRole('textbox', { name: 'Title' });
     expect(el.textContent).toBe('A');
-    rerender(<EditableText value="B" onChange={() => {}} ariaLabel="Title" />);
+    rerender(<EditorModeProvider><EditableText value="B" onChange={() => {}} ariaLabel="Title" /></EditorModeProvider>);
     expect(el.textContent).toBe('B');
+  });
+});
+
+describe('EditableText — preview mode', () => {
+  it('renders a non-interactive element with no contenteditable attribute', () => {
+    render(
+      <EditorModeProvider>
+        <ForcePreview />
+        <EditableText value="Hello preview" onChange={() => {}} ariaLabel="Title" />
+      </EditorModeProvider>,
+    );
+    // Should NOT find a textbox role (contentEditable)
+    expect(screen.queryByRole('textbox', { name: 'Title' })).toBeNull();
+    // Text content should still be visible
+    expect(screen.getByText('Hello preview')).toBeInTheDocument();
+  });
+
+  it('rendered element has no contenteditable attribute and no inline-editable class', () => {
+    render(
+      <EditorModeProvider>
+        <ForcePreview />
+        <EditableText value="Preview text" onChange={() => {}} ariaLabel="Title" className="custom" />
+      </EditorModeProvider>,
+    );
+    const el = screen.getByText('Preview text');
+    expect(el.getAttribute('contenteditable')).toBeNull();
+    expect(el.classList.contains('inline-editable')).toBe(false);
   });
 });

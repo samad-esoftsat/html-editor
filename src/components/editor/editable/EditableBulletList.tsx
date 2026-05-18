@@ -1,6 +1,7 @@
 'use client';
 import { useLayoutEffect, useRef } from 'react';
 import { EditableText } from './EditableText';
+import { useEditorMode } from '../EditorModeProvider';
 
 export interface EditableBulletListProps {
   bullets: string[];
@@ -33,6 +34,7 @@ export function EditableBulletList({
   className,
   liClassName,
 }: EditableBulletListProps) {
+  const { mode } = useEditorMode();
   const items = bullets.length > 0 ? bullets : [''];
   const focusRequest = useRef<{ index: number; caret: 'start' | 'end' } | null>(null);
   const ulRef = useRef<HTMLUListElement | null>(null);
@@ -99,6 +101,16 @@ export function EditableBulletList({
         onChange(arr);
       }
     }
+  }
+
+  if (mode === 'preview') {
+    return (
+      <ul role="list" aria-label={ariaLabel} className={className} style={{ margin: '1em 0', paddingLeft: 40 }}>
+        {items.map((b, i) => (
+          <li key={i} className={liClassName} style={itemStyle}>{b}</li>
+        ))}
+      </ul>
+    );
   }
 
   return (
