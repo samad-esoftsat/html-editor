@@ -1,14 +1,15 @@
 'use client';
 
-import { Copy, Pencil, Trash2 } from 'lucide-react';
+import { Copy, Loader2, Pencil, Trash2 } from 'lucide-react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
 import { motion } from 'motion/react';
 import { Button } from '@/components/ui/Button';
 import { spring } from '@/lib/motion';
 import { deleteProject, duplicateProject, patchProject, type ProjectSummary } from '@/lib/api/projects';
 import { confirmDialog } from '@/lib/utils/confirm';
+import { promptDialog } from '@/lib/utils/prompt';
+import { toast } from '@/lib/utils/toast';
 
 interface Props {
   project: ProjectSummary;
@@ -17,7 +18,6 @@ interface Props {
 }
 
 export function ProjectCard({ project, onChanged, slug }: Props) {
-  const router = useRouter();
   const [pending, start] = useTransition();
   const [renaming, setRenaming] = useState(false);
   const [name, setName] = useState(project.name);
@@ -43,10 +43,23 @@ export function ProjectCard({ project, onChanged, slug }: Props) {
     });
   }
 
-  function onDuplicate() {
+  async function onDuplicate() {
+    const result = await promptDialog({
+      title: 'Duplicate project',
+      message: 'Leave blank to use the default name.',
+      label: 'Name',
+      defaultValue: `${project.name} (copy)`,
+      confirmLabel: 'Duplicate',
+    });
+    if (result === null) return;
     start(async () => {
-      const { id } = await duplicateProject(project.id);
-      router.push(`/w/${slug}/p/${id}`);
+      try {
+        await duplicateProject(project.id, result.length > 0 ? result : undefined);
+        toast.success('Project duplicated');
+        onChanged();
+      } catch (err) {
+        toast.error(err instanceof Error && err.message ? err.message : 'Could not duplicate project');
+      }
     });
   }
 
@@ -93,7 +106,7 @@ export function ProjectCard({ project, onChanged, slug }: Props) {
           title="Duplicate"
           aria-label="Duplicate"
         >
-          <Copy size={14} />
+          {pending ? <Loader2 size={14} className="animate-spin" /> : <Copy size={14} />}
         </Button>
         <Button
           variant="secondary"
