@@ -35,4 +35,8 @@ describe('buildPrintHtml', () => {
   it('throws if input has no </head>', () => {
     expect(() => buildPrintHtml('<html><body></body></html>')).toThrow();
   });
+
+  it('throws if input has no <body>', () => {
+    expect(() => buildPrintHtml('<html><head></head></html>')).toThrow();
+  });
 });

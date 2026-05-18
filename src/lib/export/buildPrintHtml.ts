@@ -47,6 +47,9 @@ export function buildPrintHtml(emailHtml: string): string {
     throw new Error('buildPrintHtml: input must contain a </head> tag');
   }
   const withHead = emailHtml.replace('</head>', `${PRINT_STYLE}${PRINT_SCRIPT}</head>`);
+  if (!/<body[^>]*>/i.test(withHead)) {
+    throw new Error('buildPrintHtml: input must contain a <body> tag');
+  }
   // Insert toolbar as the first child of <body>. Match the opening <body ...> tag.
   return withHead.replace(/<body([^>]*)>/, (_match, attrs) => `<body${attrs}>${TOOLBAR}`);
 }

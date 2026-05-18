@@ -37,7 +37,7 @@ async function fetchAsDataUri(url: string, fetchImpl: typeof fetch): Promise<str
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
   try {
-    const res = await fetchImpl(url, { signal: controller.signal });
+    const res = await fetchImpl(url, { signal: controller.signal, redirect: 'error' });
     if (!res.ok) return null;
     const declared = res.headers.get('content-length');
     if (declared && Number(declared) > MAX_BYTES) return null;

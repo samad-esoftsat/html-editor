@@ -147,4 +147,15 @@ describe('embedImagesInHtml', () => {
     const result = await embedImagesInHtml(html, fetchImpl);
     expect(result.html).toContain('src="data:image/jpeg;base64,');
   });
+
+  it('keeps the original src when fetch is told to error on redirect', async () => {
+    const html = '<img src="https://example.com/redir.png">';
+    const fetchImpl = (async () => {
+      // Simulate the runtime throwing on redirect (Node's undici throws a TypeError with redirect: 'error').
+      throw new TypeError('unexpected redirect');
+    }) as typeof fetch;
+    const result = await embedImagesInHtml(html, fetchImpl);
+    expect(result.html).toContain('https://example.com/redir.png');
+    expect(result.failures).toEqual(['https://example.com/redir.png']);
+  });
 });
