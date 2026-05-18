@@ -31,7 +31,8 @@ export function TranslateMenu({ projectId, projectName, slug }: Props) {
       setName(`${projectName} (${abbrev})`);
       setError(null);
     }
-  }, [open, projectName, abbrev]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;

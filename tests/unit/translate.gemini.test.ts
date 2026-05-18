@@ -88,6 +88,19 @@ describe('translateStrings', () => {
     ).rejects.toThrow();
   });
 
+  it('throws if all values in the response are non-strings (empty result)', async () => {
+    const fakeClient = {
+      models: {
+        generateContent: vi.fn().mockResolvedValue({
+          text: JSON.stringify({ 'a': 123, 'b': null }),
+        }),
+      },
+    };
+    await expect(
+      translateStrings({ strings: { a: 'x', b: 'y' }, targetLanguageLabel: 'French', client: fakeClient }),
+    ).rejects.toThrow();
+  });
+
   it('skips the call when strings is empty (returns empty)', async () => {
     const fakeClient = {
       models: { generateContent: vi.fn() },

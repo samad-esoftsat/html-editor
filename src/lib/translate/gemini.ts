@@ -94,5 +94,9 @@ export async function translateStrings(args: TranslateArgs): Promise<Record<stri
 
   const text = res.text ?? '';
   const parsed = extractJsonObject(text);
-  return asStringMap(parsed);
+  const result = asStringMap(parsed);
+  if (Object.keys(result).length === 0) {
+    throw new Error('translation response contained no usable string values');
+  }
+  return result;
 }

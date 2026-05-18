@@ -132,9 +132,9 @@ export function Topbar({ slug, currentWorkspace, workspaces }: TopbarProps) {
             >
               Reset to last saved
             </button>
+            <TranslateMenu projectId={projectId} projectName={name} slug={slug} />
           </>
         )}
-        <TranslateMenu projectId={projectId} projectName={name} slug={slug} />
         <DownloadMenu projectId={projectId} slug={slug} />
       </div>
     </div>

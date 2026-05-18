@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { extractTranslatable, applyTranslations } from '@/lib/translate/fields';
 import { translateStrings } from '@/lib/translate/gemini';
 import { isLanguageCode, getLanguage } from '@/lib/translate/languages';
+import { resolveMinRole, type Role } from '@/lib/auth/workspace';
 import type { ProjectData } from '@/lib/editor/types';
 
 interface Ctx {
@@ -56,6 +57,16 @@ export async function POST(req: NextRequest, { params }: Ctx) {
     .maybeSingle();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   if (!src) return NextResponse.json({ error: 'not_found' }, { status: 404 });
+
+  const { data: membership } = await supabase
+    .from('organization_members')
+    .select('role')
+    .eq('user_id', user.id)
+    .eq('org_id', src.org_id)
+    .maybeSingle();
+  if (!membership || !resolveMinRole(membership.role as Role, 'editor')) {
+    return NextResponse.json({ error: 'forbidden' }, { status: 403 });
+  }
 
   const sourceData = src.data as ProjectData;
   const strings = extractTranslatable(sourceData);
