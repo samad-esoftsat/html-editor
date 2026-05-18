@@ -79,7 +79,13 @@ export async function translateStrings(args: TranslateArgs): Promise<Record<stri
   const { system, user } = buildTranslationPrompt(args);
   const model = args.model ?? DEFAULT_MODEL;
 
-  const client = args.client ?? new GoogleGenAI({ apiKey: process.env.GOOGLE_GENAI_API_KEY ?? '' });
+  if (!args.client) {
+    const apiKey = process.env.GEMINI_API_KEY ?? '';
+    if (!apiKey) {
+      throw new Error('GEMINI_API_KEY is not configured');
+    }
+  }
+  const client = args.client ?? new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY ?? '' });
 
   const res = await client.models.generateContent({
     model,
