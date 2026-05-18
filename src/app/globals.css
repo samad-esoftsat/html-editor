@@ -56,3 +56,16 @@ body {
 .inline-editable[data-empty='true']:focus::before {
   content: none;
 }
+
+.inline-editable-image {
+  outline: 1px solid transparent;
+  outline-offset: 2px;
+  transition: outline-color 100ms ease-out;
+}
+.inline-editable-image:hover {
+  outline-color: color-mix(in oklab, var(--color-brand, #f1592a) 40%, transparent);
+}
+.inline-editable-image-placeholder:hover {
+  border-color: var(--color-brand, #f1592a) !important;
+  color: var(--color-brand, #f1592a) !important;
+}
