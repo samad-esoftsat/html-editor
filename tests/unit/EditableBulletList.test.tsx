@@ -97,3 +97,31 @@ describe('EditableBulletList — preview mode', () => {
     expect(listItems[1].textContent).toBe('Beta');
   });
 });
+
+describe('EditableBulletList drag-to-reorder', () => {
+  it('renders a drag handle button per bullet in edit mode', () => {
+    const onChange = vi.fn();
+    render(
+      <EditorModeProvider>
+        <EditableBulletList bullets={['a', 'b', 'c']} onChange={onChange} ariaLabel="Test" />
+      </EditorModeProvider>
+    );
+    const handles = screen.getAllByLabelText(/drag to reorder bullet/i);
+    expect(handles.length).toBe(3);
+  });
+
+  it('does not render drag handles in preview mode', () => {
+    function ForcePreview() {
+      const { setMode } = useEditorMode();
+      React.useEffect(() => { setMode('preview'); }, [setMode]);
+      return null;
+    }
+    render(
+      <EditorModeProvider>
+        <ForcePreview />
+        <EditableBulletList bullets={['a', 'b']} onChange={() => {}} ariaLabel="Test" />
+      </EditorModeProvider>
+    );
+    expect(screen.queryAllByLabelText(/drag to reorder bullet/i).length).toBe(0);
+  });
+});

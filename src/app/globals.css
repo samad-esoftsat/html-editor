@@ -151,3 +151,12 @@ body {
 .section-wrap:focus-within .section-toolbar {
   opacity: 1;
 }
+
+.bullet-row .bullet-grip {
+  opacity: 0;
+  transition: opacity 100ms;
+}
+.bullet-row:hover .bullet-grip,
+.bullet-grip:focus-visible {
+  opacity: 1;
+}

@@ -1,7 +1,12 @@
 'use client';
 import { useLayoutEffect, useRef } from 'react';
+import { DndContext, closestCenter, type DragEndEvent } from '@dnd-kit/core';
+import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { GripVertical } from 'lucide-react';
 import { EditableText } from './EditableText';
 import { useEditorMode } from '../EditorModeProvider';
+import { useDragSensors } from '../canvas/useDragSensors';
 
 export interface EditableBulletListProps {
   bullets: string[];
@@ -70,7 +75,11 @@ export function EditableBulletList({
   }
 
   function onKeyDown(e: React.KeyboardEvent<HTMLElement>, index: number) {
-    const el = e.currentTarget as HTMLElement;
+    // Find the actual contenteditable (textbox) so that caretAtStart works
+    // correctly even when the <li> contains a preceding grip button.
+    const li = e.currentTarget as HTMLElement;
+    const textbox = li.querySelector('[role="textbox"]') as HTMLElement | null;
+    const el = textbox ?? li;
     if (e.key === 'Enter') {
       e.preventDefault();
       const currentText = el.textContent ?? '';
@@ -103,6 +112,18 @@ export function EditableBulletList({
     }
   }
 
+  const sensors = useDragSensors();
+  const ids = items.map((_, i) => `${ariaLabel}::${i}`);
+
+  function onBulletDragEnd(e: DragEndEvent) {
+    const { active, over } = e;
+    if (!over || active.id === over.id) return;
+    const oldIndex = ids.indexOf(String(active.id));
+    const newIndex = ids.indexOf(String(over.id));
+    if (oldIndex < 0 || newIndex < 0) return;
+    onChange(arrayMove(items, oldIndex, newIndex));
+  }
+
   if (mode === 'preview') {
     return (
       <ul role="list" aria-label={ariaLabel} className={className} style={{ margin: '1em 0', paddingLeft: 40 }}>
@@ -122,23 +143,77 @@ export function EditableBulletList({
       className={className}
       style={{ margin: 0, paddingLeft: '20px' }}
     >
-      {items.map((b, i) => (
-        <li
-          key={i}
-          role="listitem"
-          className={liClassName}
-          style={itemStyle}
-          onKeyDown={(e) => onKeyDown(e, i)}
-        >
-          <EditableText
-            value={b}
-            onChange={(v) => commitIndex(i, v)}
-            ariaLabel={`${ariaLabel} item ${i + 1}`}
-            placeholder=""
-            singleLine={false}
-          />
-        </li>
-      ))}
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onBulletDragEnd}>
+        <SortableContext items={ids} strategy={verticalListSortingStrategy}>
+          {items.map((b, i) => (
+            <SortableBulletItem
+              key={ids[i]}
+              id={ids[i]}
+              index={i}
+              bullet={b}
+              ariaLabel={ariaLabel}
+              itemStyle={itemStyle}
+              liClassName={liClassName}
+              onKeyDown={onKeyDown}
+              onChangeText={commitIndex}
+            />
+          ))}
+        </SortableContext>
+      </DndContext>
     </ul>
+  );
+}
+
+function SortableBulletItem({
+  id,
+  index,
+  bullet,
+  ariaLabel,
+  itemStyle,
+  liClassName,
+  onKeyDown,
+  onChangeText,
+}: {
+  id: string;
+  index: number;
+  bullet: string;
+  ariaLabel: string;
+  itemStyle?: React.CSSProperties;
+  liClassName?: string;
+  onKeyDown: (e: React.KeyboardEvent<HTMLElement>, index: number) => void;
+  onChangeText: (index: number, next: string) => void;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+    ...itemStyle,
+  };
+  return (
+    <li
+      ref={setNodeRef}
+      role="listitem"
+      className={`bullet-row ${liClassName ?? ''}`}
+      style={style}
+      onKeyDown={(e) => onKeyDown(e, index)}
+    >
+      <button
+        type="button"
+        aria-label="Drag to reorder bullet"
+        className="bullet-grip inline-flex items-center justify-center cursor-grab active:cursor-grabbing text-muted hover:text-brand p-1 min-w-[28px] min-h-[28px] align-middle"
+        {...attributes}
+        {...(listeners as Record<string, unknown> | undefined ?? {})}
+      >
+        <GripVertical size={14} />
+      </button>
+      <EditableText
+        value={bullet}
+        onChange={(v) => onChangeText(index, v)}
+        ariaLabel={`${ariaLabel} item ${index + 1}`}
+        placeholder=""
+        singleLine={false}
+      />
+    </li>
   );
 }
