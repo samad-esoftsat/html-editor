@@ -1,4 +1,5 @@
 'use client';
+import { Fragment } from 'react';
 import { useEditor, useEditorStore } from '@/lib/editor/StoreProvider';
 import { Facebook, Linkedin, Twitter, Youtube, Instagram } from 'lucide-react';
 import type { SocialPlatform } from '@/lib/editor/types';
@@ -7,6 +8,11 @@ import { EditableBulletList } from './editable/EditableBulletList';
 import { EditableImage } from './editable/EditableImage';
 import { EditableLink } from './editable/EditableLink';
 import { useEditorMode } from './EditorModeProvider';
+import { DndContext, KeyboardSensor, PointerSensor, closestCenter, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';
+import { SortableContext, arrayMove, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { SectionToolbar } from './canvas/SectionToolbar';
+import { SectionInsertBar } from './canvas/SectionInsertBar';
 
 const ICONS: Record<SocialPlatform, React.ComponentType<{ size?: number; color?: string }>> = {
   facebook: Facebook, linkedin: Linkedin, twitter: Twitter, youtube: Youtube, instagram: Instagram,
@@ -21,6 +27,21 @@ export function PreviewBody() {
   const setHeader = store.getState().setHeader;
   const setFooter = store.getState().setFooter;
   const setSection = store.getState().setSection;
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
+  const reorderSections = store.getState().reorderSections;
+
+  function onDragEnd(e: DragEndEvent) {
+    const { active, over } = e;
+    if (!over || active.id === over.id) return;
+    const oldIndex = data.sections.findIndex((s) => s.id === active.id);
+    const newIndex = data.sections.findIndex((s) => s.id === over.id);
+    if (oldIndex < 0 || newIndex < 0) return;
+    reorderSections(arrayMove(data.sections, oldIndex, newIndex));
+  }
 
   return (
     <div className="preview-canvas" style={{ background: g.backgroundColor, padding: 0, minHeight: '100%', fontFamily: g.fontFamily }}>
@@ -70,79 +91,87 @@ export function PreviewBody() {
       </div>
 
       {/* Sections */}
-      {data.sections.map((s, idx) => {
-        const reverse = idx % 2 === 1;
-        const titleSize = s.titleFontSize ?? g.headingFontSize;
-        const bulletSize = s.bulletFontSize ?? g.baseFontSize;
-        const textColor = s.textColor ?? g.textColor;
-        const buttonColor = s.buttonColor ?? g.buttonColor;
-        const bg = s.backgroundColor;
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+        <SortableContext items={data.sections.map((s) => s.id)} strategy={verticalListSortingStrategy}>
+          {data.sections.length === 0 && <SectionInsertBar atIndex={0} />}
+          {data.sections.map((s, idx) => {
+            const reverse = idx % 2 === 1;
+            const titleSize = s.titleFontSize ?? g.headingFontSize;
+            const bulletSize = s.bulletFontSize ?? g.baseFontSize;
+            const textColor = s.textColor ?? g.textColor;
+            const buttonColor = s.buttonColor ?? g.buttonColor;
 
-        const ImageCol = (
-          <div style={{ width: '50%', padding: 20, verticalAlign: 'middle', display: 'inline-block' }}>
-            <EditableImage
-              value={s.imageSrc}
-              onChange={(v) => setSection(s.id, { imageSrc: v })}
-              alt={s.imageAlt}
-              placeholderLabel="Section image - click to add"
-              imgStyle={{ maxWidth: 355, width: '100%' }}
-              altLabel={`Section ${idx + 1} image alt text`}
-              onAltChange={(v) => setSection(s.id, { imageAlt: v })}
-            />
-          </div>
-        );
-        const TextCol = (
-          <div style={{ width: '50%', padding: 20, verticalAlign: 'middle', display: 'inline-block' }}>
-            <h1 style={{ fontSize: titleSize, color: textColor, fontWeight: 700, margin: 0 }}>
-              <EditableText
-                value={s.title}
-                onChange={(v) => setSection(s.id, { title: v })}
-                singleLine
-                placeholder="Click to add a section title"
-                ariaLabel={`Section ${idx + 1} title`}
-              />
-            </h1>
-            <EditableBulletList
-              bullets={s.bullets}
-              onChange={(next) => setSection(s.id, { bullets: next })}
-              ariaLabel={`Section ${idx + 1} bullets`}
-              itemStyle={{ fontSize: bulletSize, color: textColor, lineHeight: '150%' }}
-            />
-            <a
-              href={s.ctaUrl ?? g.contactUrl}
-              target="_blank"
-              rel="noreferrer"
-              onClick={blockNav}
-              style={{
-                display: 'inline-block', background: buttonColor, color: g.buttonTextColor,
-                padding: '10px 30px', borderRadius: 10, fontWeight: 700, fontSize: 16, textDecoration: 'none',
-              }}
-            >
-              <span className="inline-link-wrap inline-flex items-center gap-1">
-                <EditableText
-                  value={s.ctaText}
-                  onChange={(v) => setSection(s.id, { ctaText: v })}
-                  singleLine
-                  placeholder="Click to add CTA text"
-                  ariaLabel={`Section ${idx + 1} CTA text`}
-                  style={{ color: g.buttonTextColor }}
+            const ImageCol = (
+              <div style={{ width: '50%', padding: 20, verticalAlign: 'middle', display: 'inline-block' }}>
+                <EditableImage
+                  value={s.imageSrc}
+                  onChange={(v) => setSection(s.id, { imageSrc: v })}
+                  alt={s.imageAlt}
+                  placeholderLabel="Section image - click to add"
+                  imgStyle={{ maxWidth: 355, width: '100%' }}
+                  altLabel={`Section ${idx + 1} image alt text`}
+                  onAltChange={(v) => setSection(s.id, { imageAlt: v })}
                 />
-                <EditableLink
-                  value={s.ctaUrl ?? ''}
-                  onChange={(v) => setSection(s.id, { ctaUrl: v })}
-                  ariaLabel={`Edit section ${idx + 1} CTA URL`}
+              </div>
+            );
+            const TextCol = (
+              <div style={{ width: '50%', padding: 20, verticalAlign: 'middle', display: 'inline-block' }}>
+                <h1 style={{ fontSize: titleSize, color: textColor, fontWeight: 700, margin: 0 }}>
+                  <EditableText
+                    value={s.title}
+                    onChange={(v) => setSection(s.id, { title: v })}
+                    singleLine
+                    placeholder="Click to add a section title"
+                    ariaLabel={`Section ${idx + 1} title`}
+                  />
+                </h1>
+                <EditableBulletList
+                  bullets={s.bullets}
+                  onChange={(next) => setSection(s.id, { bullets: next })}
+                  ariaLabel={`Section ${idx + 1} bullets`}
+                  itemStyle={{ fontSize: bulletSize, color: textColor, lineHeight: '150%' }}
                 />
-              </span>
-            </a>
-          </div>
-        );
+                <a
+                  href={s.ctaUrl ?? g.contactUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  onClick={blockNav}
+                  style={{
+                    display: 'inline-block', background: buttonColor, color: g.buttonTextColor,
+                    padding: '10px 30px', borderRadius: 10, fontWeight: 700, fontSize: 16, textDecoration: 'none',
+                  }}
+                >
+                  <span className="inline-link-wrap inline-flex items-center gap-1">
+                    <EditableText
+                      value={s.ctaText}
+                      onChange={(v) => setSection(s.id, { ctaText: v })}
+                      singleLine
+                      placeholder="Click to add CTA text"
+                      ariaLabel={`Section ${idx + 1} CTA text`}
+                      style={{ color: g.buttonTextColor }}
+                    />
+                    <EditableLink
+                      value={s.ctaUrl ?? ''}
+                      onChange={(v) => setSection(s.id, { ctaUrl: v })}
+                      ariaLabel={`Edit section ${idx + 1} CTA URL`}
+                    />
+                  </span>
+                </a>
+              </div>
+            );
 
-        return (
-          <div key={s.id} style={{ background: bg, maxWidth: 710, margin: '0 auto', whiteSpace: 'nowrap' }}>
-            {reverse ? <>{TextCol}{ImageCol}</> : <>{ImageCol}{TextCol}</>}
-          </div>
-        );
-      })}
+            return (
+              <Fragment key={s.id}>
+                <SectionInsertBar atIndex={idx} />
+                <SortableSection s={s}>
+                  {reverse ? <>{TextCol}{ImageCol}</> : <>{ImageCol}{TextCol}</>}
+                </SortableSection>
+              </Fragment>
+            );
+          })}
+          {data.sections.length > 0 && <SectionInsertBar atIndex={data.sections.length} />}
+        </SortableContext>
+      </DndContext>
 
       {/* Footer */}
       <div style={{
@@ -264,6 +293,37 @@ export function PreviewBody() {
           })}
         </div>
       </div>
+    </div>
+  );
+}
+
+function SortableSection({
+  s,
+  children,
+}: {
+  s: { id: string; title?: string; backgroundColor?: string };
+  children: React.ReactNode;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: s.id });
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+    background: s.backgroundColor,
+    maxWidth: 710,
+    margin: '0 auto',
+    whiteSpace: 'nowrap',
+    position: 'relative',
+  };
+  return (
+    <div ref={setNodeRef} style={style} className="section-wrap">
+      <SectionToolbar
+        sectionId={s.id}
+        sectionTitle={s.title ?? ''}
+        dragAttributes={attributes as unknown as Record<string, unknown>}
+        dragListeners={listeners as unknown as Record<string, unknown> | undefined}
+      />
+      {children}
     </div>
   );
 }
