@@ -1,4 +1,5 @@
 'use client';
+import { useMemo } from 'react';
 import { StoreProvider } from '@/lib/editor/StoreProvider';
 import { useEditor } from '@/lib/editor/StoreProvider';
 import { RoleProvider } from '@/lib/editor/RoleProvider';
@@ -28,7 +29,8 @@ interface Props {
 }
 
 function SelectionScope({ children }: { children: React.ReactNode }) {
-  const sectionIds = useEditor((s) => s.data.sections.map((sec) => sec.id));
+  const sections = useEditor((s) => s.data.sections);
+  const sectionIds = useMemo(() => sections.map((s) => s.id), [sections]);
   return <SectionSelectionProvider sectionIds={sectionIds}>{children}</SectionSelectionProvider>;
 }
 
