@@ -32,6 +32,8 @@ export function SectionSelectionProvider({ sectionIds, children }: ProviderProps
   const [anchorId, setAnchorId] = useState<string | null>(null);
   const sectionIdsRef = useRef(sectionIds);
   sectionIdsRef.current = sectionIds;
+  const anchorIdRef = useRef(anchorId);
+  anchorIdRef.current = anchorId;
 
   useEffect(() => {
     setSelected((prev) => {
@@ -39,11 +41,11 @@ export function SectionSelectionProvider({ sectionIds, children }: ProviderProps
       for (const id of prev) if (sectionIds.includes(id)) next.add(id);
       return next.size === prev.size ? prev : next;
     });
-    if (anchorId && !sectionIds.includes(anchorId)) setAnchorId(null);
-  }, [sectionIds, anchorId]);
+    if (anchorIdRef.current && !sectionIds.includes(anchorIdRef.current)) setAnchorId(null);
+  }, [sectionIds]);
 
   const toggle = useCallback((id: string, modifier: SelectionModifier) => {
-    if (modifier === 'single' || !anchorId) {
+    if (modifier === 'single' || !anchorIdRef.current) {
       setSelected((prev) => {
         const next = new Set(prev);
         if (next.has(id)) next.delete(id);
@@ -54,13 +56,13 @@ export function SectionSelectionProvider({ sectionIds, children }: ProviderProps
       return;
     }
     const ids = sectionIdsRef.current;
-    const a = ids.indexOf(anchorId);
+    const a = ids.indexOf(anchorIdRef.current);
     const b = ids.indexOf(id);
     if (a < 0 || b < 0) return;
     const [lo, hi] = a <= b ? [a, b] : [b, a];
     const range = ids.slice(lo, hi + 1);
     setSelected(new Set(range));
-  }, [anchorId]);
+  }, []);
 
   const clear = useCallback(() => {
     setSelected(new Set());
