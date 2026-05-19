@@ -8,8 +8,9 @@ import { EditableBulletList } from './editable/EditableBulletList';
 import { EditableImage } from './editable/EditableImage';
 import { EditableLink } from './editable/EditableLink';
 import { useEditorMode } from './EditorModeProvider';
-import { DndContext, KeyboardSensor, PointerSensor, closestCenter, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';
-import { SortableContext, arrayMove, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { DndContext, closestCenter, type DragEndEvent } from '@dnd-kit/core';
+import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { useDragSensors } from './canvas/useDragSensors';
 import { CSS } from '@dnd-kit/utilities';
 import { SectionToolbar } from './canvas/SectionToolbar';
 import { SectionInsertBar } from './canvas/SectionInsertBar';
@@ -28,10 +29,7 @@ export function PreviewBody() {
   const setFooter = store.getState().setFooter;
   const setSection = store.getState().setSection;
 
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
-  );
+  const sensors = useDragSensors();
   const reorderSections = store.getState().reorderSections;
 
   function onDragEnd(e: DragEndEvent) {
