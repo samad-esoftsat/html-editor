@@ -133,3 +133,12 @@ body {
 .editable-image-wrap:focus-within .editable-image-alt {
   opacity: 1;
 }
+
+.section-insert-bar .section-insert-btn {
+  opacity: 0;
+  transition: opacity 100ms;
+}
+.section-insert-bar:hover .section-insert-btn,
+.section-insert-btn:focus-visible {
+  opacity: 1;
+}
