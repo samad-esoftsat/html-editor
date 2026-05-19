@@ -37,7 +37,7 @@ export async function GET(_req: NextRequest, { params }: Ctx) {
 
   const { data, error } = await supabase
     .from('organization_invites')
-    .select('id, org_id, email, role, expires_at, accepted_at, created_at, invited_by')
+    .select('id, org_id, email, role, token, expires_at, accepted_at, created_at, invited_by')
     .eq('org_id', workspace.org.id)
     .is('accepted_at', null)
     .gt('expires_at', new Date().toISOString())

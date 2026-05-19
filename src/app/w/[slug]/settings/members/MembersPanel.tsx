@@ -26,6 +26,7 @@ export interface InviteRow {
   org_id: string;
   email: string;
   role: Role;
+  token: string;
   expires_at: string;
   accepted_at: string | null;
   created_at: string;
@@ -52,11 +53,26 @@ function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString();
 }
 
+function inviteUrl(token: string): string {
+  if (typeof window === 'undefined') return `/invite/${token}`;
+  return `${window.location.origin}/invite/${token}`;
+}
+
+async function copyToClipboard(text: string): Promise<boolean> {
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export function MembersPanel({ slug, members, invites, canManage, currentUserId }: Props) {
   const router = useRouter();
   const [inviteOpen, setInviteOpen] = useState(false);
   const [pendingMember, setPendingMember] = useState<string | null>(null);
   const [pendingInvite, setPendingInvite] = useState<string | null>(null);
+  const [createdInviteUrl, setCreatedInviteUrl] = useState<string | null>(null);
 
   async function changeRole(userId: string, role: Role) {
     setPendingMember(userId);
@@ -218,6 +234,9 @@ export function MembersPanel({ slug, members, invites, canManage, currentUserId 
 
       <section className="flex flex-col gap-4">
         <h2 className="text-lg font-semibold text-fg">Pending invites</h2>
+        <div className="rounded-md border border-border-strong bg-panel px-4 py-2 text-xs text-muted">
+          Invite links don&apos;t send emails yet — share the link manually until email delivery lands.
+        </div>
         {invites.length === 0 ? (
           <div className="rounded-lg border border-border-strong bg-panel p-5 text-sm text-muted">
             No pending invites.
@@ -242,16 +261,28 @@ export function MembersPanel({ slug, members, invites, canManage, currentUserId 
                       <td className="px-4 py-3 text-muted">{ROLE_LABEL[inv.role]}</td>
                       <td className="px-4 py-3 text-muted">{formatDate(inv.expires_at)}</td>
                       <td className="px-4 py-3 text-right">
-                        {canManage && (
+                        <div className="inline-flex items-center gap-1 justify-end">
                           <Button
                             variant="ghost"
-                            onClick={() => revokeInvite(inv)}
-                            disabled={busy}
-                            className="text-danger hover:text-danger hover:bg-danger/10"
+                            onClick={async () => {
+                              const ok = await copyToClipboard(inviteUrl(inv.token));
+                              if (ok) toast.success('Invite link copied');
+                              else toast.error('Failed to copy');
+                            }}
                           >
-                            Revoke
+                            Copy link
                           </Button>
-                        )}
+                          {canManage && (
+                            <Button
+                              variant="ghost"
+                              onClick={() => revokeInvite(inv)}
+                              disabled={busy}
+                              className="text-danger hover:text-danger hover:bg-danger/10"
+                            >
+                              Revoke
+                            </Button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   );
@@ -266,11 +297,14 @@ export function MembersPanel({ slug, members, invites, canManage, currentUserId 
         open={inviteOpen}
         onClose={() => setInviteOpen(false)}
         slug={slug}
-        onInvited={() => {
+        onInvited={(token) => {
           setInviteOpen(false);
+          if (token) setCreatedInviteUrl(inviteUrl(token));
           router.refresh();
         }}
       />
+
+      <CreatedInviteDialog url={createdInviteUrl} onClose={() => setCreatedInviteUrl(null)} />
     </div>
   );
 }
@@ -279,7 +313,7 @@ interface InviteDialogProps {
   open: boolean;
   onClose: () => void;
   slug: string;
-  onInvited: () => void;
+  onInvited: (token: string) => void;
 }
 
 function InviteDialog({ open, onClose, slug, onInvited }: InviteDialogProps) {
@@ -300,25 +334,25 @@ function InviteDialog({ open, onClose, slug, onInvited }: InviteDialogProps) {
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ email: next, role }),
       });
+      const data = (await res.json().catch(() => ({}))) as
+        | { invite?: { token?: string } }
+        | { error?: string };
+
       if (!res.ok) {
-        const data = (await res.json().catch(() => ({}))) as { error?: string };
-        if (data.error === 'invalid_email') {
-          toast.error('Invalid email address');
-        } else if (data.error === 'invalid_role') {
-          toast.error('Invalid role');
-        } else if (data.error === 'forbidden') {
-          toast.error('Only owners can invite members');
-        } else if (data.error === 'token_conflict') {
-          toast.error('Could not generate invite token, please retry');
-        } else {
-          toast.error(data.error ?? 'Failed to send invite');
-        }
+        const err = (data as { error?: string }).error;
+        if (err === 'invalid_email') toast.error('Invalid email address');
+        else if (err === 'invalid_role') toast.error('Invalid role');
+        else if (err === 'forbidden') toast.error('Only owners can invite members');
+        else if (err === 'token_conflict') toast.error('Could not generate invite token, please retry');
+        else toast.error(err ?? 'Failed to send invite');
         return;
       }
-      toast.success(`Invite sent to ${next}`);
+
+      const token = (data as { invite?: { token?: string } }).invite?.token ?? '';
+      toast.success(`Invite created for ${next}`);
       setEmail('');
       setRole('editor');
-      onInvited();
+      onInvited(token);
     } finally {
       setBusy(false);
     }
@@ -378,6 +412,59 @@ function InviteDialog({ open, onClose, slug, onInvited }: InviteDialogProps) {
           </motion.div>
         </motion.div>
       )}
+    </AnimatePresence>
+  );
+}
+
+interface CreatedInviteDialogProps {
+  url: string | null;
+  onClose: () => void;
+}
+
+function CreatedInviteDialog({ url, onClose }: CreatedInviteDialogProps) {
+  const [copied, setCopied] = useState(false);
+  if (!url) return null;
+  async function copy() {
+    const ok = await copyToClipboard(url!);
+    if (ok) {
+      setCopied(true);
+      toast.success('Invite link copied');
+      window.setTimeout(() => setCopied(false), 1500);
+    } else {
+      toast.error('Failed to copy');
+    }
+  }
+  return (
+    <AnimatePresence>
+      <motion.div
+        className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 p-6"
+        onClick={onClose}
+        variants={fade}
+        initial="hidden"
+        animate="show"
+        exit="exit"
+      >
+        <motion.div
+          className="w-[500px] max-w-full rounded-xl border border-border-strong bg-panel p-6"
+          onClick={(e) => e.stopPropagation()}
+          variants={scaleFade}
+          initial="hidden"
+          animate="show"
+          exit="exit"
+        >
+          <div className="mb-1 font-semibold text-fg">Invite link ready</div>
+          <div className="mb-4 text-sm text-muted">
+            Email delivery isn&apos;t set up yet. Copy this link and send it to your teammate manually. It expires in 7 days.
+          </div>
+          <Field label="Invite URL">
+            <Input readOnly value={url} onFocus={(e) => e.currentTarget.select()} />
+          </Field>
+          <div className="mt-6 flex justify-end gap-2">
+            <Button variant="ghost" onClick={onClose}>Done</Button>
+            <Button onClick={copy}>{copied ? 'Copied!' : 'Copy link'}</Button>
+          </div>
+        </motion.div>
+      </motion.div>
     </AnimatePresence>
   );
 }
