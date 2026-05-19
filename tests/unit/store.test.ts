@@ -72,3 +72,69 @@ describe('editor store', () => {
     expect(store.getState().data.sections[3].title).toBe(otherTitleBefore);
   });
 });
+
+describe('addSection with atIndex', () => {
+  it('inserts at the given index', () => {
+    const store = freshStore();
+    const startCount = store.getState().data.sections.length;
+    const firstId = store.getState().data.sections[0]?.id;
+    store.getState().addSection(0);
+    const after = store.getState().data.sections;
+    expect(after.length).toBe(startCount + 1);
+    expect(after[1]?.id).toBe(firstId);
+  });
+
+  it('appends when no index is given', () => {
+    const store = freshStore();
+    const startCount = store.getState().data.sections.length;
+    store.getState().addSection();
+    expect(store.getState().data.sections.length).toBe(startCount + 1);
+  });
+});
+
+describe('duplicateSection', () => {
+  // Use a one-section store so "length === 2 after duplicate" is unambiguous
+  function singleSectionStore() {
+    const base = createDefaultProject();
+    return createEditorStore({
+      projectId: 'p1',
+      name: 'Test',
+      data: { ...base, sections: [base.sections[0]] },
+      brandKitId: null,
+      workspaceSlug: 'test-ws',
+      serverUpdatedAt: NOW,
+    });
+  }
+
+  it('inserts a copy with a fresh id right after the source', () => {
+    const store = singleSectionStore();
+    const src = store.getState().data.sections[0];
+    store.getState().duplicateSection(src.id);
+    const after = store.getState().data.sections;
+    expect(after.length).toBe(2);
+    expect(after[0].id).toBe(src.id);
+    expect(after[1].id).not.toBe(src.id);
+    expect(after[1].title).toBe(src.title);
+    expect(after[1].bullets).toEqual(src.bullets);
+    expect(after[1].bullets).not.toBe(src.bullets);
+  });
+
+  it('is a no-op for unknown id', () => {
+    const store = singleSectionStore();
+    const before = store.getState().data.sections;
+    store.getState().duplicateSection('nonexistent-id');
+    expect(store.getState().data.sections).toBe(before);
+  });
+});
+
+describe('reorderSections', () => {
+  it('replaces the sections array with the provided value', () => {
+    const store = freshStore();
+    store.getState().addSection();
+    const [a, b] = store.getState().data.sections;
+    store.getState().reorderSections([b, a]);
+    const next = store.getState().data.sections;
+    expect(next[0].id).toBe(b.id);
+    expect(next[1].id).toBe(a.id);
+  });
+});

@@ -27,9 +27,11 @@ export interface EditorState {
   setGlobal(patch: Partial<GlobalStyles>): void;
   setHeader(patch: Partial<Header>): void;
   setFooter(patch: Partial<Footer>): void;
-  addSection(): void;
+  addSection(atIndex?: number): void;
   removeSection(id: string): void;
   moveSection(id: string, dir: 'up' | 'down'): void;
+  duplicateSection(id: string): void;
+  reorderSections(next: ProductSection[]): void;
   setSection(id: string, patch: Partial<ProductSection>): void;
   setProjectBrandKit(id: string | null): void;
   applyBrandKit(snapshot: BrandKitSnapshot): void;
@@ -106,9 +108,16 @@ export function createEditorStore(init: Init): EditorStore {
         setFooter: (patch) => set((state) => ({
           data: { ...state.data, footer: { ...state.data.footer, ...patch } },
         })),
-        addSection: () => set((state) => ({
-          data: { ...state.data, sections: [...state.data.sections, blankSection()] },
-        })),
+        addSection: (atIndex) => set((state) => {
+          const fresh = blankSection();
+          const sections = state.data.sections.slice();
+          if (typeof atIndex === 'number' && atIndex >= 0 && atIndex <= sections.length) {
+            sections.splice(atIndex, 0, fresh);
+          } else {
+            sections.push(fresh);
+          }
+          return { data: { ...state.data, sections } };
+        }),
         removeSection: (id) => set((state) => ({
           data: { ...state.data, sections: state.data.sections.filter((section) => section.id !== id) },
         })),
@@ -122,6 +131,22 @@ export function createEditorStore(init: Init): EditorStore {
           [next[idx], next[swap]] = [next[swap], next[idx]];
           return { data: { ...state.data, sections: next } };
         }),
+        duplicateSection: (id) => set((state) => {
+          const idx = state.data.sections.findIndex((s) => s.id === id);
+          if (idx < 0) return state;
+          const src = state.data.sections[idx];
+          const copy: ProductSection = {
+            ...src,
+            id: uuid(),
+            bullets: src.bullets.slice(),
+          };
+          const sections = state.data.sections.slice();
+          sections.splice(idx + 1, 0, copy);
+          return { data: { ...state.data, sections } };
+        }),
+        reorderSections: (next) => set((state) => ({
+          data: { ...state.data, sections: next },
+        })),
         setSection: (id, patch) => set((state) => ({
           data: {
             ...state.data,
