@@ -1,5 +1,5 @@
 'use client';
-import { Fragment } from 'react';
+import { Fragment, useEffect } from 'react';
 import { useEditor, useEditorStore } from '@/lib/editor/StoreProvider';
 import { Facebook, Linkedin, Twitter, Youtube, Instagram } from 'lucide-react';
 import type { SocialPlatform } from '@/lib/editor/types';
@@ -14,6 +14,8 @@ import { useDragSensors } from './canvas/useDragSensors';
 import { CSS } from '@dnd-kit/utilities';
 import { SectionToolbar } from './canvas/SectionToolbar';
 import { SectionInsertBar } from './canvas/SectionInsertBar';
+import { useSectionSelection } from './SectionSelectionProvider';
+import { SelectionActionBar } from './canvas/SelectionActionBar';
 
 const ICONS: Record<SocialPlatform, React.ComponentType<{ size?: number; color?: string }>> = {
   facebook: Facebook, linkedin: Linkedin, twitter: Twitter, youtube: Youtube, instagram: Instagram,
@@ -32,6 +34,20 @@ export function PreviewBody() {
   const sensors = useDragSensors();
   const reorderSections = store.getState().reorderSections;
 
+  const selection = useSectionSelection();
+
+  function onCanvasMouseDown(e: React.MouseEvent) {
+    if (e.target === e.currentTarget) selection.clear();
+  }
+
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape' && selection.selected.size > 0) selection.clear();
+    }
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [selection]);
+
   function onDragEnd(e: DragEndEvent) {
     const { active, over } = e;
     if (!over || active.id === over.id) return;
@@ -42,7 +58,7 @@ export function PreviewBody() {
   }
 
   return (
-    <div className="preview-canvas" style={{ background: g.backgroundColor, padding: 0, minHeight: '100%', fontFamily: g.fontFamily }}>
+    <div className="preview-canvas" onMouseDown={onCanvasMouseDown} style={{ background: g.backgroundColor, padding: 0, minHeight: '100%', fontFamily: g.fontFamily }}>
       {/* Header */}
       <div style={{ maxWidth: 710, margin: '0 auto', padding: '20px' }}>
         <div style={{ textAlign: 'center' }}>
@@ -291,6 +307,7 @@ export function PreviewBody() {
           })}
         </div>
       </div>
+      <SelectionActionBar />
     </div>
   );
 }
@@ -303,6 +320,8 @@ function SortableSection({
   children: React.ReactNode;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: s.id });
+  const { toggle, isSelected } = useSectionSelection();
+  const selected = isSelected(s.id);
   const style: React.CSSProperties = {
     transform: CSS.Transform.toString(transform),
     transition,
@@ -313,8 +332,19 @@ function SortableSection({
     whiteSpace: 'nowrap',
     position: 'relative',
   };
+  function onMouseDown(e: React.MouseEvent) {
+    if (!(e.metaKey || e.ctrlKey || e.shiftKey)) return;
+    e.preventDefault();
+    toggle(s.id, e.shiftKey ? 'range' : 'single');
+  }
   return (
-    <div ref={setNodeRef} style={style} className="section-wrap">
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`section-wrap ${selected ? 'selected' : ''}`}
+      data-selected={selected || undefined}
+      onMouseDown={onMouseDown}
+    >
       <SectionToolbar
         sectionId={s.id}
         sectionTitle={s.title ?? ''}

@@ -160,3 +160,8 @@ body {
 .bullet-grip:focus-visible {
   opacity: 1;
 }
+
+.section-wrap.selected {
+  outline: 2px solid var(--color-brand);
+  outline-offset: -2px;
+}
