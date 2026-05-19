@@ -1,5 +1,5 @@
 'use client';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { StoreProvider } from '@/lib/editor/StoreProvider';
 import { useEditor } from '@/lib/editor/StoreProvider';
 import { RoleProvider } from '@/lib/editor/RoleProvider';
@@ -47,14 +47,21 @@ function Inner({
   const canEdit = role !== 'viewer';
   useAutosave(canEdit);
   useUndoRedoShortcuts(canEdit);
+  const [leftPanelOpen, setLeftPanelOpen] = useState(true);
   return (
     <EditorModeProvider>
       <SelectionScope>
         <AssetPickerProvider workspaceSlug={workspaceSlug}>
           <div className="flex flex-col h-dvh">
-            <Topbar slug={workspaceSlug} currentWorkspace={currentWorkspace} workspaces={workspaces} />
+            <Topbar
+              slug={workspaceSlug}
+              currentWorkspace={currentWorkspace}
+              workspaces={workspaces}
+              leftPanelOpen={leftPanelOpen}
+              setLeftPanelOpen={setLeftPanelOpen}
+            />
             <div className="flex flex-1 overflow-hidden">
-              <LeftPanel />
+              {leftPanelOpen && <LeftPanel />}
               <div className="flex-1 bg-[#080808]"><Preview /></div>
             </div>
           </div>

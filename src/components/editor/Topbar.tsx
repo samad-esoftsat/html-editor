@@ -1,10 +1,10 @@
 'use client';
 import Link from 'next/link';
-import { AlertCircle, ArrowLeft, Check, Loader2, Redo2, Undo2 } from 'lucide-react';
+import { AlertCircle, ArrowLeft, Check, Loader2, PanelLeftClose, PanelLeftOpen, Redo2, Undo2 } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useEditor, useEditorStore, useTemporal } from '@/lib/editor/StoreProvider';
 import { useCanEdit } from '@/lib/editor/RoleProvider';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { fade } from '@/lib/motion';
 import { WorkspaceSwitcher, type WorkspaceOption } from '@/components/workspace/WorkspaceSwitcher';
 import { DownloadMenu } from './DownloadMenu';
@@ -15,9 +15,11 @@ interface TopbarProps {
   slug: string;
   currentWorkspace: WorkspaceOption;
   workspaces: WorkspaceOption[];
+  leftPanelOpen: boolean;
+  setLeftPanelOpen: (open: boolean) => void;
 }
 
-export function Topbar({ slug, currentWorkspace, workspaces }: TopbarProps) {
+export function Topbar({ slug, currentWorkspace, workspaces, leftPanelOpen, setLeftPanelOpen }: TopbarProps) {
   const name = useEditor((s) => s.name);
   const projectId = useEditor((s) => s.projectId);
   const saving = useEditor((s) => s.saving);
@@ -29,6 +31,18 @@ export function Topbar({ slug, currentWorkspace, workspaces }: TopbarProps) {
   const redo = useTemporal((s) => s.redo);
   const store = useEditorStore();
   const canEdit = useCanEdit();
+
+  useEffect(() => {
+    if (!canEdit) return;
+    function onKey(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key === '\\') {
+        e.preventDefault();
+        setLeftPanelOpen(!leftPanelOpen);
+      }
+    }
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [canEdit, leftPanelOpen, setLeftPanelOpen]);
 
   const onUndo = () => { store.flushHistoryCooldown(); undo(); };
   const onRedo = () => { store.flushHistoryCooldown(); redo(); };
@@ -104,6 +118,17 @@ export function Topbar({ slug, currentWorkspace, workspaces }: TopbarProps) {
       )}
       {lastError && <span className="text-danger text-xs">{lastError}</span>}
       <div className="ml-auto flex items-center gap-2">
+        {canEdit && (
+          <button
+            type="button"
+            onClick={() => setLeftPanelOpen(!leftPanelOpen)}
+            title={leftPanelOpen ? 'Hide sidebar (Ctrl/Cmd+\\)' : 'Show sidebar (Ctrl/Cmd+\\)'}
+            aria-label={leftPanelOpen ? 'Hide sidebar' : 'Show sidebar'}
+            className="inline-flex items-center gap-1.5 rounded-md border border-border-strong px-2.5 py-1.5 text-xs text-fg hover:bg-panel hover:border-brand/40 transition-colors"
+          >
+            {leftPanelOpen ? <PanelLeftClose size={14} /> : <PanelLeftOpen size={14} />}
+          </button>
+        )}
         {canEdit && <ModeToggle />}
         {canEdit && (
           <>
