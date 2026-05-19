@@ -1,5 +1,6 @@
 'use client';
-import { Fragment, useEffect } from 'react';
+import { useEffect } from 'react';
+import { AnimatePresence, motion } from 'motion/react';
 import { useEditor, useEditorStore } from '@/lib/editor/StoreProvider';
 import { Facebook, Linkedin, Twitter, Youtube, Instagram } from 'lucide-react';
 import type { SocialPlatform } from '@/lib/editor/types';
@@ -108,81 +109,83 @@ export function PreviewBody() {
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
         <SortableContext items={data.sections.map((s) => s.id)} strategy={verticalListSortingStrategy}>
           {data.sections.length === 0 && <SectionInsertBar atIndex={0} />}
-          {data.sections.map((s, idx) => {
-            const reverse = idx % 2 === 1;
-            const titleSize = s.titleFontSize ?? g.headingFontSize;
-            const bulletSize = s.bulletFontSize ?? g.baseFontSize;
-            const textColor = s.textColor ?? g.textColor;
-            const buttonColor = s.buttonColor ?? g.buttonColor;
+          <AnimatePresence initial={false} mode="popLayout">
+            {data.sections.map((s, idx) => {
+              const reverse = idx % 2 === 1;
+              const titleSize = s.titleFontSize ?? g.headingFontSize;
+              const bulletSize = s.bulletFontSize ?? g.baseFontSize;
+              const textColor = s.textColor ?? g.textColor;
+              const buttonColor = s.buttonColor ?? g.buttonColor;
 
-            const ImageCol = (
-              <div style={{ width: '50%', padding: 20, verticalAlign: 'middle', display: 'inline-block' }}>
-                <EditableImage
-                  value={s.imageSrc}
-                  onChange={(v) => setSection(s.id, { imageSrc: v })}
-                  alt={s.imageAlt}
-                  placeholderLabel="Section image - click to add"
-                  imgStyle={{ maxWidth: 355, width: '100%' }}
-                  altLabel={`Section ${idx + 1} image alt text`}
-                  onAltChange={(v) => setSection(s.id, { imageAlt: v })}
-                />
-              </div>
-            );
-            const TextCol = (
-              <div style={{ width: '50%', padding: 20, verticalAlign: 'middle', display: 'inline-block' }}>
-                <h1 style={{ fontSize: titleSize, color: textColor, fontWeight: 700, margin: 0 }}>
-                  <EditableText
-                    value={s.title}
-                    onChange={(v) => setSection(s.id, { title: v })}
-                    singleLine
-                    placeholder="Click to add a section title"
-                    ariaLabel={`Section ${idx + 1} title`}
+              const ImageCol = (
+                <div style={{ width: '50%', padding: 20, verticalAlign: 'middle', display: 'inline-block' }}>
+                  <EditableImage
+                    value={s.imageSrc}
+                    onChange={(v) => setSection(s.id, { imageSrc: v })}
+                    alt={s.imageAlt}
+                    placeholderLabel="Section image - click to add"
+                    imgStyle={{ maxWidth: 355, width: '100%' }}
+                    altLabel={`Section ${idx + 1} image alt text`}
+                    onAltChange={(v) => setSection(s.id, { imageAlt: v })}
                   />
-                </h1>
-                <EditableBulletList
-                  bullets={s.bullets}
-                  onChange={(next) => setSection(s.id, { bullets: next })}
-                  ariaLabel={`Section ${idx + 1} bullets`}
-                  itemStyle={{ fontSize: bulletSize, color: textColor, lineHeight: '150%' }}
-                />
-                <a
-                  href={s.ctaUrl ?? g.contactUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  onClick={blockNav}
-                  style={{
-                    display: 'inline-block', background: buttonColor, color: g.buttonTextColor,
-                    padding: '10px 30px', borderRadius: 10, fontWeight: 700, fontSize: 16, textDecoration: 'none',
-                  }}
-                >
-                  <span className="inline-link-wrap inline-flex items-center gap-1">
+                </div>
+              );
+              const TextCol = (
+                <div style={{ width: '50%', padding: 20, verticalAlign: 'middle', display: 'inline-block' }}>
+                  <h1 style={{ fontSize: titleSize, color: textColor, fontWeight: 700, margin: 0 }}>
                     <EditableText
-                      value={s.ctaText}
-                      onChange={(v) => setSection(s.id, { ctaText: v })}
+                      value={s.title}
+                      onChange={(v) => setSection(s.id, { title: v })}
                       singleLine
-                      placeholder="Click to add CTA text"
-                      ariaLabel={`Section ${idx + 1} CTA text`}
-                      style={{ color: g.buttonTextColor }}
+                      placeholder="Click to add a section title"
+                      ariaLabel={`Section ${idx + 1} title`}
                     />
-                    <EditableLink
-                      value={s.ctaUrl ?? ''}
-                      onChange={(v) => setSection(s.id, { ctaUrl: v })}
-                      ariaLabel={`Edit section ${idx + 1} CTA URL`}
-                    />
-                  </span>
-                </a>
-              </div>
-            );
+                  </h1>
+                  <EditableBulletList
+                    bullets={s.bullets}
+                    onChange={(next) => setSection(s.id, { bullets: next })}
+                    ariaLabel={`Section ${idx + 1} bullets`}
+                    itemStyle={{ fontSize: bulletSize, color: textColor, lineHeight: '150%' }}
+                  />
+                  <a
+                    href={s.ctaUrl ?? g.contactUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    onClick={blockNav}
+                    style={{
+                      display: 'inline-block', background: buttonColor, color: g.buttonTextColor,
+                      padding: '10px 30px', borderRadius: 10, fontWeight: 700, fontSize: 16, textDecoration: 'none',
+                    }}
+                  >
+                    <span className="inline-link-wrap inline-flex items-center gap-1">
+                      <EditableText
+                        value={s.ctaText}
+                        onChange={(v) => setSection(s.id, { ctaText: v })}
+                        singleLine
+                        placeholder="Click to add CTA text"
+                        ariaLabel={`Section ${idx + 1} CTA text`}
+                        style={{ color: g.buttonTextColor }}
+                      />
+                      <EditableLink
+                        value={s.ctaUrl ?? ''}
+                        onChange={(v) => setSection(s.id, { ctaUrl: v })}
+                        ariaLabel={`Edit section ${idx + 1} CTA URL`}
+                      />
+                    </span>
+                  </a>
+                </div>
+              );
 
-            return (
-              <Fragment key={s.id}>
-                <SectionInsertBar atIndex={idx} />
-                <SortableSection s={s}>
-                  {reverse ? <>{TextCol}{ImageCol}</> : <>{ImageCol}{TextCol}</>}
-                </SortableSection>
-              </Fragment>
-            );
-          })}
+              return (
+                <motion.div key={s.id} layout transition={{ duration: 0.18, ease: 'easeOut' }}>
+                  <SectionInsertBar atIndex={idx} />
+                  <SortableSection s={s}>
+                    {reverse ? <>{TextCol}{ImageCol}</> : <>{ImageCol}{TextCol}</>}
+                  </SortableSection>
+                </motion.div>
+              );
+            })}
+          </AnimatePresence>
           {data.sections.length > 0 && <SectionInsertBar atIndex={data.sections.length} />}
         </SortableContext>
       </DndContext>
@@ -325,7 +328,6 @@ function SortableSection({
   const style: React.CSSProperties = {
     transform: CSS.Transform.toString(transform),
     transition,
-    opacity: isDragging ? 0.5 : 1,
     background: s.backgroundColor,
     maxWidth: 710,
     margin: '0 auto',
@@ -338,8 +340,13 @@ function SortableSection({
     toggle(s.id, e.shiftKey ? 'range' : 'single');
   }
   return (
-    <div
+    <motion.div
       ref={setNodeRef}
+      layout
+      initial={{ opacity: 0, scale: 0.98 }}
+      animate={{ opacity: isDragging ? 0.5 : 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.98 }}
+      transition={{ duration: 0.18, ease: 'easeOut' }}
       style={style}
       className={`section-wrap ${selected ? 'selected' : ''}`}
       data-selected={selected || undefined}
@@ -352,6 +359,6 @@ function SortableSection({
         dragListeners={listeners as unknown as Record<string, unknown> | undefined}
       />
       {children}
-    </div>
+    </motion.div>
   );
 }
