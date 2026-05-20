@@ -39,48 +39,50 @@ export function PromptDialog() {
     <AnimatePresence>
       {state && (
         <motion.div
-          className="fixed inset-0 bg-black/70 flex items-center justify-center z-[200] p-6"
+          className="fixed inset-0 z-[200] flex items-center justify-center bg-ink/40 backdrop-blur-sm p-6"
           variants={fade}
           initial="hidden"
           animate="show"
           exit="exit"
         >
           <motion.div
-            className="bg-panel border border-border-strong rounded-xl p-6 w-[420px]"
+            className="w-[420px] max-w-full rounded-[14px] border border-rule bg-bg-elevated p-6 shadow-[0_30px_80px_-20px_rgba(20,20,20,0.25)]"
             variants={scaleFade}
             initial="hidden"
             animate="show"
             exit="exit"
           >
-            <div className="font-semibold text-fg mb-2">{state.title}</div>
+            <div className="mb-1 text-[20px] font-semibold tracking-[-0.01em] text-ink">{state.title}</div>
             {state.message && (
-              <div className="text-sm text-muted mb-4">{state.message}</div>
+              <div className="text-sm text-ink-3 mb-4">{state.message}</div>
             )}
             {state.label ? (
-              <label className="mb-6 block text-xs font-medium text-muted-2">
-                <span className="mb-1 block">{state.label}</span>
+              <div className="mb-6">
+                <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.05em] text-ink-3">
+                  {state.label}
+                </label>
                 <input
                   ref={inputRef}
-                  className="w-full rounded border border-border-strong bg-panel-2 px-2 py-1.5 text-sm text-fg focus:outline-none focus:border-brand"
+                  className="h-10 w-full rounded-md border border-rule bg-bg-elevated px-3 text-sm text-ink placeholder:text-ink-4 focus:border-brand focus:ring-4 focus:ring-brand-soft focus:outline-none"
                   value={value}
                   placeholder={state.placeholder}
                   onChange={(e) => setValue(e.target.value)}
                   onKeyDown={onKeyDown}
                 />
-              </label>
+              </div>
             ) : (
               <input
                 ref={inputRef}
-                className="mb-6 w-full rounded border border-border-strong bg-panel-2 px-2 py-1.5 text-sm text-fg focus:outline-none focus:border-brand"
+                className="mb-6 h-10 w-full rounded-md border border-rule bg-bg-elevated px-3 text-sm text-ink placeholder:text-ink-4 focus:border-brand focus:ring-4 focus:ring-brand-soft focus:outline-none"
                 value={value}
                 placeholder={state.placeholder}
                 onChange={(e) => setValue(e.target.value)}
                 onKeyDown={onKeyDown}
               />
             )}
-            <div className="flex gap-2 justify-end">
+            <div className="mt-6 flex justify-end gap-2">
               <Button variant="ghost" onClick={() => state.resolve(null)}>Cancel</Button>
-              <Button variant="primary" onClick={() => state.resolve(value)}>
+              <Button onClick={() => state.resolve(value)}>
                 {state.confirmLabel}
               </Button>
             </div>

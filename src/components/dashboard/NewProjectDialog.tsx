@@ -55,7 +55,7 @@ export function NewProjectDialog({ open, onClose, slug }: Props) {
     <AnimatePresence>
       {open && (
         <motion.div
-          className="fixed inset-0 bg-black/70 flex items-center justify-center z-[200] p-6"
+          className="fixed inset-0 z-[200] flex items-center justify-center bg-ink/40 backdrop-blur-sm p-6"
           onClick={() => { if (!busy) onClose(); }}
           variants={fade}
           initial="hidden"
@@ -63,18 +63,18 @@ export function NewProjectDialog({ open, onClose, slug }: Props) {
           exit="exit"
         >
           <motion.div
-            className="bg-panel border border-border-strong rounded-xl p-6 w-[560px] max-w-full"
+            className="w-[560px] max-w-full rounded-[14px] border border-rule bg-bg-elevated p-6 shadow-[0_30px_80px_-20px_rgba(20,20,20,0.25)]"
             onClick={(e) => e.stopPropagation()}
             variants={scaleFade}
             initial="hidden"
             animate="show"
             exit="exit"
           >
-            <div className="font-semibold text-fg mb-1">Start a new project</div>
-            <div className="text-sm text-muted mb-5">Pick a template to start from.</div>
+            <div className="mb-1 text-[20px] font-semibold tracking-[-0.01em] text-ink">Start a new project</div>
+            <div className="text-sm text-ink-3 mb-5">Pick a template to start from.</div>
 
             <div className="mb-5">
-              <label className="block text-xs font-medium uppercase tracking-[0.14em] text-muted mb-1.5">
+              <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.05em] text-ink-3">
                 Brand kit
               </label>
               <BrandKitPicker
@@ -97,18 +97,18 @@ export function NewProjectDialog({ open, onClose, slug }: Props) {
                     className={cn(
                       'text-left rounded-lg p-4 border transition',
                       active
-                        ? 'border-brand bg-panel-2'
-                        : 'border-border-strong bg-panel-2 hover:border-brand',
+                        ? 'border-brand bg-bg-sunken'
+                        : 'border-rule bg-bg-sunken hover:border-brand',
                     )}
                   >
-                    <div className="font-semibold text-fg">{t.label}</div>
-                    <div className="text-xs text-muted mt-1">{t.description}</div>
+                    <div className="font-semibold text-ink">{t.label}</div>
+                    <div className="text-xs text-ink-3 mt-1">{t.description}</div>
                   </button>
                 );
               })}
             </div>
 
-            <div className="flex gap-2 justify-end">
+            <div className="mt-6 flex justify-end gap-2">
               <Button variant="ghost" onClick={onClose} disabled={busy}>Cancel</Button>
               <Button onClick={go} disabled={busy}>
                 {busy ? <Spinner /> : 'Create project'}

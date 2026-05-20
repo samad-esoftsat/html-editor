@@ -12,22 +12,22 @@ export function ConfirmDialog() {
     <AnimatePresence>
       {state && (
         <motion.div
-          className="fixed inset-0 bg-black/70 flex items-center justify-center z-[200] p-6"
+          className="fixed inset-0 z-[200] flex items-center justify-center bg-ink/40 backdrop-blur-sm p-6"
           variants={fade}
           initial="hidden"
           animate="show"
           exit="exit"
         >
           <motion.div
-            className="bg-panel border border-border-strong rounded-xl p-6 w-[420px]"
+            className="w-[420px] max-w-full rounded-[14px] border border-rule bg-bg-elevated p-6 shadow-[0_30px_80px_-20px_rgba(20,20,20,0.25)]"
             variants={scaleFade}
             initial="hidden"
             animate="show"
             exit="exit"
           >
-            <div className="font-semibold text-fg mb-2">{state.title}</div>
-            <div className="text-sm text-muted mb-6">{state.message}</div>
-            <div className="flex gap-2 justify-end">
+            <div className="mb-1 text-[20px] font-semibold tracking-[-0.01em] text-ink">{state.title}</div>
+            <div className="text-sm text-ink-3 mb-6">{state.message}</div>
+            <div className="mt-6 flex justify-end gap-2">
               <Button variant="ghost" onClick={() => state.resolve(false)}>Cancel</Button>
               <Button variant={state.danger ? 'danger' : 'primary'} onClick={() => state.resolve(true)}>
                 {state.confirmLabel}
