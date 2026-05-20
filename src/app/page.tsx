@@ -51,8 +51,8 @@ export default async function DashboardRedirect() {
 
   return (
     <main className="mx-auto max-w-3xl p-8">
-      <h1 className="text-2xl font-bold text-fg">No workspace found</h1>
-      <p className="mt-2 text-sm text-muted">
+      <h1 className="text-2xl font-bold text-ink">No workspace found</h1>
+      <p className="mt-2 text-sm text-ink-3">
         Your account does not have an available workspace yet. Apply the workspace signup trigger or add a membership to continue.
       </p>
     </main>

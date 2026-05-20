@@ -81,7 +81,7 @@ export function ProductSectionPanel({ section, index, total }: Props) {
             </div>
           </fieldset>
           <div className="px-3 pb-3">
-            <button type="button" onClick={() => setOverrides(o => !o)} className="text-xs text-muted-2 hover:text-fg w-full text-left pt-1 border-t border-border">
+            <button type="button" onClick={() => setOverrides(o => !o)} className="text-xs text-ed-ink-4 hover:text-ed-ink w-full text-left pt-1 border-t border-ed-rule">
               Section style overrides {overrides ? 'v' : '>'}
             </button>
             {overrides && (

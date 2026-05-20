@@ -96,7 +96,7 @@ export const MaskCanvas = forwardRef<MaskCanvasHandle, Props>(function MaskCanva
   };
 
   return (
-    <div className="relative rounded-md overflow-hidden border border-border-strong bg-black/40">
+    <div className="relative rounded-md overflow-hidden border border-ed-rule-strong bg-black/40">
       <img
         ref={imgRef}
         src={imageUrl}

@@ -446,7 +446,7 @@ function EditorForm({
             type="checkbox"
             checked={isDefault}
             onChange={(e) => setIsDefault(e.target.checked)}
-            className="h-4 w-4 rounded border-border-strong"
+            className="h-4 w-4 rounded border-rule-strong"
           />
           Use as default for new projects
         </label>

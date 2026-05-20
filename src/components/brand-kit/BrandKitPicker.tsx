@@ -63,7 +63,7 @@ export function BrandKitPicker({
       onChange={(e) => onChange(e.target.value || null)}
       className={
         className ??
-        'w-full bg-panel-2 border border-border-strong rounded px-2 py-1.5 text-sm text-fg focus:border-brand focus:outline-none disabled:opacity-50'
+        'w-full bg-bg-elevated border border-rule rounded px-2 py-1.5 text-sm text-ink focus:border-brand focus:outline-none disabled:opacity-50'
       }
     >
       <option value="">— No brand kit —</option>

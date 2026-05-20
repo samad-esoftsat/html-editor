@@ -36,9 +36,13 @@
   --color-ed-success: #79B16F;
   --color-ed-danger: #D8623F;
 
-  /* Backwards-compat aliases — default to LIGHT palette so legacy class names
-     render reasonably on marketing/dashboard/settings/auth surfaces.
-     Inside `.editor-shell` (see below) they're re-pointed at the dark editor palette. */
+  /* Surface-adaptive aliases. These default to the LIGHT palette and are
+     re-routed to the DARK editor palette inside `.editor-shell` (see below).
+     Use them ONLY in shared primitives that must render on both surfaces
+     (Input, Textarea, Select, ColorPicker, Field, Toast, tooltip).
+     Every other component should use the explicit light tokens (`bg-bg-elevated`,
+     `text-ink`, `border-rule-strong`, …) or the explicit editor tokens
+     (`bg-ed-panel-2`, `text-ed-ink`, `border-ed-rule-strong`, …). */
   --color-panel: var(--color-bg-elevated);
   --color-panel-2: var(--color-bg-sunken);
   --color-border: var(--color-rule);

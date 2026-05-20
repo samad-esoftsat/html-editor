@@ -204,7 +204,7 @@ function SortableBulletItem({
           <button
             type="button"
             aria-label="Drag to reorder bullet"
-            className="bullet-grip inline-flex items-center justify-center cursor-grab active:cursor-grabbing text-muted hover:text-brand p-1 min-w-[28px] min-h-[28px] align-middle"
+            className="bullet-grip inline-flex items-center justify-center cursor-grab active:cursor-grabbing text-ed-ink-3 hover:text-brand p-1 min-w-[28px] min-h-[28px] align-middle"
             {...attributes}
             {...(listeners as Record<string, unknown> | undefined ?? {})}
           >
