@@ -36,9 +36,11 @@
   --color-ed-success: #79B16F;
   --color-ed-danger: #D8623F;
 
-  /* Backwards-compat aliases so legacy classes don't break before each surface is restyled */
-  --color-panel: var(--color-ed-panel);
-  --color-panel-2: var(--color-ed-panel-2);
+  /* Backwards-compat aliases — default to LIGHT palette so legacy class names
+     render reasonably on marketing/dashboard/settings/auth surfaces.
+     Inside `.editor-shell` (see below) they're re-pointed at the dark editor palette. */
+  --color-panel: var(--color-bg-elevated);
+  --color-panel-2: var(--color-bg-sunken);
   --color-border: var(--color-rule);
   --color-border-strong: var(--color-rule-strong);
   --color-fg: var(--color-ink);
@@ -49,9 +51,9 @@
   --gradient-hero: linear-gradient(135deg, #F1592A 0%, #E8A04F 60%, #F8C9A8 100%);
 
   /* Type tokens (CSS variables — components opt in via Tailwind utilities or inline style) */
-  --font-serif: var(--font-serif), 'Newsreader', ui-serif, Georgia, serif;
-  --font-sans: var(--font-sans), 'Geist', ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-mono), 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-serif: var(--font-newsreader), 'Newsreader', ui-serif, Georgia, serif;
+  --font-sans: var(--font-geist), 'Geist', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 
   /* Radius scale */
   --radius-sm: 6px;
@@ -84,6 +86,15 @@ body.editor-shell,
 .editor-shell {
   background: var(--color-ed-bg);
   color: var(--color-ed-ink);
+
+  /* Re-route legacy class names to the dark editor palette inside the editor surface. */
+  --color-panel: var(--color-ed-panel);
+  --color-panel-2: var(--color-ed-panel-2);
+  --color-border: var(--color-ed-rule);
+  --color-border-strong: var(--color-ed-rule-strong);
+  --color-fg: var(--color-ed-ink);
+  --color-muted: var(--color-ed-ink-3);
+  --color-muted-2: var(--color-ed-ink-4);
 }
 
 /* Inline-editable carry-forward (preserved from current globals.css) */

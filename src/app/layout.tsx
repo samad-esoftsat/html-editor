@@ -8,7 +8,7 @@ import { MotionProvider } from '@/components/providers/MotionProvider';
 
 const serif = Newsreader({
   subsets: ['latin'],
-  variable: '--font-serif',
+  variable: '--font-newsreader',
   weight: ['300', '400'],
   style: ['normal', 'italic'],
   display: 'swap',
@@ -16,14 +16,14 @@ const serif = Newsreader({
 
 const sans = Geist({
   subsets: ['latin'],
-  variable: '--font-sans',
+  variable: '--font-geist',
   weight: ['400', '500', '600'],
   display: 'swap',
 });
 
 const mono = JetBrains_Mono({
   subsets: ['latin'],
-  variable: '--font-mono',
+  variable: '--font-jetbrains-mono',
   weight: ['400'],
   display: 'swap',
 });
