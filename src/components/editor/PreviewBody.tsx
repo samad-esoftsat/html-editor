@@ -303,7 +303,7 @@ export function PreviewBody() {
                   }}
                   ariaLabel={`Edit ${s.platform} URL`}
                   alwaysVisible
-                  className="absolute -top-2 -right-2 bg-panel-2 rounded-full border border-border-strong"
+                  className="absolute -top-2 -right-2 bg-ed-panel-2 rounded-full border border-ed-rule-strong"
                 />
               </span>
             );

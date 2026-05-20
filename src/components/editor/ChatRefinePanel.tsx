@@ -110,14 +110,14 @@ export function ChatRefinePanel({ workspaceSlug, canEdit, seed, onUse, onTurnCom
 
   return (
     <div className="flex h-full flex-col gap-3">
-      <div className="text-xs text-muted">
+      <div className="text-xs text-ed-ink-3">
         Chat-style refinement. Each instruction edits the latest image. The full conversation is sent to the model each turn — keep prompts focused.
       </div>
-      <div className="flex-1 min-h-0 overflow-y-auto rounded-lg border border-border bg-panel-2 p-3">
+      <div className="flex-1 min-h-0 overflow-y-auto rounded-lg border border-ed-rule bg-ed-panel-2 p-3">
         <div className="flex flex-col gap-3">
           <div className="self-start max-w-[80%]">
-            <div className="mb-1 text-[10px] uppercase tracking-wide text-muted">Starting image</div>
-            <div className="overflow-hidden rounded-lg border border-border-strong bg-panel">
+            <div className="mb-1 text-[10px] uppercase tracking-wide text-ed-ink-3">Starting image</div>
+            <div className="overflow-hidden rounded-lg border border-ed-rule-strong bg-ed-panel">
               <img src={seed.url} alt={seed.alt_text ?? ''} className="block max-h-56 w-full object-contain" />
             </div>
           </div>
@@ -129,13 +129,13 @@ export function ChatRefinePanel({ workspaceSlug, canEdit, seed, onUse, onTurnCom
             />
           ))}
           {busy && (
-            <div className="flex items-center gap-2 text-xs text-muted">
+            <div className="flex items-center gap-2 text-xs text-ed-ink-3">
               <Spinner size={14} /> Refining…
             </div>
           )}
         </div>
       </div>
-      {error && <div className="text-xs text-danger">{error}</div>}
+      {error && <div className="text-xs text-ed-danger">{error}</div>}
       <div className="flex flex-col gap-2">
         <Textarea
           rows={2}
@@ -146,7 +146,7 @@ export function ChatRefinePanel({ workspaceSlug, canEdit, seed, onUse, onTurnCom
           disabled={!canEdit || busy}
         />
         <div className="flex items-center justify-between">
-          <div className="text-xs text-muted">{turns.filter((t) => t.role === 'user').length} / {Math.floor(MAX_TURNS / 2)} instructions used</div>
+          <div className="text-xs text-ed-ink-3">{turns.filter((t) => t.role === 'user').length} / {Math.floor(MAX_TURNS / 2)} instructions used</div>
           <Button
             type="button"
             variant="secondary"
@@ -170,19 +170,19 @@ function TurnBubble({
 }) {
   if (turn.role === 'user') {
     return (
-      <div className="self-end max-w-[80%] rounded-lg rounded-br-sm bg-brand/15 px-3 py-2 text-sm text-fg">
+      <div className="self-end max-w-[80%] rounded-lg rounded-br-sm bg-brand/15 px-3 py-2 text-sm text-ed-ink">
         {turn.text}
       </div>
     );
   }
   return (
     <div className="self-start max-w-[80%]">
-      <div className="overflow-hidden rounded-lg rounded-bl-sm border border-border-strong bg-panel">
+      <div className="overflow-hidden rounded-lg rounded-bl-sm border border-ed-rule-strong bg-ed-panel">
         <img src={turn.url} alt="" className="block max-h-56 w-full object-contain" />
         <button
           type="button"
           onClick={() => onUse(turn.assetId, turn.url)}
-          className="block w-full px-3 py-1.5 text-left text-xs text-muted hover:bg-panel-2 hover:text-fg"
+          className="block w-full px-3 py-1.5 text-left text-xs text-ed-ink-3 hover:bg-ed-panel-3 hover:text-ed-ink"
         >
           Use this image
         </button>

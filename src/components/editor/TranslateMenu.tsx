@@ -68,7 +68,7 @@ export function TranslateMenu({ projectId, projectName, slug }: Props) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="inline-flex items-center justify-center gap-1.5 rounded-md border border-border-strong px-3 py-2 text-sm font-medium text-fg hover:bg-panel hover:border-brand/40 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+        className="inline-flex h-8 items-center gap-1.5 rounded-md border border-ed-rule-strong bg-ed-panel px-2.5 text-[12px] text-ed-ink-2 hover:text-ed-ink hover:bg-ed-panel-3 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
         title="Translate to another language"
       >
         <Languages size={14} /> Translate
@@ -83,22 +83,22 @@ export function TranslateMenu({ projectId, projectName, slug }: Props) {
             exit="exit"
           >
             <motion.div
-              className="bg-panel border border-border-strong rounded-xl p-6 w-[460px] max-w-full"
+              className="bg-ed-panel-2 border border-ed-rule rounded-xl p-6 w-[460px] max-w-full shadow-[0_20px_60px_-20px_rgba(0,0,0,0.6)]"
               variants={scaleFade}
               initial="hidden"
               animate="show"
               exit="exit"
             >
-              <div className="font-semibold text-fg mb-1">Translate project</div>
-              <div className="text-xs text-muted-2 mb-4">A new translated project will be created. The original is not modified.</div>
+              <div className="font-semibold text-ed-ink mb-1">Translate project</div>
+              <div className="text-xs text-ed-ink-3 mb-4">A new translated project will be created. The original is not modified.</div>
 
-              <label className="mb-4 block text-xs font-medium text-muted-2">
+              <label className="mb-4 block text-xs font-medium text-ed-ink-3">
                 <span className="mb-1 block">Target language</span>
                 <select
                   value={language}
                   onChange={(e) => setLanguage(e.target.value as LanguageCode)}
                   disabled={pending}
-                  className="w-full rounded border border-border-strong bg-panel-2 px-2 py-1.5 text-sm text-fg focus:outline-none focus:border-brand"
+                  className="w-full rounded border border-ed-rule bg-ed-panel px-2 py-1.5 text-sm text-ed-ink placeholder:text-ed-ink-4 focus:outline-none focus:border-brand focus:ring-2 focus:ring-ed-brand-soft"
                 >
                   {LANGUAGES.map((l) => (
                     <option key={l.code} value={l.code}>{l.label}</option>
@@ -106,17 +106,17 @@ export function TranslateMenu({ projectId, projectName, slug }: Props) {
                 </select>
               </label>
 
-              <label className="mb-4 block text-xs font-medium text-muted-2">
+              <label className="mb-4 block text-xs font-medium text-ed-ink-3">
                 <span className="mb-1 block">Name</span>
                 <input
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   disabled={pending}
-                  className="w-full rounded border border-border-strong bg-panel-2 px-2 py-1.5 text-sm text-fg focus:outline-none focus:border-brand"
+                  className="w-full rounded border border-ed-rule bg-ed-panel px-2 py-1.5 text-sm text-ed-ink placeholder:text-ed-ink-4 focus:outline-none focus:border-brand focus:ring-2 focus:ring-ed-brand-soft"
                 />
               </label>
 
-              <label className="mb-4 block text-xs font-medium text-muted-2">
+              <label className="mb-4 block text-xs font-medium text-ed-ink-3">
                 <span className="mb-1 block">Tone or extra instructions (optional)</span>
                 <textarea
                   rows={2}
@@ -124,7 +124,7 @@ export function TranslateMenu({ projectId, projectName, slug }: Props) {
                   onChange={(e) => setTone(e.target.value)}
                   disabled={pending}
                   placeholder="e.g. keep tone friendly and casual"
-                  className="w-full rounded border border-border-strong bg-panel-2 px-2 py-1.5 text-sm text-fg focus:outline-none focus:border-brand resize-none"
+                  className="w-full rounded border border-ed-rule bg-ed-panel px-2 py-1.5 text-sm text-ed-ink placeholder:text-ed-ink-4 focus:outline-none focus:border-brand focus:ring-2 focus:ring-ed-brand-soft resize-none"
                 />
               </label>
 

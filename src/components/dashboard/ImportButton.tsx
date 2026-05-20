@@ -78,7 +78,7 @@ export function ImportButton({ slug }: { slug: string }) {
 
       {(stage === 'review' || stage === 'creating') && parsed && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-6">
-          <div className="bg-panel border border-border-strong rounded-xl p-6 w-[560px] max-h-[85vh] overflow-auto">
+          <div className="bg-bg-elevated border border-rule-strong rounded-xl p-6 w-[560px] max-h-[85vh] overflow-auto">
             <div className="text-xs uppercase tracking-widest text-brand mb-2">Step 2 of 3 — Review</div>
             <h2 className="text-lg font-bold mb-4">We found:</h2>
             <ul className="text-sm space-y-1.5 mb-6">
@@ -92,8 +92,8 @@ export function ImportButton({ slug }: { slug: string }) {
             </ul>
             {parsed.warnings.length > 0 && (
               <div className="mb-4">
-                <div className="text-xs uppercase tracking-widest text-muted-2 mb-1">Warnings</div>
-                <ul className="text-xs text-muted space-y-1">
+                <div className="text-xs uppercase tracking-widest text-ink-4 mb-1">Warnings</div>
+                <ul className="text-xs text-ink-3 space-y-1">
                   {parsed.warnings.map((w, i) => (
                     <li key={i} className={w.severity === 'error' ? 'text-danger' : ''}>· {w.message}</li>
                   ))}
@@ -114,7 +114,7 @@ export function ImportButton({ slug }: { slug: string }) {
       )}
 
       {stage === 'analysing' && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 text-fg text-sm">Analysing file…</div>
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 text-ink text-sm">Analysing file…</div>
       )}
     </>
   );

@@ -1,5 +1,6 @@
-import { requireWorkspace } from '@/lib/auth/workspace';
+import { listUserWorkspaces, requireWorkspace } from '@/lib/auth/workspace';
 import { createClient } from '@/lib/supabase/server';
+import { SettingsShell } from '../_shell';
 import { MembersPanel, type MemberRow, type InviteRow } from './MembersPanel';
 
 interface Props {
@@ -12,7 +13,7 @@ export default async function MembersSettingsPage({ params }: Props) {
 
   const supabase = await createClient();
 
-  const [membersRes, invitesRes] = await Promise.all([
+  const [membersRes, invitesRes, { data: { user } }, workspaces] = await Promise.all([
     supabase.rpc('list_org_members', { p_org: workspace.org.id }),
     supabase
       .from('organization_invites')
@@ -21,18 +22,28 @@ export default async function MembersSettingsPage({ params }: Props) {
       .is('accepted_at', null)
       .gt('expires_at', new Date().toISOString())
       .order('created_at', { ascending: false }),
+    supabase.auth.getUser(),
+    listUserWorkspaces(),
   ]);
 
   const members = (membersRes.data ?? []) as MemberRow[];
   const invites = (invitesRes.data ?? []) as InviteRow[];
 
   return (
-    <MembersPanel
+    <SettingsShell
       slug={slug}
-      members={members}
-      invites={invites}
-      canManage={workspace.role === 'owner'}
-      currentUserId={workspace.userId}
-    />
+      currentWorkspace={{ id: workspace.org.id, slug: workspace.org.slug, name: workspace.org.name }}
+      workspaces={workspaces.map((w) => ({ id: w.id, slug: w.slug, name: w.name }))}
+      email={user?.email ?? undefined}
+      activeHref={`/w/${slug}/settings/members`}
+    >
+      <MembersPanel
+        slug={slug}
+        members={members}
+        invites={invites}
+        canManage={workspace.role === 'owner'}
+        currentUserId={workspace.userId}
+      />
+    </SettingsShell>
   );
 }

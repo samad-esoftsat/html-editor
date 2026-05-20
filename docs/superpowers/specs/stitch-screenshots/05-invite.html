@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Accept Invitation | GlobalTT Editor</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&amp;family=Geist:wght@100..900&amp;family=JetBrains+Mono:wght@100..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        bg: '#FAF8F4',
+                        'bg-elevated': '#FFFFFF',
+                        'bg-sunken': '#F2EFE8',
+                        'bg-cream': '#F6F1E7',
+                        ink: '#141414',
+                        'ink-2': '#3A3733',
+                        'ink-3': '#6B665F',
+                        'ink-4': '#9C968D',
+                        rule: '#E7E2D8',
+                        'rule-strong': '#D8D2C4',
+                        brand: '#F1592A',
+                        'brand-ink': '#B8421C',
+                        'brand-soft': '#FCE2D2',
+                        'brand-glow': '#F8C9A8',
+                        amber: '#E8A04F',
+                        success: '#3F7A3F',
+                        danger: '#B2452B',
+                    },
+                    fontFamily: {
+                        headline: ["Newsreader", "serif"],
+                        display: ["Newsreader", "serif"],
+                        body: ["Geist", "sans-serif"],
+                        label: ["Geist", "sans-serif"],
+                        mono: ["JetBrains Mono", "monospace"],
+                    },
+                    borderRadius: {
+                        sm: '6px',
+                        DEFAULT: '8px',
+                        md: '10px',
+                        lg: '14px',
+                        xl: '20px',
+                        full: '9999px',
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #FAF8F4;
+            color: #141414;
+            font-family: 'Geist', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .bg-glow {
+            background: radial-gradient(circle, rgba(241, 89, 42, 0.06) 0%, rgba(250, 248, 244, 0) 70%);
+        }
+        .btn-primary-glow:hover {
+            box-shadow: 0 6px 16px -6px rgba(241, 89, 42, 0.45);
+            transform: translateY(-1px);
+        }
+        .btn-primary-glow:active {
+            transform: translateY(0);
+            box-shadow: none;
+        }
+        .newsreader-italic {
+            font-family: 'Newsreader', serif;
+            font-style: italic;
+            font-weight: 300;
+        }
+        .letter-spacing-eyebrow {
+            letter-spacing: 0.22em;
+        }
+        .stamp-rotation {
+            animation: rotateStamp 20s linear infinite;
+        }
+        @keyframes rotateStamp {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="min-h-screen relative flex flex-col items-center justify-center overflow-hidden">
+<!-- Background Subtle Glow -->
+<div class="absolute inset-0 bg-glow pointer-events-none"></div>
+<!-- Top AppBar (Brand Only) -->
+<header class="absolute top-0 left-0 w-full p-12">
+<div class="flex items-center gap-3">
+<img alt="GlobalTT Editor Logo" class="w-6 h-6 object-contain" src="https://lh3.googleusercontent.com/aida/ADBb0ugg2QlFCa34o3dXacpHI_7XtjSMmo7e2Ijyrk72yCXmQwKo_Hg2QBJc5iu1VHPuM10oR4hPjdDiCT7dt1UwySahCgA72KErVpj01iNy6Pfv1Akn-6LKW3VrwIS4nvOWZtC25yAUG7nIOdMITPNmnP9x5KXrcQENiCwM8jPlgeOcSw4OknEUA1cjmvP1T5WTnMW_Fa6FTM9u8H1NbTsTBdA1lZAa7eUbDur5x892CA4X5adjnFwPH0iPAm7_"/>
+<span class="font-body font-medium text-[14px] text-ink tracking-tight">GlobalTT Editor</span>
+</div>
+</header>
+<!-- Main Content Block -->
+<main class="relative z-10 w-full max-w-[520px] flex flex-col items-center px-6">
+<!-- Header Section -->
+<div class="text-center mb-10">
+<span class="block font-label text-[11px] font-medium text-ink-3 uppercase letter-spacing-eyebrow mb-6">
+                INVITATION
+            </span>
+<h1 class="font-display text-[48px] leading-[1.1] text-ink mb-6">
+                You've been invited<br/>to <span class="newsreader-italic">Acme Co.</span>
+</h1>
+<p class="font-body text-[17px] text-ink-2 max-w-[420px] mx-auto leading-relaxed">
+                Jorge Martínez has invited you to join the Acme Co. workspace on GlobalTT Editor as an Editor.
+            </p>
+</div>
+<!-- Invite Card -->
+<div class="w-[460px] bg-bg-elevated border border-rule rounded-lg p-6 mb-8">
+<!-- Row 1: Workspace -->
+<div class="flex items-start gap-4 pb-5">
+<div class="w-32 h-10 flex-shrink-0 font-label text-[11px] font-medium text-ink-3 uppercase letter-spacing-eyebrow pt-1.5">
+                    WORKSPACE
+                </div>
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-sm bg-brand-soft flex items-center justify-center text-brand font-semibold text-xs">
+                        AC
+                    </div>
+<div>
+<div class="font-body font-semibold text-ink text-[16px] leading-none mb-1">Acme Co.</div>
+<div class="font-mono text-[12px] text-ink-3">globaltt.com/w/acme</div>
+</div>
+</div>
+</div>
+<!-- Row 2: Invited By -->
+<div class="flex items-start gap-4 py-5 border-t border-rule">
+<div class="w-32 h-10 flex-shrink-0 font-label text-[11px] font-medium text-ink-3 uppercase letter-spacing-eyebrow pt-1.5">
+                    INVITED BY
+                </div>
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-brand-soft flex items-center justify-center">
+<span class="material-symbols-outlined text-brand-ink text-[18px]">person</span>
+</div>
+<div>
+<div class="font-body text-ink text-[14px] leading-none mb-1">Jorge Martínez</div>
+<div class="font-mono text-[12px] text-ink-3">jorge@acme.co</div>
+</div>
+</div>
+</div>
+<!-- Row 3: Role -->
+<div class="flex items-start gap-4 pt-5 border-t border-rule">
+<div class="w-32 h-10 flex-shrink-0 font-label text-[11px] font-medium text-ink-3 uppercase letter-spacing-eyebrow pt-1.5">
+                    YOUR ROLE
+                </div>
+<div>
+<div class="inline-flex items-center px-2 py-0.5 border border-ink rounded-full text-[11px] font-bold text-ink mb-2">
+                        EDITOR
+                    </div>
+<div class="font-body text-ink-3 text-[13px] leading-relaxed">
+                        Can create, edit, and share projects.
+                    </div>
+</div>
+</div>
+</div>
+<!-- Action Buttons -->
+<div class="w-[460px] flex flex-col items-center gap-4">
+<button class="w-full h-11 bg-brand text-white font-body font-medium text-[15px] rounded-md transition-all duration-200 btn-primary-glow shadow-[inset_0_1px_0_rgba(255,255,255,0.18)]">
+                Accept invitation
+            </button>
+<button class="h-9 font-body text-ink-3 text-[14px] hover:text-ink transition-colors px-6">
+                Decline
+            </button>
+</div>
+<!-- Footer Note -->
+<div class="mt-12 text-center">
+<p class="font-body text-ink-3 text-[13px]">
+                This invitation expires in 7 days. <span class="ml-1">Powered by <span class="text-brand decoration-brand/70 underline underline-offset-4">GlobalTT Editor</span></span>
+</p>
+</div>
+</main>
+<!-- Editorial Flourish (Bottom Right) -->
+<div class="absolute bottom-0 right-0 p-16 hidden lg:block">
+<div class="relative w-32 h-32">
+<!-- Dotted Line -->
+<div class="absolute bottom-0 right-0 w-[140px] h-px bg-ink-3/20 origin-bottom-right -rotate-45" style="background-image: radial-gradient(circle, #6B665F 1px, transparent 1px); background-size: 8px 1px;"></div>
+<!-- Email Stamp Device -->
+<div class="absolute bottom-12 right-12 flex items-center justify-center">
+<div class="relative w-16 h-16 flex items-center justify-center">
+<!-- Rotating Mono Text -->
+<svg class="absolute inset-0 w-full h-full stamp-rotation" viewbox="0 0 100 100">
+<defs>
+<path d="M 50, 50 m -35, 0 a 35,35 0 1,1 70,0 a 35,35 0 1,1 -70,0" id="circlePath"></path>
+</defs>
+<text class="font-mono text-[8px] fill-ink-3/50 tracking-[0.2em] uppercase">
+<textpath href="#circlePath">MAY 20 • GLOBALTT EDITOR • MAY 20 • </textpath>
+</text>
+</svg>
+<!-- Inner Monogram -->
+<div class="w-7 h-7 bg-white rounded-full flex items-center justify-center shadow-sm z-10 p-1">
+<img alt="Small GT Monogram" class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida/ADBb0ugg2QlFCa34o3dXacpHI_7XtjSMmo7e2Ijyrk72yCXmQwKo_Hg2QBJc5iu1VHPuM10oR4hPjdDiCT7dt1UwySahCgA72KErVpj01iNy6Pfv1Akn-6LKW3VrwIS4nvOWZtC25yAUG7nIOdMITPNmnP9x5KXrcQENiCwM8jPlgeOcSw4OknEUA1cjmvP1T5WTnMW_Fa6FTM9u8H1NbTsTBdA1lZAa7eUbDur5x892CA4X5adjnFwPH0iPAm7_"/>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Interaction Script -->
+<script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Subtle entrance animation for the italicized workspace name
+            const italicText = document.querySelector('.newsreader-italic');
+            if (italicText) {
+                italicText.style.opacity = '0';
+                italicText.style.transform = 'translateY(8px)';
+                italicText.style.display = 'inline-block';
+                italicText.style.transition = 'all 400ms cubic-bezier(0.16, 1, 0.3, 1) 60ms';
+                
+                setTimeout(() => {
+                    italicText.style.opacity = '1';
+                    italicText.style.transform = 'translateY(0)';
+                }, 100);
+            }
+        });
+    </script>
+</body></html>

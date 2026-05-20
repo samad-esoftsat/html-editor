@@ -47,39 +47,39 @@ export function DownloadMenu({ projectId, slug }: Props) {
             initial="hidden"
             animate="show"
             exit="exit"
-            className="absolute right-0 top-full mt-1 w-64 rounded-md border border-border-strong bg-panel shadow-lg shadow-black/30 overflow-hidden z-50"
+            className="absolute right-0 top-full mt-1 w-64 rounded-md border border-ed-rule bg-ed-panel-2 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.6)] overflow-hidden z-50"
             role="menu"
           >
             <a
               href={`/api/projects/${projectId}/export`}
               download
               onClick={() => setOpen(false)}
-              className="block px-3 py-2 text-sm text-fg hover:bg-panel-2"
+              className="block px-3 py-2 text-sm text-ed-ink hover:bg-ed-panel-3"
               role="menuitem"
             >
               <div className="font-medium">HTML (for email)</div>
-              <div className="text-xs text-muted-2">Image URLs intact, smallest file.</div>
+              <div className="text-xs text-ed-ink-3">Image URLs intact, smallest file.</div>
             </a>
             <a
               href={`/api/projects/${projectId}/export?embed=1`}
               download
               onClick={() => setOpen(false)}
-              className="block px-3 py-2 text-sm text-fg hover:bg-panel-2 border-t border-border"
+              className="block px-3 py-2 text-sm text-ed-ink hover:bg-ed-panel-3 border-t border-ed-rule"
               role="menuitem"
             >
               <div className="font-medium">HTML (offline, with images)</div>
-              <div className="text-xs text-muted-2">Self-contained, larger file.</div>
+              <div className="text-xs text-ed-ink-3">Self-contained, larger file.</div>
             </a>
             <a
               href={`/w/${slug}/p/${projectId}/print`}
               target="_blank"
               rel="noopener"
               onClick={() => setOpen(false)}
-              className="block px-3 py-2 text-sm text-fg hover:bg-panel-2 border-t border-border"
+              className="block px-3 py-2 text-sm text-ed-ink hover:bg-ed-panel-3 border-t border-ed-rule"
               role="menuitem"
             >
               <div className="font-medium">PDF (for printing)</div>
-              <div className="text-xs text-muted-2">Opens print preview in a new tab.</div>
+              <div className="text-xs text-ed-ink-3">Opens print preview in a new tab.</div>
             </a>
           </motion.div>
         )}

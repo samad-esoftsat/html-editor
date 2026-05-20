@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>GlobalTT Editor — Summer Sale</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;500&amp;family=Geist:wght@400;500;600&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        'bg': '#0E0D0B',
+                        'panel': '#161412',
+                        'panel-2': '#1B1815',
+                        'panel-3': '#221F1B',
+                        'rule': '#2A2622',
+                        'rule-strong': '#3A3631',
+                        'canvas-pad': '#080706',
+                        'ink': '#EDE7DC',
+                        'ink-2': '#B6AFA3',
+                        'ink-3': '#7E776C',
+                        'ink-4': '#544F47',
+                        'brand': '#F1592A',
+                        'brand-soft': '#F1592A26',
+                        'amber': '#E8A04F',
+                        'success': '#79B16F',
+                        'danger': '#D8623F',
+                    },
+                    borderRadius: {
+                        'sm': '6px',
+                        'DEFAULT': '8px',
+                        'md': '10px',
+                        'lg': '12px',
+                        'full': '9999px',
+                    },
+                    fontFamily: {
+                        'headline': ['Newsreader', 'serif'],
+                        'display': ['Newsreader', 'serif'],
+                        'body': ['Geist', 'sans-serif'],
+                        'label': ['Geist', 'sans-serif'],
+                        'mono': ['JetBrains Mono', 'monospace'],
+                    },
+                    boxShadow: {
+                        'editor-modal': '0 20px 60px -20px rgba(0,0,0,0.6)',
+                        'ink-hairline': 'inset 0 1px 0 rgba(237,231,220,0.04)',
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+            font-size: 20px;
+        }
+        body {
+            background-color: #0E0D0B;
+            color: #EDE7DC;
+            font-family: 'Geist', sans-serif;
+            overflow: hidden;
+        }
+        .canvas-container {
+            height: calc(100vh - 52px);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #2A2622;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="flex flex-col h-screen overflow-hidden">
+<!-- TopAppBar -->
+<header class="h-[52px] w-full sticky top-0 bg-[#1B1815] border-b border-[#2A2622] flex justify-between items-center px-[14px] z-50">
+<div class="flex items-center gap-3">
+<img alt="GT Logo" class="w-6 h-6" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAACZ0lEQVR4AeyZMW/TQBTH37sICce5MjAwIUYyFUaKYGfgEzDABhI7lAWxMNCOTBT4GEwsSC1bB7KxwIBAgkChUtzgOiT3eM+Sq9ZDeudenFg6y0/25d699/u/d7LiREHpWIqiK7rT3tCdeFPreGdJxzRPE4acpdN+IWwlXDgs4LTW0Rq18D0i3kWE6whwtryg7rEw5CyI94RNx9EzZjjFlp+5gDiOl1lpD0E9RMQWLOghbKjUqu60t4VZMHMBCswtVnpRPmiCsZBLwiysSkfRCiA+kEGjjJmlCwpaeIcV5Z1okgBhVkj3FSBchsYe2FUI2G0sP0BXMfwZtkaeiHBOBDQSvoAOAopKzOtauQNfb14An1a1AJUFVE3oe10Q4LuirvEqd+D8my8wzcog03xlruxvO64swDbBrP2CgFlX+Lj41h0oP/OPC1zXvLUAgLqQ3PIEAW718u8dOuC/pm4RQwfc6uXfO3TAf03dIoYOuNXLv3fogP+aukUMHXCrl39v6w78SMdHspffD8rjwlned8WKse+rtYCtX/u+c3uJZy3g6cdd2MmOdsELwQmDWAv488/Ajc3v8K6fwu5ocsK0/pYrIujbhutnBm5v/4Tlt9+m/iYke74w29hV/ISd/6GhXpXFi7AGgXrcgRkIqEkdEQvAsXnNN6OacnpMQ3ujsXmlBln2CRCfeIxcTyhDj7Ms+5w/hZJkuA5EH+rJ7CELb53BMH0ukXIBfGMGe3+vkjFrvJ0mPF7IU9gIzDqzrjCgYYNCgNzvJ8P0EU7oGjtuEMEWAfyWiXmaMOQsRC+FLUnSVeY5+FrwHwAA//88QautAAAABklEQVQDALx6GSVopAqVAAAAAElFTkSuQmCC"/>
+<span class="text-[#B6AFA3] font-body text-[13px] font-medium">Acme Co</span>
+<div class="w-[1px] h-4 bg-[#2A2622]"></div>
+<h1 class="font-headline text-[18px] leading-[1.2] tracking-tight text-[#EDE7DC]">Summer Sale · Week 3</h1>
+<div class="ml-4 flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-[#221F1B] border border-[#2A2622]">
+<span class="w-1.5 h-1.5 rounded-full bg-[#79B16F]"></span>
+<span class="font-mono text-[10px] tracking-tight text-[#B6AFA3] uppercase">Saved · 2s ago</span>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<div class="flex items-center mr-2">
+<button class="p-1.5 rounded text-[#B6AFA3] hover:bg-[#221F1B] hover:text-[#EDE7DC] transition-colors duration-100">
+<span class="material-symbols-outlined">undo</span>
+</button>
+<button class="p-1.5 rounded text-[#B6AFA3] hover:bg-[#221F1B] hover:text-[#EDE7DC] transition-colors duration-100">
+<span class="material-symbols-outlined">redo</span>
+</button>
+</div>
+<button class="flex items-center gap-2 px-3 py-1.5 rounded bg-[#221F1B] text-[#F1592A] border border-[#F1592A] transition-all duration-100">
+<span class="material-symbols-outlined">view_sidebar</span>
+</button>
+<div class="h-4 w-[1px] bg-[#2A2622] mx-1"></div>
+<button class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-[#B6AFA3] font-label text-[11px] font-semibold tracking-wider hover:bg-[#221F1B] hover:text-[#EDE7DC]">
+                EN <span class="material-symbols-outlined text-[14px]">arrow_forward</span> ES
+            </button>
+<button class="px-3 py-1.5 rounded-md border border-[#2A2622] text-[#EDE7DC] font-label text-[11px] font-semibold tracking-[0.1em] hover:bg-[#221F1B] transition-colors">
+                DOWNLOAD
+            </button>
+<button class="px-4 py-1.5 rounded-md bg-[#F1592A] text-white font-label text-[11px] font-bold tracking-[0.1em] hover:bg-[#d44921] transition-all active:scale-95 shadow-lg shadow-[#F1592A33]">
+                SHARE
+            </button>
+</div>
+</header>
+<main class="flex flex-1 overflow-hidden">
+<!-- Left Panel: Editor Controls -->
+<aside class="w-[320px] h-full bg-[#161412] border-r border-[#2A2622] flex flex-col custom-scrollbar overflow-y-auto pt-4 pb-20">
+<!-- Global Styles Section -->
+<div class="px-4 mb-8">
+<header class="flex items-center justify-between mb-3">
+<h2 class="font-label text-[11px] font-semibold tracking-[0.18em] text-[#B6AFA3] uppercase">Global Styles</h2>
+<span class="material-symbols-outlined text-[#7E776C] text-[16px]">palette</span>
+</header>
+<div class="bg-[#1B1815] border border-[#2A2622] rounded-lg p-3 space-y-4 shadow-ink-hairline">
+<div>
+<label class="font-label text-[10px] font-medium text-[#7E776C] uppercase tracking-wider block mb-2">Primary Colors</label>
+<div class="flex gap-2">
+<button class="w-7 h-7 rounded-sm border border-[#2A2622] bg-[#F1592A] ring-2 ring-offset-2 ring-offset-[#1B1815] ring-[#F1592A]"></button>
+<button class="w-7 h-7 rounded-sm border border-[#2A2622] bg-white"></button>
+<button class="w-7 h-7 rounded-sm border border-[#2A2622] bg-[#B6AFA3]"></button>
+<button class="w-7 h-7 rounded-sm border border-[#2A2622] flex items-center justify-center bg-[#221F1B]">
+<span class="material-symbols-outlined text-[16px] text-[#7E776C]">add</span>
+</button>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<div>
+<label class="font-label text-[10px] font-medium text-[#7E776C] uppercase tracking-wider block mb-2">Heading Font</label>
+<div class="h-7 bg-[#161412] border border-[#2A2622] rounded px-2 flex items-center justify-between text-[11px] text-[#EDE7DC]">
+                                Newsreader
+                                <span class="material-symbols-outlined text-[14px]">unfold_more</span>
+</div>
+</div>
+<div>
+<label class="font-label text-[10px] font-medium text-[#7E776C] uppercase tracking-wider block mb-2">Body Font</label>
+<div class="h-7 bg-[#161412] border border-[#2A2622] rounded px-2 flex items-center justify-between text-[11px] text-[#EDE7DC]">
+                                Public Sans
+                                <span class="material-symbols-outlined text-[14px]">unfold_more</span>
+</div>
+</div>
+</div>
+<div>
+<label class="font-label text-[10px] font-medium text-[#7E776C] uppercase tracking-wider block mb-2">Text Scaling</label>
+<div class="flex bg-[#161412] p-0.5 rounded border border-[#2A2622]">
+<button class="flex-1 text-[10px] py-1 text-[#7E776C]">SM</button>
+<button class="flex-1 text-[10px] py-1 bg-[#221F1B] text-[#F1592A] font-bold rounded-sm border border-[#2A2622]">MD</button>
+<button class="flex-1 text-[10px] py-1 text-[#7E776C]">LG</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Products Section -->
+<div class="px-4">
+<header class="flex items-center justify-between mb-3">
+<h2 class="font-label text-[11px] font-semibold tracking-[0.18em] text-[#B6AFA3] uppercase">Products <span class="text-[#544F47] ml-1">· 3</span></h2>
+<span class="material-symbols-outlined text-[#7E776C] text-[16px]">inventory_2</span>
+</header>
+<div class="space-y-2">
+<!-- Product Card 1 -->
+<div class="bg-[#1B1815] border border-[#2A2622] rounded-lg p-3 flex gap-3 items-center group cursor-grab hover:bg-[#221F1B] transition-colors">
+<span class="material-symbols-outlined text-[#544F47] group-hover:text-[#B6AFA3] transition-colors">drag_indicator</span>
+<div class="w-10 h-10 bg-[#161412] rounded border border-[#2A2622] flex-shrink-0 flex items-center justify-center overflow-hidden">
+<div class="w-full h-full bg-[#1B1815] flex items-center justify-center" data-alt="A clean, studio-lit macro photograph of high-end consumer technology against a dark grey background. The lighting is focused and cinematic, creating a premium feel. The aesthetic is modern and professional, aligning with a dark mode email editor UI.">
+<span class="material-symbols-outlined text-[#544F47]">image</span>
+</div>
+</div>
+<div class="flex-1 overflow-hidden">
+<p class="text-[12px] font-medium text-[#EDE7DC] truncate">Smartwatch Series 7</p>
+<p class="text-[10px] text-[#7E776C]">Section Title</p>
+</div>
+</div>
+<!-- Selected Product Card -->
+<div class="bg-[#221F1B] border border-[#F1592A26] border-l-2 border-l-[#F1592A] rounded-lg p-3 flex gap-3 items-center relative shadow-lg">
+<span class="material-symbols-outlined text-[#F1592A]">drag_indicator</span>
+<div class="w-10 h-10 bg-[#161412] rounded border border-[#F1592A26] flex-shrink-0 flex items-center justify-center overflow-hidden">
+<div class="w-full h-full bg-[#1B1815] flex items-center justify-center" data-alt="Professional studio product shot of sleek wireless headphones with matte black texture and orange metallic accents. Bright key light from the side creates deep shadows and elegant highlights. Minimalist, premium hardware aesthetic for high-end digital marketing.">
+<span class="material-symbols-outlined text-[#F1592A] text-[20px]">headphones</span>
+</div>
+</div>
+<div class="flex-1 overflow-hidden">
+<p class="text-[12px] font-bold text-[#EDE7DC] truncate">Wireless Headphones Pro</p>
+<p class="text-[10px] text-[#F1592A]">Active Section</p>
+</div>
+<button class="p-1 rounded text-[#B6AFA3] hover:text-[#EDE7DC]">
+<span class="material-symbols-outlined text-[16px]">visibility</span>
+</button>
+</div>
+<!-- Product Card 3 -->
+<div class="bg-[#1B1815] border border-[#2A2622] rounded-lg p-3 flex gap-3 items-center group cursor-grab hover:bg-[#221F1B] transition-colors">
+<span class="material-symbols-outlined text-[#544F47] group-hover:text-[#B6AFA3]">drag_indicator</span>
+<div class="w-10 h-10 bg-[#161412] rounded border border-[#2A2622] flex-shrink-0 flex items-center justify-center">
+<span class="material-symbols-outlined text-[#544F47]">image</span>
+</div>
+<div class="flex-1 overflow-hidden">
+<p class="text-[12px] font-medium text-[#EDE7DC] truncate">Eco Speakers Lite</p>
+<p class="text-[10px] text-[#7E776C]">Section Title</p>
+</div>
+</div>
+<button class="w-full h-10 mt-4 rounded-lg border-2 border-dashed border-[#2A2622] text-[#7E776C] font-label text-[11px] font-medium tracking-wide flex items-center justify-center gap-2 hover:border-[#F1592A] hover:text-[#EDE7DC] transition-all">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                        Add Product Section
+                    </button>
+</div>
+</div>
+</aside>
+<!-- Canvas Area -->
+<section class="flex-1 bg-[#080706] relative overflow-auto custom-scrollbar flex flex-col items-center py-12">
+<!-- Email Substrate -->
+<div class="w-[700px] bg-white rounded-sm shadow-2xl relative min-h-[1000px] flex flex-col">
+<!-- Email Header -->
+<div class="py-10 px-12 border-b border-gray-100 flex flex-col items-center">
+<div class="text-[20px] font-bold tracking-tight text-[#0E0D0B] mb-8 font-label">GlobalTT</div>
+<h2 class="font-headline text-[48px] text-center text-[#0E0D0B] leading-tight">The Summer Sale <br/> is officially here.</h2>
+<p class="mt-4 text-center text-gray-500 font-body max-w-sm">Elevate your auditory experience with our flagship hardware, now at seasonal prices.</p>
+</div>
+<!-- Product Block 1 (Inactive) -->
+<div class="p-12 relative group cursor-pointer hover:bg-gray-50 transition-colors">
+<div class="flex items-center justify-between gap-8">
+<div class="flex-1">
+<span class="text-[10px] font-bold text-[#F1592A] uppercase tracking-widest">New Release</span>
+<h3 class="text-2xl font-headline text-black mt-1">Smartwatch Series 7</h3>
+<p class="text-gray-500 text-sm mt-2">Health tracking meets timeless design. Up to 48 hours of battery life.</p>
+<button class="mt-6 px-5 py-2 border-2 border-black text-xs font-bold uppercase tracking-widest hover:bg-black hover:text-white transition-all">Shop Now</button>
+</div>
+<div class="w-48 h-48 bg-gray-100 rounded-lg flex items-center justify-center" data-alt="Clean, bright product photography of a modern smartwatch on a minimal white background. Natural, soft shadows and high-key lighting emphasize the sleek glass and metallic finish. Professional product styling for a minimalist summer marketing campaign.">
+<span class="material-symbols-outlined text-gray-300 text-[48px]">watch</span>
+</div>
+</div>
+</div>
+<!-- Hairline Divider with Add Button -->
+<div class="relative h-[2px] w-full bg-[#F1592A26] flex justify-center items-center opacity-0 hover:opacity-100 transition-opacity">
+<div class="absolute w-full h-[1px] bg-[#F1592A]"></div>
+<button class="relative z-10 bg-white border border-[#F1592A] text-[#F1592A] px-3 py-1 rounded-full text-[10px] font-bold flex items-center gap-1 shadow-sm">
+<span class="material-symbols-outlined text-[14px]">add</span> ADD SECTION
+                    </button>
+</div>
+<!-- Product Block 2 (SELECTED) -->
+<div class="p-12 relative outline outline-2 outline-[#F1592A] bg-orange-50/20 z-10">
+<!-- Floating Section Toolbar -->
+<div class="absolute -top-12 right-0 flex items-center gap-1.5 p-1.5 bg-[#1B1815] border border-[#3A3631] rounded-full shadow-editor-modal scale-100 origin-bottom">
+<button class="p-1.5 rounded-full text-[#B6AFA3] hover:bg-[#221F1B] hover:text-[#EDE7DC]">
+<span class="material-symbols-outlined text-[18px]">content_copy</span>
+</button>
+<button class="p-1.5 rounded-full text-[#B6AFA3] hover:bg-[#221F1B] hover:text-[#EDE7DC]">
+<span class="material-symbols-outlined text-[18px]">arrow_upward</span>
+</button>
+<button class="p-1.5 rounded-full text-[#B6AFA3] hover:bg-[#221F1B] hover:text-[#EDE7DC]">
+<span class="material-symbols-outlined text-[18px]">arrow_downward</span>
+</button>
+<div class="w-[1px] h-4 bg-[#3A3631]"></div>
+<button class="p-1.5 rounded-full text-[#D8623F] hover:bg-[#221F1B] transition-colors">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+<!-- Floating Text Selection Bar -->
+<div class="absolute -top-12 left-12 flex items-center gap-1.5 p-1.5 bg-[#1B1815] border border-[#3A3631] rounded-full shadow-editor-modal">
+<button class="w-8 h-8 rounded-full flex items-center justify-center text-[#EDE7DC] hover:bg-[#221F1B] font-bold">B</button>
+<button class="w-8 h-8 rounded-full flex items-center justify-center text-[#EDE7DC] hover:bg-[#221F1B] italic">I</button>
+<button class="p-1.5 rounded-full text-[#B6AFA3] hover:bg-[#221F1B] hover:text-[#EDE7DC]">
+<span class="material-symbols-outlined text-[18px]">link</span>
+</button>
+<div class="w-[1px] h-4 bg-[#3A3631]"></div>
+<button class="w-6 h-6 rounded-full border border-[#3A3631] bg-[#F1592A] m-1"></button>
+</div>
+<div class="flex items-center justify-between gap-8">
+<div class="flex-1">
+<span class="text-[10px] font-bold text-[#F1592A] uppercase tracking-widest">Editor's Choice</span>
+<h3 class="text-2xl font-headline text-black mt-1 bg-orange-100 rounded px-1 -mx-1">Wireless Headphones Pro</h3>
+<p class="text-gray-500 text-sm mt-2">Active noise cancellation with transparent mode. Crystal clear spatial audio for enthusiasts.</p>
+<button class="mt-6 px-8 py-3 bg-[#F1592A] text-white text-xs font-bold uppercase tracking-widest shadow-lg shadow-[#F1592A44]">Shop $299</button>
+</div>
+<div class="w-48 h-48 bg-[#F1592A26] rounded-lg border-2 border-[#F1592A] flex items-center justify-center p-4">
+<div class="w-full h-full bg-white rounded-md shadow-sm overflow-hidden flex items-center justify-center" data-alt="Minimalist, commercial-grade product photography of wireless headphones. Sharp focus on premium materials like aluminum and mesh. Shot in a bright, modern studio with clean white surroundings and professional rim lighting. Elegant and expensive visual language.">
+<span class="material-symbols-outlined text-[#F1592A] text-[64px]" style="font-variation-settings: 'FILL' 1;">headphones</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Product Block 3 (Inactive) -->
+<div class="p-12 relative group cursor-pointer hover:bg-gray-50 transition-colors">
+<div class="flex items-center justify-between gap-8">
+<div class="flex-1">
+<span class="text-[10px] font-bold text-[#B6AFA3] uppercase tracking-widest">Sustainable</span>
+<h3 class="text-2xl font-headline text-black mt-1">Eco Speakers Lite</h3>
+<p class="text-gray-500 text-sm mt-2">Hand-crafted from recycled materials. Earth-shaking sound from a compact form.</p>
+<button class="mt-6 px-5 py-2 border-2 border-black text-xs font-bold uppercase tracking-widest hover:bg-black hover:text-white transition-all">Explore</button>
+</div>
+<div class="w-48 h-48 bg-gray-100 rounded-lg flex items-center justify-center" data-alt="Artistic, high-resolution product shot of a wooden bluetooth speaker. Warm wood grain textures contrasting with dark fabric mesh. Set in a brightly lit modern apartment with natural sunlight streaming in, creating long, soft shadows. High-end lifestyle photography aesthetic.">
+<span class="material-symbols-outlined text-gray-300 text-[48px]">speaker</span>
+</div>
+</div>
+</div>
+<!-- Footer Substrate -->
+<div class="mt-auto py-12 px-12 bg-gray-50 flex flex-col items-center">
+<div class="flex gap-4 mb-6">
+<div class="w-8 h-8 rounded-full bg-gray-200"></div>
+<div class="w-8 h-8 rounded-full bg-gray-200"></div>
+<div class="w-8 h-8 rounded-full bg-gray-200"></div>
+</div>
+<p class="text-[11px] text-gray-400 font-body text-center leading-relaxed max-w-xs">
+                        © 2024 GlobalTT Hardware. 123 Editorial Lane, Darkroom District. 
+                        Unsubscribe or Manage Preferences.
+                    </p>
+</div>
+</div>
+<!-- Canvas Helpers -->
+<div class="fixed bottom-6 right-6 flex flex-col gap-3">
+<button class="w-10 h-10 rounded-full bg-[#1B1815] border border-[#3A3631] text-[#B6AFA3] flex items-center justify-center hover:text-[#EDE7DC] shadow-lg">
+<span class="material-symbols-outlined">zoom_in</span>
+</button>
+<button class="w-10 h-10 rounded-full bg-[#1B1815] border border-[#3A3631] text-[#B6AFA3] flex items-center justify-center hover:text-[#EDE7DC] shadow-lg">
+<span class="material-symbols-outlined">center_focus_strong</span>
+</button>
+<button class="w-10 h-10 rounded-full bg-[#F1592A] text-white flex items-center justify-center hover:bg-[#d44921] transition-all shadow-lg active:scale-95">
+<span class="material-symbols-outlined">chat_bubble</span>
+</button>
+</div>
+</section>
+</main>
+<!-- Hotkeys Toast (Atmospheric) -->
+<div class="fixed bottom-4 left-[340px] px-3 py-1.5 bg-[#1B1815] border border-[#2A2622] rounded-md flex items-center gap-3 animate-in fade-in slide-in-from-bottom-2 duration-700">
+<span class="font-mono text-[10px] text-[#7E776C]">⌘ + \ to hide sidebar</span>
+<div class="w-[1px] h-3 bg-[#2A2622]"></div>
+<span class="font-mono text-[10px] text-[#7E776C]">⌘ + S to sync</span>
+</div>
+<script>
+        // Micro-interaction: Toggle Sidebar (Visual Only for Demo)
+        document.addEventListener('keydown', function(e) {
+            if (e.metaKey && e.key === '\\') {
+                const sidebar = document.querySelector('aside');
+                sidebar.classList.toggle('hidden');
+            }
+        });
+
+        // Simple Hover Interaction for Canvas Substrate
+        const substrate = document.querySelector('.w-\\[700px\\]');
+        substrate.addEventListener('mouseenter', () => {
+            substrate.style.boxShadow = '0 30px 100px -30px rgba(0,0,0,0.8)';
+            substrate.style.transition = 'box-shadow 0.4s ease';
+        });
+        substrate.addEventListener('mouseleave', () => {
+            substrate.style.boxShadow = '0 20px 60px -20px rgba(0,0,0,0.6)';
+        });
+    </script>
+</body></html>

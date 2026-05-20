@@ -118,7 +118,7 @@ export function CreateWorkspaceDialog({ open, onClose }: Props) {
     <AnimatePresence>
       {open && (
         <motion.div
-          className="fixed inset-0 bg-black/70 flex items-center justify-center z-[200] p-6"
+          className="fixed inset-0 z-[200] flex items-center justify-center bg-ink/40 backdrop-blur-sm p-6"
           onClick={() => { if (!busy) onClose(); }}
           variants={fade}
           initial="hidden"
@@ -126,15 +126,15 @@ export function CreateWorkspaceDialog({ open, onClose }: Props) {
           exit="exit"
         >
           <motion.div
-            className="bg-panel border border-border-strong rounded-xl p-6 w-[480px] max-w-full"
+            className="w-[480px] max-w-full rounded-[14px] border border-rule bg-bg-elevated p-6 shadow-[0_30px_80px_-20px_rgba(20,20,20,0.25)]"
             onClick={(e) => e.stopPropagation()}
             variants={scaleFade}
             initial="hidden"
             animate="show"
             exit="exit"
           >
-            <div className="font-semibold text-fg mb-1">New workspace</div>
-            <div className="text-sm text-muted mb-5">
+            <div className="mb-1 text-[20px] font-semibold tracking-[-0.01em] text-ink">New workspace</div>
+            <div className="text-sm text-ink-3 mb-5">
               Workspaces hold projects, brand kits, and members.
             </div>
 
@@ -166,7 +166,7 @@ export function CreateWorkspaceDialog({ open, onClose }: Props) {
                   autoCapitalize="off"
                   autoCorrect="off"
                 />
-                <div className="mt-1 text-[11px] text-muted-2">
+                <div className="mt-1 text-[11px] text-ink-3">
                   Used in URLs: <span className="font-mono">/w/{slug || 'your-slug'}</span>
                 </div>
               </Field>
@@ -175,7 +175,7 @@ export function CreateWorkspaceDialog({ open, onClose }: Props) {
               )}
             </div>
 
-            <div className="flex gap-2 justify-end">
+            <div className="mt-6 flex justify-end gap-2">
               <Button variant="ghost" onClick={onClose} disabled={busy}>
                 Cancel
               </Button>

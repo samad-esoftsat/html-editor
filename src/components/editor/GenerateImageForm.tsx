@@ -111,12 +111,12 @@ export function GenerateImageForm({ workspaceSlug, canEdit, onUse, onGenerated }
       />
       <div className="space-y-1.5">
         <div className="flex items-center justify-between">
-          <div className="text-xs font-medium text-fg">Reference images (optional)</div>
-          <div className="text-xs text-muted">{references.length}/{MAX_REFERENCES}</div>
+          <div className="text-xs font-medium text-ed-ink">Reference images (optional)</div>
+          <div className="text-xs text-ed-ink-3">{references.length}/{MAX_REFERENCES}</div>
         </div>
         <div className="flex flex-wrap gap-2">
           {references.map((ref) => (
-            <div key={ref.assetId} className="relative h-16 w-16 overflow-hidden rounded-md border border-border-strong bg-panel-2">
+            <div key={ref.assetId} className="relative h-16 w-16 overflow-hidden rounded-md border border-ed-rule-strong bg-ed-panel-2">
               <img src={ref.url} alt="" className="h-full w-full object-cover" />
               <button
                 type="button"
@@ -134,7 +134,7 @@ export function GenerateImageForm({ workspaceSlug, canEdit, onUse, onGenerated }
               type="button"
               onClick={() => refInputRef.current?.click()}
               disabled={!canEdit || busy || refUploadBusy}
-              className="flex h-16 w-16 items-center justify-center rounded-md border border-dashed border-border-strong bg-panel-2 text-xs text-muted hover:border-brand hover:text-fg disabled:cursor-not-allowed disabled:opacity-40"
+              className="flex h-16 w-16 items-center justify-center rounded-md border border-dashed border-ed-rule-strong bg-ed-panel-2 text-xs text-ed-ink-3 hover:border-brand hover:text-ed-ink disabled:cursor-not-allowed disabled:opacity-40"
             >
               {refUploadBusy ? <Spinner size={14} /> : '+ Add'}
             </button>
@@ -151,7 +151,7 @@ export function GenerateImageForm({ workspaceSlug, canEdit, onUse, onGenerated }
           }}
         />
         {references.length > 0 && (
-          <div className="text-xs text-muted">References guide the style or subject of the output.</div>
+          <div className="text-xs text-ed-ink-3">References guide the style or subject of the output.</div>
         )}
       </div>
       <div className="grid grid-cols-2 gap-2">
@@ -175,7 +175,7 @@ export function GenerateImageForm({ workspaceSlug, canEdit, onUse, onGenerated }
           <option value="4">4 variants</option>
         </Select>
       </div>
-      <label className="flex items-start gap-2 text-xs text-fg">
+      <label className="flex items-start gap-2 text-xs text-ed-ink">
         <input
           type="checkbox"
           checked={useGoogleSearch}
@@ -185,7 +185,7 @@ export function GenerateImageForm({ workspaceSlug, canEdit, onUse, onGenerated }
         />
         <span>
           <span className="font-medium">Use Google Search</span>
-          <span className="ml-1 text-muted">— ground in web + image search results (slower; great for current events, brands, real places).</span>
+          <span className="ml-1 text-ed-ink-3">— ground in web + image search results (slower; great for current events, brands, real places).</span>
         </span>
       </label>
       <Button
@@ -204,11 +204,11 @@ export function GenerateImageForm({ workspaceSlug, canEdit, onUse, onGenerated }
             <button
               key={asset.assetId}
               type="button"
-              className="overflow-hidden rounded-md border border-border-strong bg-panel-2 text-left"
+              className="overflow-hidden rounded-md border border-ed-rule-strong bg-ed-panel-2 text-left"
               onClick={() => onUse(asset)}
             >
               <img src={asset.url} alt="" className="h-28 w-full object-cover" />
-              <div className="px-2 py-1 text-xs text-muted">Use image</div>
+              <div className="px-2 py-1 text-xs text-ed-ink-3">Use image</div>
             </button>
           ))}
         </div>

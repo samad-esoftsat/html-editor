@@ -1,6 +1,6 @@
-import { requireWorkspace } from '@/lib/auth/workspace';
-import { resolveMinRole } from '@/lib/auth/workspace';
+import { listUserWorkspaces, requireWorkspace, resolveMinRole } from '@/lib/auth/workspace';
 import { createClient } from '@/lib/supabase/server';
+import { SettingsShell } from '../_shell';
 import { BrandKitsPanel, type BrandKitRow } from './BrandKitsPanel';
 
 interface Props {
@@ -13,22 +13,34 @@ const SELECT_COLS =
 export default async function BrandKitsSettingsPage({ params }: Props) {
   const { slug } = await params;
   const workspace = await requireWorkspace(slug);
-
   const supabase = await createClient();
-  const { data } = await supabase
-    .from('brand_kits')
-    .select(SELECT_COLS)
-    .eq('org_id', workspace.org.id)
-    .order('is_default', { ascending: false })
-    .order('name');
+
+  const [{ data }, { data: { user } }, workspaces] = await Promise.all([
+    supabase
+      .from('brand_kits')
+      .select(SELECT_COLS)
+      .eq('org_id', workspace.org.id)
+      .order('is_default', { ascending: false })
+      .order('name'),
+    supabase.auth.getUser(),
+    listUserWorkspaces(),
+  ]);
 
   const kits = (data ?? []) as BrandKitRow[];
 
   return (
-    <BrandKitsPanel
+    <SettingsShell
       slug={slug}
-      kits={kits}
-      canManage={resolveMinRole(workspace.role, 'editor')}
-    />
+      currentWorkspace={{ id: workspace.org.id, slug: workspace.org.slug, name: workspace.org.name }}
+      workspaces={workspaces.map((w) => ({ id: w.id, slug: w.slug, name: w.name }))}
+      email={user?.email ?? undefined}
+      activeHref={`/w/${slug}/settings/brand-kits`}
+    >
+      <BrandKitsPanel
+        slug={slug}
+        kits={kits}
+        canManage={resolveMinRole(workspace.role, 'editor')}
+      />
+    </SettingsShell>
   );
 }

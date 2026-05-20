@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { render, screen, fireEvent, within } from '@testing-library/react';
 import { EditableBulletList } from '@/components/editor/editable/EditableBulletList';
 import { EditorModeProvider, useEditorMode } from '@/components/editor/EditorModeProvider';
+import { TooltipProvider } from '@/components/ui/tooltip';
 
 function ForcePreview() {
   const { setMode } = useEditorMode();
@@ -13,9 +14,9 @@ function ForcePreview() {
 function setup(bullets: string[]) {
   const onChange = vi.fn();
   render(
-    <EditorModeProvider>
+    <TooltipProvider><EditorModeProvider>
       <EditableBulletList bullets={bullets} onChange={onChange} ariaLabel="Bullets" />
-    </EditorModeProvider>,
+    </EditorModeProvider></TooltipProvider>,
   );
   return { onChange };
 }
@@ -82,10 +83,10 @@ describe('EditableBulletList', () => {
 describe('EditableBulletList — preview mode', () => {
   it('renders plain <li> elements with no role="textbox" descendants', () => {
     render(
-      <EditorModeProvider>
+      <TooltipProvider><EditorModeProvider>
         <ForcePreview />
         <EditableBulletList bullets={['Alpha', 'Beta']} onChange={() => {}} ariaLabel="Bullets" />
-      </EditorModeProvider>,
+      </EditorModeProvider></TooltipProvider>,
     );
     const list = screen.getByRole('list', { name: 'Bullets' });
     // No interactive textbox descendants
@@ -102,9 +103,9 @@ describe('EditableBulletList drag-to-reorder', () => {
   it('renders a drag handle button per bullet in edit mode', () => {
     const onChange = vi.fn();
     render(
-      <EditorModeProvider>
+      <TooltipProvider><EditorModeProvider>
         <EditableBulletList bullets={['a', 'b', 'c']} onChange={onChange} ariaLabel="Test" />
-      </EditorModeProvider>
+      </EditorModeProvider></TooltipProvider>
     );
     const handles = screen.getAllByLabelText(/drag to reorder bullet/i);
     expect(handles.length).toBe(3);
@@ -117,10 +118,10 @@ describe('EditableBulletList drag-to-reorder', () => {
       return null;
     }
     render(
-      <EditorModeProvider>
+      <TooltipProvider><EditorModeProvider>
         <ForcePreview />
         <EditableBulletList bullets={['a', 'b']} onChange={() => {}} ariaLabel="Test" />
-      </EditorModeProvider>
+      </EditorModeProvider></TooltipProvider>
     );
     expect(screen.queryAllByLabelText(/drag to reorder bullet/i).length).toBe(0);
   });

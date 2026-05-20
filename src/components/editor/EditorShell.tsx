@@ -1,5 +1,5 @@
 'use client';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { StoreProvider } from '@/lib/editor/StoreProvider';
 import { useEditor } from '@/lib/editor/StoreProvider';
 import { RoleProvider } from '@/lib/editor/RoleProvider';
@@ -9,6 +9,7 @@ import { useRole } from '@/lib/editor/RoleProvider';
 import { AssetPickerProvider } from './AssetPickerProvider';
 import { EditorModeProvider } from './EditorModeProvider';
 import { SectionSelectionProvider } from './SectionSelectionProvider';
+import { TooltipProvider } from '@/components/ui/tooltip';
 import { Topbar } from './Topbar';
 import { LeftPanel } from './LeftPanel';
 import { Preview } from './Preview';
@@ -47,20 +48,29 @@ function Inner({
   const canEdit = role !== 'viewer';
   useAutosave(canEdit);
   useUndoRedoShortcuts(canEdit);
+  const [leftPanelOpen, setLeftPanelOpen] = useState(true);
   return (
-    <EditorModeProvider>
-      <SelectionScope>
-        <AssetPickerProvider workspaceSlug={workspaceSlug}>
-          <div className="flex flex-col h-dvh">
-            <Topbar slug={workspaceSlug} currentWorkspace={currentWorkspace} workspaces={workspaces} />
-            <div className="flex flex-1 overflow-hidden">
-              <LeftPanel />
-              <div className="flex-1 bg-[#080808]"><Preview /></div>
+    <TooltipProvider>
+      <EditorModeProvider>
+        <SelectionScope>
+          <AssetPickerProvider workspaceSlug={workspaceSlug}>
+            <div className="editor-shell flex h-dvh flex-col">
+              <Topbar
+                slug={workspaceSlug}
+                currentWorkspace={currentWorkspace}
+                workspaces={workspaces}
+                leftPanelOpen={leftPanelOpen}
+                setLeftPanelOpen={setLeftPanelOpen}
+              />
+              <div className="flex flex-1 overflow-hidden">
+                {leftPanelOpen && <LeftPanel />}
+                <div className="flex-1 overflow-auto bg-ed-canvas-pad p-8"><Preview /></div>
+              </div>
             </div>
-          </div>
-        </AssetPickerProvider>
-      </SelectionScope>
-    </EditorModeProvider>
+          </AssetPickerProvider>
+        </SelectionScope>
+      </EditorModeProvider>
+    </TooltipProvider>
   );
 }
 

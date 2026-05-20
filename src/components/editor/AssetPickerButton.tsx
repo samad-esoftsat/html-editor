@@ -31,7 +31,7 @@ export function AssetPickerButton({ workspaceSlug, value, onSelect, altText, cla
           }
         }}
         className={cn(
-          'inline-flex min-h-9 items-center justify-center gap-2 rounded-md border border-border-strong bg-panel-2 px-3 py-2 text-sm text-fg hover:border-brand hover:bg-panel cursor-pointer',
+          'inline-flex min-h-9 items-center justify-center gap-2 rounded-md border border-ed-rule-strong bg-ed-panel-2 px-3 py-2 text-sm text-ed-ink hover:border-brand hover:bg-ed-panel cursor-pointer',
           className,
         )}
       >

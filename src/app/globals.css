@@ -1,42 +1,107 @@
 @import "tailwindcss";
 
 @theme {
-  --color-bg: #0f0f0f;
-  --color-panel: #161616;
-  --color-panel-2: #1a1a1a;
-  --color-border: #252525;
-  --color-border-strong: #333333;
-  --color-fg: #e0e0e0;
-  --color-muted: #888888;
-  --color-muted-2: #666666;
-  --color-brand: #f1592a;
-  --color-brand-soft: #f1592a22;
-  --color-success: #6ab06a;
-  --color-danger: #c45151;
-  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  /* Light surfaces — marketing/dashboard/settings/auth/invite */
+  --color-bg: #FAF8F4;
+  --color-bg-elevated: #FFFFFF;
+  --color-bg-sunken: #F2EFE8;
+  --color-bg-cream: #F6F1E7;
+  --color-ink: #141414;
+  --color-ink-2: #3A3733;
+  --color-ink-3: #6B665F;
+  --color-ink-4: #9C968D;
+  --color-rule: #E7E2D8;
+  --color-rule-strong: #D8D2C4;
+  --color-brand: #F1592A;
+  --color-brand-ink: #B8421C;
+  --color-brand-soft: #FCE2D2;
+  --color-brand-glow: #F8C9A8;
+  --color-amber: #E8A04F;
+  --color-success: #3F7A3F;
+  --color-danger: #B2452B;
+
+  /* Dark editor surfaces — /w/[slug]/p/[id] */
+  --color-ed-bg: #0E0D0B;
+  --color-ed-panel: #161412;
+  --color-ed-panel-2: #1B1815;
+  --color-ed-panel-3: #221F1B;
+  --color-ed-canvas-pad: #080706;
+  --color-ed-rule: #2A2622;
+  --color-ed-rule-strong: #3A3631;
+  --color-ed-ink: #EDE7DC;
+  --color-ed-ink-2: #B6AFA3;
+  --color-ed-ink-3: #7E776C;
+  --color-ed-ink-4: #544F47;
+  --color-ed-brand-soft: rgba(241, 89, 42, 0.15);
+  --color-ed-success: #79B16F;
+  --color-ed-danger: #D8623F;
+
+  /* Surface-adaptive aliases. These default to the LIGHT palette and are
+     re-routed to the DARK editor palette inside `.editor-shell` (see below).
+     Use them ONLY in shared primitives that must render on both surfaces
+     (Input, Textarea, Select, ColorPicker, Field, Toast, tooltip).
+     Every other component should use the explicit light tokens (`bg-bg-elevated`,
+     `text-ink`, `border-rule-strong`, …) or the explicit editor tokens
+     (`bg-ed-panel-2`, `text-ed-ink`, `border-ed-rule-strong`, …). */
+  --color-panel: var(--color-bg-elevated);
+  --color-panel-2: var(--color-bg-sunken);
+  --color-border: var(--color-rule);
+  --color-border-strong: var(--color-rule-strong);
+  --color-fg: var(--color-ink);
+  --color-muted: var(--color-ink-3);
+  --color-muted-2: var(--color-ink-4);
+
+  /* Signature gradient — used in exactly 3 places per spec */
+  --gradient-hero: linear-gradient(135deg, #F1592A 0%, #E8A04F 60%, #F8C9A8 100%);
+
+  /* Type tokens (CSS variables — components opt in via Tailwind utilities or inline style) */
+  --font-serif: var(--font-newsreader), 'Newsreader', ui-serif, Georgia, serif;
+  --font-sans: var(--font-geist), 'Geist', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* Radius scale */
+  --radius-sm: 6px;
+  --radius: 8px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
 }
 
 html,
 body {
   background: var(--color-bg);
-  color: var(--color-fg);
+  color: var(--color-ink);
   font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-* {
-  box-sizing: border-box;
-}
-
-*:focus {
-  outline: none;
-}
-
+* { box-sizing: border-box; }
+*:focus { outline: none; }
 *:focus-visible {
   outline: 2px solid var(--color-brand);
   outline-offset: 2px;
   border-radius: 6px;
 }
 
+/* Editor-only body class added by the editor page; flips surfaces to warm-dark */
+body.editor-shell,
+.editor-shell {
+  background: var(--color-ed-bg);
+  color: var(--color-ed-ink);
+
+  /* Re-route legacy class names to the dark editor palette inside the editor surface. */
+  --color-panel: var(--color-ed-panel);
+  --color-panel-2: var(--color-ed-panel-2);
+  --color-border: var(--color-ed-rule);
+  --color-border-strong: var(--color-ed-rule-strong);
+  --color-fg: var(--color-ed-ink);
+  --color-muted: var(--color-ed-ink-3);
+  --color-muted-2: var(--color-ed-ink-4);
+}
+
+/* Inline-editable carry-forward (preserved from current globals.css) */
 .inline-editable {
   cursor: text;
   border-radius: 2px;
@@ -44,18 +109,16 @@ body {
   outline-offset: 2px;
 }
 .inline-editable:hover {
-  outline: 1px solid color-mix(in oklab, var(--color-brand, #f1592a) 40%, transparent);
+  outline: 1px solid color-mix(in oklab, var(--color-brand) 40%, transparent);
 }
 .inline-editable:focus {
-  outline: 1.5px solid var(--color-brand, #f1592a);
+  outline: 1.5px solid var(--color-brand);
 }
 .inline-editable[data-empty='true']::before {
   content: attr(aria-placeholder);
   pointer-events: none;
 }
-.inline-editable[data-empty='true']:focus::before {
-  content: none;
-}
+.inline-editable[data-empty='true']:focus::before { content: none; }
 
 .inline-editable-image {
   outline: 1px solid transparent;
@@ -63,105 +126,58 @@ body {
   transition: outline-color 100ms ease-out;
 }
 .inline-editable-image:hover {
-  outline-color: color-mix(in oklab, var(--color-brand, #f1592a) 40%, transparent);
+  outline-color: color-mix(in oklab, var(--color-brand) 40%, transparent);
 }
 .inline-editable-image-placeholder:hover {
-  border-color: var(--color-brand, #f1592a) !important;
-  color: var(--color-brand, #f1592a) !important;
+  border-color: var(--color-brand) !important;
+  color: var(--color-brand) !important;
 }
 
-.preview-canvas img {
-  display: inline;
-  max-width: 100%;
-}
-.preview-canvas ul {
-  list-style: disc;
-  margin: 1em 0;
-  padding-inline-start: 40px;
-}
-.preview-canvas ol {
-  list-style: decimal;
-  margin: 1em 0;
-  padding-inline-start: 40px;
-}
-.preview-canvas li {
-  display: list-item;
-}
-.preview-canvas h1 {
-  font-size: 2em;
-  font-weight: bold;
-  margin: 0.67em 0;
-}
-.preview-canvas h2 {
-  font-size: 1.5em;
-  font-weight: bold;
-  margin: 0.83em 0;
-}
-.preview-canvas h3 {
-  font-size: 1.17em;
-  font-weight: bold;
-  margin: 1em 0;
-}
-.preview-canvas h4 {
-  font-size: 1em;
-  font-weight: bold;
-  margin: 1.33em 0;
-}
-.preview-canvas p {
-  margin: 1em 0;
-}
-.preview-canvas a {
-  color: -webkit-link;
-  text-decoration: underline;
-}
+.preview-canvas img { display: inline; max-width: 100%; }
+.preview-canvas ul { list-style: disc; margin: 1em 0; padding-inline-start: 40px; }
+.preview-canvas ol { list-style: decimal; margin: 1em 0; padding-inline-start: 40px; }
+.preview-canvas li { display: list-item; }
+.preview-canvas h1 { font-size: 2em;  font-weight: bold; margin: 0.67em 0; }
+.preview-canvas h2 { font-size: 1.5em; font-weight: bold; margin: 0.83em 0; }
+.preview-canvas h3 { font-size: 1.17em; font-weight: bold; margin: 1em 0; }
+.preview-canvas h4 { font-size: 1em;   font-weight: bold; margin: 1.33em 0; }
+.preview-canvas p  { margin: 1em 0; }
+.preview-canvas a  { color: -webkit-link; text-decoration: underline; }
 
-.editable-link-icon {
-  opacity: 0;
-  transition: opacity 100ms;
-}
+.editable-link-icon { opacity: 0; transition: opacity 100ms; }
 .inline-link-wrap:hover .editable-link-icon,
 .inline-link-wrap:focus-within .editable-link-icon,
-.editable-link-icon:focus-visible {
-  opacity: 1;
-}
+.editable-link-icon:focus-visible { opacity: 1; }
 
-.editable-image-alt {
-  opacity: 0;
-  transition: opacity 100ms;
-}
+.editable-image-alt { opacity: 0; transition: opacity 100ms; }
 .editable-image-wrap:hover .editable-image-alt,
-.editable-image-wrap:focus-within .editable-image-alt {
-  opacity: 1;
-}
+.editable-image-wrap:focus-within .editable-image-alt { opacity: 1; }
 
-.section-insert-bar .section-insert-btn {
-  opacity: 0;
-  transition: opacity 100ms;
-}
+.section-insert-bar .section-insert-btn { opacity: 0; transition: opacity 100ms; }
 .section-insert-bar:hover .section-insert-btn,
-.section-insert-btn:focus-visible {
-  opacity: 1;
-}
+.section-insert-btn:focus-visible { opacity: 1; }
 
-.section-wrap .section-toolbar {
-  opacity: 0;
-  transition: opacity 100ms;
-}
+.section-wrap .section-toolbar { opacity: 0; transition: opacity 100ms; }
 .section-wrap:hover .section-toolbar,
-.section-wrap:focus-within .section-toolbar {
-  opacity: 1;
-}
+.section-wrap:focus-within .section-toolbar { opacity: 1; }
 
-.bullet-row .bullet-grip {
-  opacity: 0;
-  transition: opacity 100ms;
-}
+.bullet-row .bullet-grip { opacity: 0; transition: opacity 100ms; }
 .bullet-row:hover .bullet-grip,
-.bullet-grip:focus-visible {
-  opacity: 1;
-}
+.bullet-grip:focus-visible { opacity: 1; }
 
 .section-wrap.selected {
   outline: 2px solid var(--color-brand);
   outline-offset: -2px;
 }
+
+@keyframes tooltip-in {
+  from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes tooltip-out {
+  from { opacity: 1; transform: scale(1); }
+  to   { opacity: 0; transform: scale(0.97); }
+}
+.tooltip-content[data-state='delayed-open'],
+.tooltip-content[data-state='instant-open'] { animation: tooltip-in 150ms cubic-bezier(0.16, 1, 0.3, 1); }
+.tooltip-content[data-state='closed']      { animation: tooltip-out 100ms cubic-bezier(0.4, 0, 1, 1); }

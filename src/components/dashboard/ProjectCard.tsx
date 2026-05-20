@@ -1,10 +1,9 @@
 'use client';
 
-import { Copy, Loader2, Pencil, Trash2 } from 'lucide-react';
+import { Copy, Pencil, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { useState, useTransition } from 'react';
 import { motion } from 'motion/react';
-import { Button } from '@/components/ui/Button';
 import { spring } from '@/lib/motion';
 import { deleteProject, duplicateProject, patchProject, type ProjectSummary } from '@/lib/api/projects';
 import { confirmDialog } from '@/lib/utils/confirm';
@@ -64,70 +63,74 @@ export function ProjectCard({ project, onChanged, slug }: Props) {
   }
 
   return (
-    <motion.div
-      className="group rounded-xl border border-border bg-panel p-5 transition-colors duration-150 ease-out hover:border-brand/40 hover:shadow-lg hover:shadow-black/20"
-      whileHover={{ y: -2 }}
-      whileTap={{ scale: 0.98 }}
+    <motion.article
+      className="group relative overflow-hidden rounded-[14px] border border-rule bg-bg-elevated transition-all duration-150 ease-out hover:border-rule-strong hover:shadow-[0_8px_24px_-12px_rgba(180,66,28,0.10)]"
       transition={spring.press}
     >
-      {renaming ? (
-        <input
-          autoFocus
-          className="mb-1 w-full rounded border border-border-strong bg-panel-2 px-2 py-1 text-sm text-fg"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          onBlur={rename}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') rename();
-            if (e.key === 'Escape') {
-              setName(project.name);
-              setRenaming(false);
-            }
-          }}
-        />
-      ) : (
-        <div className="mb-1 truncate text-sm font-semibold text-fg">{project.name}</div>
-      )}
-      <div className="mb-4 text-xs text-muted-2" suppressHydrationWarning>
-        Updated {new Date(project.updated_at).toLocaleString()}
+      <Link href={`/w/${slug}/p/${project.id}`} className="block" aria-label={`Open ${project.name}`}>
+        <div className="aspect-[16/10] bg-bg-cream" aria-hidden="true">
+          <div className="flex h-full flex-col">
+            <div className="h-2 w-full bg-brand" />
+            <div className="flex flex-1 flex-col gap-2 p-5">
+              <div className="h-2 w-24 rounded-full bg-ink/15" />
+              <div className="h-1.5 w-36 rounded-full bg-ink/10" />
+              <div className="h-1.5 w-28 rounded-full bg-ink/10" />
+            </div>
+          </div>
+        </div>
+      </Link>
+      <div className="border-t border-rule p-4">
+        {renaming ? (
+          <input
+            autoFocus
+            className="mb-1 w-full rounded-md border border-rule bg-bg-elevated px-2 py-1 text-sm text-ink focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand-soft"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            onBlur={rename}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') rename();
+              if (e.key === 'Escape') { setName(project.name); setRenaming(false); }
+            }}
+          />
+        ) : (
+          <Link
+            href={`/w/${slug}/p/${project.id}`}
+            className="block truncate text-base font-semibold text-ink decoration-brand decoration-[1.5px] underline-offset-4 hover:underline"
+          >
+            {project.name}
+          </Link>
+        )}
+        <div className="mt-1 flex items-center justify-between">
+          <div className="font-mono text-[12px] text-ink-3" suppressHydrationWarning>
+            Updated {new Date(project.updated_at).toLocaleDateString()}
+          </div>
+          <div className="flex items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
+            <button
+              aria-label="Rename project"
+              onClick={() => setRenaming(true)}
+              className="rounded-md p-1.5 text-ink-3 hover:bg-bg-sunken hover:text-ink"
+            >
+              <Pencil size={14} />
+            </button>
+            <button
+              aria-label="Duplicate project"
+              onClick={onDuplicate}
+              disabled={pending}
+              className="rounded-md p-1.5 text-ink-3 hover:bg-bg-sunken hover:text-ink disabled:opacity-40"
+            >
+              <Copy size={14} />
+            </button>
+            <button
+              aria-label="Delete project"
+              onClick={onDelete}
+              disabled={pending}
+              className="rounded-md p-1.5 text-ink-3 hover:bg-bg-sunken hover:text-danger disabled:opacity-40"
+            >
+              <Trash2 size={14} />
+            </button>
+          </div>
+        </div>
       </div>
-      <div className="flex gap-2">
-        <Link
-          href={`/w/${slug}/p/${project.id}`}
-          className="inline-flex h-9 flex-1 items-center justify-center rounded-md border border-brand/30 bg-brand-soft px-3 text-xs font-semibold text-brand transition-colors hover:bg-brand/20 hover:border-brand/60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
-        >
-          Open
-        </Link>
-        <Button
-          variant="secondary"
-          className="h-9 w-9 min-h-0 !px-0 !py-0"
-          onClick={onDuplicate}
-          disabled={pending}
-          title="Duplicate"
-          aria-label="Duplicate"
-        >
-          {pending ? <Loader2 size={14} className="animate-spin" /> : <Copy size={14} />}
-        </Button>
-        <Button
-          variant="secondary"
-          className="h-9 w-9 min-h-0 !px-0 !py-0"
-          onClick={() => setRenaming(true)}
-          title="Rename"
-          aria-label="Rename"
-        >
-          <Pencil size={14} />
-        </Button>
-        <Button
-          variant="secondary"
-          className="h-9 w-9 min-h-0 !px-0 !py-0"
-          onClick={onDelete}
-          disabled={pending}
-          title="Delete"
-          aria-label="Delete"
-        >
-          <Trash2 size={14} />
-        </Button>
-      </div>
-    </motion.div>
+    </motion.article>
   );
 }

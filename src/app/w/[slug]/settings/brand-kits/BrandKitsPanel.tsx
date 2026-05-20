@@ -3,9 +3,9 @@
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
+import { Pencil, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { ColorPicker } from '@/components/ui/ColorPicker';
-import { Field } from '@/components/ui/Field';
 import { Input } from '@/components/ui/Input';
 import { Spinner } from '@/components/ui/Spinner';
 import { Textarea } from '@/components/ui/Textarea';
@@ -191,102 +191,108 @@ export function BrandKitsPanel({ slug, kits, canManage }: Props) {
   }
 
   return (
-    <div className="flex flex-col gap-6">
-      <section className="flex flex-col gap-4">
+    <div className="flex flex-col gap-8">
+      <section>
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-semibold text-fg">Brand kits</h2>
-            <p className="mt-1 text-sm text-muted">
-              Reusable colors, fonts, logo, and footer info applied to new projects.
+            <h2 className="text-[20px] font-semibold tracking-[-0.01em] text-ink">
+              Brand kits · <span className="font-mono text-ink-3">{kits.length}</span>
+            </h2>
+            <p className="mt-2 text-sm text-ink-3">
+              Apply a kit to a project to update its colors, fonts, logo, and footer in one click.
             </p>
           </div>
           {canManage && (
-            <Button onClick={() => setCreatingNew(true)}>New brand kit</Button>
+            <Button onClick={() => setCreatingNew(true)}>+ New brand kit</Button>
           )}
         </div>
 
         {kits.length === 0 ? (
-          <div className="rounded-lg border border-border-strong bg-panel p-8 text-center text-sm text-muted">
-            No brand kits yet.
+          <div className="mt-8 rounded-[14px] border-2 border-dashed border-rule-strong bg-bg-cream p-12 text-center">
+            <p className="text-base font-semibold text-ink">No brand kits yet.</p>
             {canManage && (
-              <>
-                {' '}
+              <p className="mt-2 text-sm text-ink-3">
                 <button
                   onClick={() => setCreatingNew(true)}
-                  className="text-brand hover:underline"
+                  className="text-ink underline decoration-brand decoration-[1.5px] underline-offset-4"
                 >
                   Create your first one
                 </button>
                 .
-              </>
+              </p>
             )}
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2">
             {kits.map((kit) => {
               const busy = pendingKit === kit.id;
               const colors = readColors(kit.colors);
+              const fonts = readFonts(kit.fonts);
+              const swatches = [colors.primary, colors.secondary, colors.accent, colors.text, colors.background];
               return (
-                <div
+                <article
                   key={kit.id}
-                  className="flex flex-col gap-3 rounded-lg border border-border-strong bg-panel p-5"
+                  className="group overflow-hidden rounded-[14px] border border-rule bg-bg-elevated transition-all hover:border-rule-strong hover:shadow-[0_8px_24px_-12px_rgba(180,66,28,0.10)]"
                 >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2">
-                        <div className="truncate font-semibold text-fg">{kit.name}</div>
-                        {kit.is_default && (
-                          <span className="rounded-full bg-brand/15 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-brand">
-                            Default
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    {busy && <Spinner />}
+                  <div className="flex h-16 overflow-hidden" aria-hidden="true">
+                    {swatches.map((c, i) => (
+                      <div key={i} className="flex-1" style={{ backgroundColor: c }} />
+                    ))}
                   </div>
-
-                  <div className="flex items-center gap-1.5">
-                    {[colors.primary, colors.secondary, colors.accent, colors.text, colors.background].map(
-                      (c, i) => (
-                        <div
-                          key={i}
-                          className="h-6 w-6 rounded border border-border-strong"
-                          style={{ backgroundColor: c }}
-                          title={c}
-                        />
-                      ),
+                  <div className="border-t border-rule p-4">
+                    <div className="flex items-center justify-between gap-2">
+                      <h3 className="truncate text-base font-semibold text-ink">{kit.name}</h3>
+                      {kit.is_default && (
+                        <span className="inline-flex items-center rounded-full bg-brand-soft px-2 py-0.5 text-[11px] font-medium uppercase tracking-wider text-brand-ink">
+                          DEFAULT
+                        </span>
+                      )}
+                    </div>
+                    <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1">
+                      {swatches.map((c, i) => (
+                        <span key={i} className="font-mono text-[11px] text-ink-3">
+                          {c.toUpperCase()}
+                        </span>
+                      ))}
+                    </div>
+                    <p className="mt-3 text-sm text-ink-3" suppressHydrationWarning>
+                      <span className="text-ink-2">{fonts.heading || 'Sans'} / {fonts.body || 'Sans'}</span> · Updated{' '}
+                      <span className="font-mono">{new Date(kit.updated_at).toLocaleDateString()}</span>
+                    </p>
+                    {canManage && (
+                      <div className="mt-3 flex items-center gap-3 border-t border-rule pt-3 text-sm">
+                        <button
+                          onClick={() => setEditorKit(kit)}
+                          disabled={busy}
+                          className="inline-flex items-center gap-1.5 text-ink-3 transition-colors hover:text-ink disabled:opacity-40"
+                        >
+                          <Pencil size={14} /> Edit
+                        </button>
+                        {!kit.is_default && (
+                          <button
+                            onClick={() => setAsDefault(kit)}
+                            disabled={busy}
+                            className="inline-flex items-center gap-1.5 text-ink-3 transition-colors hover:text-ink disabled:opacity-40"
+                          >
+                            Set default
+                          </button>
+                        )}
+                        <button
+                          onClick={() => deleteKit(kit)}
+                          disabled={busy}
+                          className="ml-auto inline-flex items-center gap-1.5 text-ink-3 transition-colors hover:text-danger disabled:opacity-40"
+                        >
+                          <Trash2 size={14} /> Delete
+                        </button>
+                      </div>
+                    )}
+                    {busy && (
+                      <div className="mt-3 flex items-center gap-2 text-sm text-ink-3">
+                        <Spinner /> Working…
+                      </div>
                     )}
                   </div>
-
-                  {canManage && (
-                    <div className="mt-1 flex items-center justify-end gap-1">
-                      {!kit.is_default && (
-                        <Button
-                          variant="ghost"
-                          onClick={() => setAsDefault(kit)}
-                          disabled={busy}
-                        >
-                          Set default
-                        </Button>
-                      )}
-                      <Button
-                        variant="ghost"
-                        onClick={() => setEditorKit(kit)}
-                        disabled={busy}
-                      >
-                        Edit
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        onClick={() => deleteKit(kit)}
-                        disabled={busy}
-                        className="text-danger hover:text-danger hover:bg-danger/10"
-                      >
-                        Delete
-                      </Button>
-                    </div>
-                  )}
-                </div>
+                </article>
               );
             })}
           </div>
@@ -324,7 +330,7 @@ function BrandKitEditor({ open, kit, slug, onClose, onSaved }: EditorProps) {
     <AnimatePresence>
       {open && (
         <motion.div
-          className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 p-6"
+          className="fixed inset-0 z-[200] flex items-center justify-center bg-ink/40 backdrop-blur-sm p-6"
           variants={fade}
           initial="hidden"
           animate="show"
@@ -332,7 +338,7 @@ function BrandKitEditor({ open, kit, slug, onClose, onSaved }: EditorProps) {
           onClick={onClose}
         >
           <motion.div
-            className="w-[560px] max-w-full max-h-[90vh] overflow-y-auto rounded-xl border border-border-strong bg-panel p-6"
+            className="w-[560px] max-w-full max-h-[90vh] overflow-y-auto rounded-[14px] border border-rule bg-bg-elevated p-6 shadow-[0_30px_80px_-20px_rgba(20,20,20,0.25)]"
             variants={scaleFade}
             initial="hidden"
             animate="show"
@@ -413,125 +419,176 @@ function EditorForm({
 
   return (
     <>
-      <div className="mb-1 font-semibold text-fg">
+      <h3 className="text-[20px] font-semibold tracking-[-0.01em] text-ink">
         {isEdit ? 'Edit brand kit' : 'New brand kit'}
-      </div>
-      <div className="mb-5 text-sm text-muted">
+      </h3>
+      <p className="mt-1 mb-5 text-sm text-ink-3">
         Used as defaults when creating projects in this workspace.
-      </div>
+      </p>
 
       <div className="flex flex-col gap-5">
-        <Field label="Name">
+        <div>
+          <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.05em] text-ink-3">
+            Name
+          </label>
           <Input
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Acme primary"
             maxLength={100}
             autoFocus
+            className="h-10 w-full rounded-md border border-rule bg-bg-elevated px-3 text-sm text-ink placeholder:text-ink-4 focus:border-brand focus:ring-4 focus:ring-brand-soft"
           />
-        </Field>
+        </div>
 
-        <label className="flex items-center gap-2 text-sm text-fg">
+        <label className="flex items-center gap-2 text-sm text-ink">
           <input
             type="checkbox"
             checked={isDefault}
             onChange={(e) => setIsDefault(e.target.checked)}
-            className="h-4 w-4 rounded border-border-strong"
+            className="h-4 w-4 rounded border-rule-strong"
           />
           Use as default for new projects
         </label>
 
         <Section title="Colors">
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <Field label="Primary">
+            <div>
+              <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.05em] text-ink-3">
+                Primary
+              </label>
               <ColorPicker value={colors.primary} onChange={(v) => setColors({ ...colors, primary: v })} />
-            </Field>
-            <Field label="Secondary">
+            </div>
+            <div>
+              <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.05em] text-ink-3">
+                Secondary
+              </label>
               <ColorPicker value={colors.secondary} onChange={(v) => setColors({ ...colors, secondary: v })} />
-            </Field>
-            <Field label="Accent">
+            </div>
+            <div>
+              <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.05em] text-ink-3">
+                Accent
+              </label>
               <ColorPicker value={colors.accent} onChange={(v) => setColors({ ...colors, accent: v })} />
-            </Field>
-            <Field label="Text">
+            </div>
+            <div>
+              <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.05em] text-ink-3">
+                Text
+              </label>
               <ColorPicker value={colors.text} onChange={(v) => setColors({ ...colors, text: v })} />
-            </Field>
-            <Field label="Background">
+            </div>
+            <div>
+              <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.05em] text-ink-3">
+                Background
+              </label>
               <ColorPicker value={colors.background} onChange={(v) => setColors({ ...colors, background: v })} />
-            </Field>
+            </div>
           </div>
         </Section>
 
         <Section title="Fonts">
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <Field label="Heading">
+            <div>
+              <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.05em] text-ink-3">
+                Heading
+              </label>
               <Input
                 value={fonts.heading}
                 onChange={(e) => setFonts({ ...fonts, heading: e.target.value })}
                 placeholder="Arial, sans-serif"
+                className="h-10 w-full rounded-md border border-rule bg-bg-elevated px-3 text-sm text-ink placeholder:text-ink-4 focus:border-brand focus:ring-4 focus:ring-brand-soft"
               />
-            </Field>
-            <Field label="Body">
+            </div>
+            <div>
+              <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.05em] text-ink-3">
+                Body
+              </label>
               <Input
                 value={fonts.body}
                 onChange={(e) => setFonts({ ...fonts, body: e.target.value })}
                 placeholder="Arial, sans-serif"
+                className="h-10 w-full rounded-md border border-rule bg-bg-elevated px-3 text-sm text-ink placeholder:text-ink-4 focus:border-brand focus:ring-4 focus:ring-brand-soft"
               />
-            </Field>
+            </div>
           </div>
         </Section>
 
         <Section title="Logo">
           <div className="flex flex-col gap-3">
-            <Field label="Image URL">
+            <div>
+              <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.05em] text-ink-3">
+                Image URL
+              </label>
               <Input
                 value={logo.url}
                 onChange={(e) => setLogo({ ...logo, url: e.target.value })}
                 placeholder="https://…"
+                className="h-10 w-full rounded-md border border-rule bg-bg-elevated px-3 text-sm text-ink placeholder:text-ink-4 focus:border-brand focus:ring-4 focus:ring-brand-soft"
               />
-            </Field>
-            <Field label="Alt text">
+            </div>
+            <div>
+              <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.05em] text-ink-3">
+                Alt text
+              </label>
               <Input
                 value={logo.alt}
                 onChange={(e) => setLogo({ ...logo, alt: e.target.value })}
                 placeholder="Acme logo"
+                className="h-10 w-full rounded-md border border-rule bg-bg-elevated px-3 text-sm text-ink placeholder:text-ink-4 focus:border-brand focus:ring-4 focus:ring-brand-soft"
               />
-            </Field>
+            </div>
           </div>
         </Section>
 
         <Section title="Footer (Name, Address, Phone)">
           <div className="flex flex-col gap-3">
-            <Field label="Company name">
+            <div>
+              <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.05em] text-ink-3">
+                Company name
+              </label>
               <Input
                 value={footer.company}
                 onChange={(e) => setFooter({ ...footer, company: e.target.value })}
                 placeholder="Acme Inc."
+                className="h-10 w-full rounded-md border border-rule bg-bg-elevated px-3 text-sm text-ink placeholder:text-ink-4 focus:border-brand focus:ring-4 focus:ring-brand-soft"
               />
-            </Field>
-            <Field label="Address">
-              <Textarea
+            </div>
+            <div>
+              <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.05em] text-ink-3">
+                Address
+              </label>
+              <textarea
                 value={footer.address}
                 onChange={(e) => setFooter({ ...footer, address: e.target.value })}
                 placeholder="123 Main St, Springfield, USA"
                 rows={2}
+                className="min-h-[80px] w-full rounded-md border border-rule bg-bg-elevated px-3 py-2 text-sm leading-[1.5] text-ink placeholder:text-ink-4 focus:border-brand focus:outline-none focus:ring-4 focus:ring-brand-soft"
               />
-            </Field>
+            </div>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <Field label="Phone">
+              <div>
+                <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.05em] text-ink-3">
+                  Phone
+                </label>
                 <Input
                   value={footer.phone}
                   onChange={(e) => setFooter({ ...footer, phone: e.target.value })}
                   placeholder="+1 555 555 0100"
+                  className="h-10 w-full rounded-md border border-rule bg-bg-elevated px-3 text-sm text-ink placeholder:text-ink-4 focus:border-brand focus:ring-4 focus:ring-brand-soft"
                 />
-              </Field>
-              <Field label="Email">
+              </div>
+              <div>
+                <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.05em] text-ink-3">
+                  Email
+                </label>
                 <Input
                   type="email"
                   value={footer.email}
                   onChange={(e) => setFooter({ ...footer, email: e.target.value })}
                   placeholder="hello@acme.com"
+                  className="h-10 w-full rounded-md border border-rule bg-bg-elevated px-3 text-sm text-ink placeholder:text-ink-4 focus:border-brand focus:ring-4 focus:ring-brand-soft"
                 />
-              </Field>
+              </div>
             </div>
           </div>
         </Section>
@@ -552,7 +609,7 @@ function EditorForm({
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="flex flex-col gap-3">
-      <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-brand">
+      <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-ink-2">
         {title}
       </div>
       {children}

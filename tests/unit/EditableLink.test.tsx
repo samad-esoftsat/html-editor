@@ -3,6 +3,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import React from 'react';
 import { EditableLink } from '@/components/editor/editable/EditableLink';
 import { EditorModeProvider, useEditorMode } from '@/components/editor/EditorModeProvider';
+import { TooltipProvider } from '@/components/ui/tooltip';
 
 function ForcePreview() {
   const { setMode } = useEditorMode();
@@ -12,12 +13,12 @@ function ForcePreview() {
 
 describe('EditableLink', () => {
   it('renders an icon button in edit mode', () => {
-    render(<EditorModeProvider><EditableLink value="https://x.com" onChange={() => {}} ariaLabel="Edit link" /></EditorModeProvider>);
+    render(<TooltipProvider><EditorModeProvider><EditableLink value="https://x.com" onChange={() => {}} ariaLabel="Edit link" /></EditorModeProvider></TooltipProvider>);
     expect(screen.getByLabelText('Edit link')).toBeTruthy();
   });
 
   it('opens a popover with the current value when clicked', () => {
-    render(<EditorModeProvider><EditableLink value="https://x.com" onChange={() => {}} ariaLabel="Edit link" /></EditorModeProvider>);
+    render(<TooltipProvider><EditorModeProvider><EditableLink value="https://x.com" onChange={() => {}} ariaLabel="Edit link" /></EditorModeProvider></TooltipProvider>);
     fireEvent.click(screen.getByLabelText('Edit link'));
     const input = screen.getByRole('textbox') as HTMLInputElement;
     expect(input.value).toBe('https://x.com');
@@ -25,7 +26,7 @@ describe('EditableLink', () => {
 
   it('Enter commits the new value and closes the popover', () => {
     const onChange = vi.fn();
-    render(<EditorModeProvider><EditableLink value="https://x.com" onChange={onChange} ariaLabel="Edit link" /></EditorModeProvider>);
+    render(<TooltipProvider><EditorModeProvider><EditableLink value="https://x.com" onChange={onChange} ariaLabel="Edit link" /></EditorModeProvider></TooltipProvider>);
     fireEvent.click(screen.getByLabelText('Edit link'));
     const input = screen.getByRole('textbox') as HTMLInputElement;
     fireEvent.change(input, { target: { value: 'https://y.com' } });
@@ -36,7 +37,7 @@ describe('EditableLink', () => {
 
   it('Escape closes without saving', () => {
     const onChange = vi.fn();
-    render(<EditorModeProvider><EditableLink value="https://x.com" onChange={onChange} ariaLabel="Edit link" /></EditorModeProvider>);
+    render(<TooltipProvider><EditorModeProvider><EditableLink value="https://x.com" onChange={onChange} ariaLabel="Edit link" /></EditorModeProvider></TooltipProvider>);
     fireEvent.click(screen.getByLabelText('Edit link'));
     const input = screen.getByRole('textbox') as HTMLInputElement;
     fireEvent.change(input, { target: { value: 'https://nope.com' } });
@@ -47,7 +48,7 @@ describe('EditableLink', () => {
 
   it('Save button commits', () => {
     const onChange = vi.fn();
-    render(<EditorModeProvider><EditableLink value="https://x.com" onChange={onChange} ariaLabel="Edit link" /></EditorModeProvider>);
+    render(<TooltipProvider><EditorModeProvider><EditableLink value="https://x.com" onChange={onChange} ariaLabel="Edit link" /></EditorModeProvider></TooltipProvider>);
     fireEvent.click(screen.getByLabelText('Edit link'));
     const input = screen.getByRole('textbox') as HTMLInputElement;
     fireEvent.change(input, { target: { value: 'https://y.com' } });
@@ -57,10 +58,10 @@ describe('EditableLink', () => {
 
   it('renders nothing in preview mode', () => {
     const { container } = render(
-      <EditorModeProvider>
+      <TooltipProvider><EditorModeProvider>
         <ForcePreview />
         <EditableLink value="https://x.com" onChange={() => {}} ariaLabel="Edit link" />
-      </EditorModeProvider>
+      </EditorModeProvider></TooltipProvider>
     );
     expect(container.querySelector('button[aria-label="Edit link"]')).toBeNull();
   });
