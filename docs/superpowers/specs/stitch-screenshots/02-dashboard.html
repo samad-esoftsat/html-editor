@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>GlobalTT Workspace Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,300;0,400;1,300;1,400&amp;family=Geist:wght@400;500;600&amp;family=JetBrains+Mono:wght@400&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        bg: '#FAF8F4',
+                        'bg-elevated': '#FFFFFF',
+                        'bg-sunken': '#F2EFE8',
+                        'bg-cream': '#F6F1E7',
+                        ink: '#141414',
+                        'ink-2': '#3A3733',
+                        'ink-3': '#6B665F',
+                        'ink-4': '#9C968D',
+                        rule: '#E7E2D8',
+                        'rule-strong': '#D8D2C4',
+                        brand: '#F1592A',
+                        'brand-ink': '#B8421C',
+                        'brand-soft': '#FCE2D2',
+                        'brand-glow': '#F8C9A8',
+                    },
+                    borderRadius: {
+                        'sm': '6px',
+                        'DEFAULT': '8px',
+                        'md': '10px',
+                        'lg': '14px',
+                        'xl': '20px',
+                        'full': '9999px'
+                    },
+                    fontFamily: {
+                        headline: ['Newsreader', 'serif'],
+                        display: ['Newsreader', 'serif'],
+                        body: ['Geist', 'sans-serif'],
+                        label: ['Geist', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace']
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .out-quint {
+            transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .italic-accent {
+            opacity: 0;
+            transform: translateY(10px);
+            animation: slideUpFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            animation-delay: 0.15s;
+        }
+        @keyframes slideUpFade {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body class="bg-bg text-ink font-body min-h-screen">
+<!-- TopNavBar (Shared Component JSON Mapping) -->
+<!-- style_component_shape: docked full-width top-0 sticky z-50 -->
+<!-- style_bg_color: bg-[#FAF8F4]/95 dark:bg-[#141414]/95 backdrop-blur-md -->
+<!-- style_separation_logic: border-b border-[#E7E2D8] dark:border-[#3A3733] -->
+<nav class="sticky top-0 z-50 w-full bg-[#FAF8F4]/95 backdrop-blur-md border-b border-[#E7E2D8]">
+<div class="max-w-[1280px] mx-auto px-16 h-16 flex justify-between items-center w-full">
+<!-- Left Side: Logo & Workspace Switcher -->
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-3">
+<img alt="GlobalTT Logo" class="w-7 h-7" src="https://lh3.googleusercontent.com/aida/ADBb0ugg2QlFCa34o3dXacpHI_7XtjSMmo7e2Ijyrk72yCXmQwKo_Hg2QBJc5iu1VHPuM10oR4hPjdDiCT7dt1UwySahCgA72KErVpj01iNy6Pfv1Akn-6LKW3VrwIS4nvOWZtC25yAUG7nIOdMITPNmnP9x5KXrcQENiCwM8jPlgeOcSw4OknEUA1cjmvP1T5WTnMW_Fa6FTM9u8H1NbTsTBdA1lZAa7eUbDur5x892CA4X5adjnFwPH0iPAm7_"/>
+<span class="font-headline text-2xl font-semibold text-[#141414]">GlobalTT</span>
+</div>
+<div class="h-6 w-px bg-rule"></div>
+<button class="flex items-center gap-2 px-3 py-1.5 rounded-md hover:bg-bg-sunken transition-colors out-quint text-sm font-medium">
+<span>Acme Co</span>
+<span class="material-symbols-outlined text-[18px] text-ink-3">unfold_more</span>
+</button>
+</div>
+<!-- Navigation Links (Mapping JSON) -->
+<div class="hidden md:flex items-center gap-8 h-full">
+<a class="text-[#F1592A] font-medium border-b-2 border-[#F1592A] h-full flex items-center translate-y-[1px]" href="#">Projects</a>
+<a class="text-[#6B665F] hover:text-[#141414] transition-colors duration-150 h-full flex items-center" href="#">Campaigns</a>
+<a class="text-[#6B665F] hover:text-[#141414] transition-colors duration-150 h-full flex items-center" href="#">Brand Kits</a>
+<a class="text-[#6B665F] hover:text-[#141414] transition-colors duration-150 h-full flex items-center" href="#">Settings</a>
+</div>
+<!-- Right Actions -->
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-1 text-ink-3 mr-2">
+<button class="p-2 hover:bg-[#F2EFE8] rounded-md transition-all">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 hover:bg-[#F2EFE8] rounded-md transition-all">
+<span class="material-symbols-outlined">help</span>
+</button>
+</div>
+<button class="text-ink text-sm font-medium hover:bg-bg-sunken px-4 py-2 rounded-md transition-all out-quint">Import</button>
+<button class="bg-[#F1592A] text-white px-5 py-2.5 rounded-[10px] text-sm font-medium hover:translate-y-[-1px] hover:shadow-[0_6px_16px_-6px_rgba(241,89,42,0.45)] active:translate-y-0 active:scale-95 transition-all out-quint duration-150">
+                    + New project
+                </button>
+<div class="w-8 h-8 rounded-full bg-brand-soft text-brand-ink flex items-center justify-center text-[11px] font-bold border border-brand-glow">
+                    JD
+                </div>
+</div>
+</div>
+</nav>
+<!-- Main Content -->
+<main class="max-w-[1280px] mx-auto px-16 pt-[56px] pb-24">
+<!-- Masthead -->
+<header class="mb-8">
+<span class="block font-label text-[11px] font-medium uppercase tracking-[0.22em] text-ink-3 mb-3">WORKSPACE</span>
+<div class="flex flex-col md:flex-row md:items-baseline justify-between gap-4">
+<h1 class="font-display text-[56px] font-normal tracking-[-0.03em] text-ink leading-none">
+                    My <span class="italic italic-accent">projects</span>
+</h1>
+<div class="text-ink-3 flex items-center gap-2">
+<span class="text-sm">12 projects</span>
+<span class="w-1 h-1 bg-rule-strong rounded-full"></span>
+<span class="font-mono text-[12px]">last updated 4 hours ago</span>
+</div>
+</div>
+<div class="w-full h-px bg-rule mt-8"></div>
+</header>
+<!-- Filters & Tools -->
+<section class="flex flex-col md:flex-row justify-between items-center gap-6 mb-8">
+<div class="flex items-center gap-8 self-start">
+<button class="relative pb-2 text-ink font-medium">
+                    All
+                    <span class="absolute bottom-[-1px] left-0 w-full h-0.5 bg-brand"></span>
+</button>
+<button class="pb-2 text-ink-3 hover:text-ink transition-colors">Drafts</button>
+<button class="pb-2 text-ink-3 hover:text-ink transition-colors">Archived</button>
+</div>
+<div class="flex items-center gap-3 w-full md:w-auto">
+<div class="relative w-full md:w-[240px]">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-ink-4">search</span>
+<input class="w-full h-8 pl-10 pr-4 bg-bg-elevated border border-rule rounded-lg text-sm focus:ring-2 focus:ring-brand-soft focus:border-brand outline-none transition-all placeholder:text-ink-4" placeholder="Search projects..." type="text"/>
+</div>
+<button class="flex items-center gap-2 h-8 px-3 bg-bg-elevated border border-rule rounded-lg text-sm hover:border-rule-strong transition-colors">
+<span class="material-symbols-outlined text-[18px]">sort</span>
+<span>Sort</span>
+</button>
+</div>
+</section>
+<!-- Project Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+<!-- Card 1: Summer Sale -->
+<div class="group bg-bg-elevated border border-rule rounded-lg overflow-hidden transition-all out-quint hover:border-rule-strong hover:shadow-[0_8px_24px_-12px_rgba(180,66,28,0.10)] cursor-pointer">
+<div class="aspect-[16/10] bg-bg-sunken border-b border-rule flex items-center justify-center p-6 relative">
+<div class="bg-white w-full h-full shadow-sm rounded-sm p-4 overflow-hidden">
+<div class="w-1/2 h-2 bg-brand-soft mb-2"></div>
+<div class="w-full h-32 bg-bg-sunken rounded-sm flex flex-col gap-2 p-2">
+<div class="w-full h-2 bg-ink-4/10"></div>
+<div class="w-3/4 h-2 bg-ink-4/10"></div>
+<div class="w-1/2 h-16 bg-brand/10 mt-auto rounded-sm"></div>
+</div>
+</div>
+</div>
+<div class="p-4 flex justify-between items-start">
+<div>
+<h3 class="font-semibold text-base mb-1">Summer Sale · Week 3</h3>
+<p class="font-mono text-[12px] text-ink-3">Updated 2h ago</p>
+</div>
+<span class="bg-brand-soft text-brand-ink text-[11px] font-medium px-2 py-0.5 rounded-full uppercase tracking-wider">DRAFT</span>
+</div>
+</div>
+<!-- Card 2: Order Confirmation (Hover State Preview) -->
+<div class="group bg-bg-elevated border-rule-strong shadow-[0_8px_24px_-12px_rgba(180,66,28,0.10)] border rounded-lg overflow-hidden transition-all out-quint cursor-pointer relative">
+<div class="aspect-[16/10] bg-bg-sunken border-b border-rule flex items-center justify-center p-6 relative">
+<div class="absolute top-4 right-4 z-10">
+<button class="bg-white/80 backdrop-blur border border-rule p-1.5 rounded-full shadow-sm hover:bg-white transition-colors">
+<span class="material-symbols-outlined text-[18px]">more_horiz</span>
+</button>
+</div>
+<div class="bg-white w-full h-full shadow-sm rounded-sm p-4 flex flex-col gap-3">
+<div class="flex justify-between items-center">
+<div class="w-8 h-8 bg-ink rounded-full"></div>
+<div class="w-16 h-2 bg-ink-3/20"></div>
+</div>
+<div class="w-3/4 h-4 bg-ink mb-1"></div>
+<div class="space-y-1">
+<div class="w-full h-2 bg-ink-4/10"></div>
+<div class="w-full h-2 bg-ink-4/10"></div>
+</div>
+</div>
+</div>
+<div class="p-4">
+<h3 class="font-semibold text-base mb-1">Order confirmation v2</h3>
+<p class="font-mono text-[12px] text-ink-3">Updated 2h ago</p>
+</div>
+</div>
+<!-- Card 3: Welcome Series -->
+<div class="group bg-bg-elevated border border-rule rounded-lg overflow-hidden transition-all out-quint hover:border-rule-strong hover:shadow-[0_8px_24px_-12px_rgba(180,66,28,0.10)] cursor-pointer">
+<div class="aspect-[16/10] bg-bg-sunken border-b border-rule flex items-center justify-center p-6 relative">
+<div class="bg-white w-full h-full shadow-sm rounded-sm overflow-hidden flex flex-col">
+<div class="h-1 bg-brand w-full"></div>
+<div class="p-4 flex-1">
+<div class="w-1/3 h-2 bg-ink-3/20 mb-4"></div>
+<div class="w-3/4 h-3 bg-ink mb-4"></div>
+<div class="aspect-video bg-bg-sunken w-full rounded-sm"></div>
+</div>
+</div>
+</div>
+<div class="p-4 flex justify-between items-start">
+<div>
+<h3 class="font-semibold text-base mb-1">Welcome series — Day 1</h3>
+<p class="font-mono text-[12px] text-ink-3">Updated 5h ago</p>
+</div>
+<span class="bg-brand-soft text-brand-ink text-[11px] font-medium px-2 py-0.5 rounded-full uppercase tracking-wider">DRAFT</span>
+</div>
+</div>
+<!-- Card 4: Password Reset -->
+<div class="group bg-bg-elevated border border-rule rounded-lg overflow-hidden transition-all out-quint hover:border-rule-strong hover:shadow-[0_8px_24px_-12px_rgba(180,66,28,0.10)] cursor-pointer">
+<div class="aspect-[16/10] bg-bg-sunken border-b border-rule flex items-center justify-center p-6 relative">
+<div class="bg-white w-2/3 h-full shadow-sm rounded-sm p-6 flex flex-col items-center text-center">
+<span class="material-symbols-outlined text-brand mb-3">lock_open</span>
+<div class="w-full h-3 bg-ink mb-2"></div>
+<div class="w-2/3 h-2 bg-ink-4/10 mb-4"></div>
+<div class="w-1/2 h-6 bg-ink rounded-sm"></div>
+</div>
+</div>
+<div class="p-4">
+<h3 class="font-semibold text-base mb-1">Password reset</h3>
+<p class="font-mono text-[12px] text-ink-3">Updated 12h ago</p>
+</div>
+</div>
+<!-- Card 5: Cart Abandonment -->
+<div class="group bg-bg-elevated border border-rule rounded-lg overflow-hidden transition-all out-quint hover:border-rule-strong hover:shadow-[0_8px_24px_-12px_rgba(180,66,28,0.10)] cursor-pointer">
+<div class="aspect-[16/10] bg-bg-sunken border-b border-rule flex items-center justify-center p-6 relative">
+<div class="bg-white w-full h-full shadow-sm rounded-sm p-4">
+<div class="flex gap-3 mb-4">
+<div class="w-12 h-12 bg-bg-sunken rounded-sm"></div>
+<div class="flex-1 space-y-2">
+<div class="w-2/3 h-2 bg-ink"></div>
+<div class="w-1/2 h-2 bg-ink-4/10"></div>
+</div>
+</div>
+<div class="w-full h-8 bg-brand-soft rounded-sm flex items-center justify-center text-[10px] font-bold text-brand-ink">FINISH CHECKOUT</div>
+</div>
+</div>
+<div class="p-4">
+<h3 class="font-semibold text-base mb-1">Cart abandonment</h3>
+<p class="font-mono text-[12px] text-ink-3">Updated 1d ago</p>
+</div>
+</div>
+<!-- Card 6: Black Friday Teaser -->
+<div class="group bg-bg-elevated border border-rule rounded-lg overflow-hidden transition-all out-quint hover:border-rule-strong hover:shadow-[0_8px_24px_-12px_rgba(180,66,28,0.10)] cursor-pointer">
+<div class="aspect-[16/10] bg-bg-sunken border-b border-rule flex items-center justify-center p-6 relative">
+<div class="bg-ink w-full h-full shadow-sm rounded-sm p-6 flex flex-col justify-center items-center">
+<div class="text-white font-headline text-2xl italic tracking-tight mb-2">Coming Soon</div>
+<div class="w-24 h-px bg-brand"></div>
+</div>
+</div>
+<div class="p-4">
+<h3 class="font-semibold text-base mb-1">Black Friday teaser</h3>
+<p class="font-mono text-[12px] text-ink-3">Updated 2d ago</p>
+</div>
+</div>
+<!-- Card 7: Newsletter -->
+<div class="group bg-bg-elevated border border-rule rounded-lg overflow-hidden transition-all out-quint hover:border-rule-strong hover:shadow-[0_8px_24px_-12px_rgba(180,66,28,0.10)] cursor-pointer">
+<div class="aspect-[16/10] bg-bg-sunken border-b border-rule flex items-center justify-center p-6 relative">
+<div class="bg-white w-full h-full shadow-sm rounded-sm flex flex-col">
+<div class="p-4 border-b border-rule flex justify-between">
+<div class="w-12 h-2 bg-ink"></div>
+<div class="w-8 h-2 bg-ink-4/10"></div>
+</div>
+<div class="p-4 flex gap-4">
+<div class="flex-1 space-y-2">
+<div class="w-full h-2 bg-ink"></div>
+<div class="w-full h-2 bg-ink"></div>
+<div class="w-2/3 h-2 bg-ink-4/10"></div>
+</div>
+<div class="w-16 h-16 bg-bg-sunken rounded-sm"></div>
+</div>
+</div>
+</div>
+<div class="p-4">
+<h3 class="font-semibold text-base mb-1">Newsletter · April issue</h3>
+<p class="font-mono text-[12px] text-ink-3">Updated 3d ago</p>
+</div>
+</div>
+<!-- Card 8: Receipt -->
+<div class="group bg-bg-elevated border border-rule rounded-lg overflow-hidden transition-all out-quint hover:border-rule-strong hover:shadow-[0_8px_24px_-12px_rgba(180,66,28,0.10)] cursor-pointer">
+<div class="aspect-[16/10] bg-bg-sunken border-b border-rule flex items-center justify-center p-6 relative">
+<div class="bg-white w-3/4 h-full shadow-sm rounded-sm p-4 flex flex-col gap-2">
+<div class="w-1/4 h-2 bg-ink-3/20 mb-2"></div>
+<div class="flex justify-between border-b border-rule pb-2">
+<div class="w-1/2 h-2 bg-ink-4/10"></div>
+<div class="w-1/4 h-2 bg-ink"></div>
+</div>
+<div class="flex justify-between">
+<div class="w-1/2 h-2 bg-ink-4/10"></div>
+<div class="w-1/4 h-2 bg-ink"></div>
+</div>
+<div class="mt-auto pt-2 border-t border-rule flex justify-between">
+<div class="w-1/4 h-2 bg-ink font-bold">Total</div>
+<div class="w-1/4 h-2 bg-brand"></div>
+</div>
+</div>
+</div>
+<div class="p-4">
+<h3 class="font-semibold text-base mb-1">Receipt template</h3>
+<p class="font-mono text-[12px] text-ink-3">Updated 1w ago</p>
+</div>
+</div>
+<!-- Card 9: Empty State -->
+<button class="group border-2 border-dashed border-rule-strong bg-bg-cream rounded-lg overflow-hidden transition-all out-quint hover:bg-bg-sunken hover:border-brand/40 flex flex-col items-center justify-center p-8 text-center min-h-[320px]">
+<div class="w-12 h-12 rounded-full bg-brand/10 text-brand flex items-center justify-center mb-4 group-hover:scale-110 transition-transform out-quint">
+<span class="material-symbols-outlined text-[24px]">add</span>
+</div>
+<h3 class="font-semibold text-base mb-1 text-ink">Start a new project</h3>
+<p class="text-ink-3 text-sm">Blank email or import HTML</p>
+</button>
+</div>
+</main>
+<!-- Micro-interaction Script -->
+<script>
+        document.querySelectorAll('.group').forEach(card => {
+            card.addEventListener('mousedown', () => {
+                card.style.transform = 'scale(0.98)';
+            });
+            card.addEventListener('mouseup', () => {
+                card.style.transform = '';
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = '';
+            });
+        });
+    </script>
+</body></html>

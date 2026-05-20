@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sign In | GlobalTT</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&amp;family=Geist:wght@100..900&amp;family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        'bg': '#FAF8F4',
+                        'bg-elevated': '#FFFFFF',
+                        'bg-sunken': '#F2EFE8',
+                        'bg-cream': '#F6F1E7',
+                        'ink': '#141414',
+                        'ink-2': '#3A3733',
+                        'ink-3': '#6B665F',
+                        'ink-4': '#9C968D',
+                        'rule': '#E7E2D8',
+                        'rule-strong': '#D8D2C4',
+                        'brand': '#F1592A',
+                        'brand-ink': '#B8421C',
+                        'brand-soft': '#FCE2D2',
+                        'brand-glow': '#F8C9A8',
+                        'amber': '#E8A04F'
+                    },
+                    fontFamily: {
+                        headline: ['Newsreader', 'serif'],
+                        display: ['Newsreader', 'serif'],
+                        body: ['Geist', 'sans-serif'],
+                        label: ['Geist', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace']
+                    },
+                    borderRadius: {
+                        'sm': '6px',
+                        'DEFAULT': '8px',
+                        'md': '10px',
+                        'lg': '14px',
+                        'xl': '20px',
+                        'full': '9999px'
+                    },
+                    spacing: {
+                        'base': '4px',
+                        'page-pad-x': '64px',
+                        'page-pad-y': '56px'
+                    }
+                }
+            }
+        }
+    </script>
+<style>.newsreader-italic {
+    font-family: "Newsreader";
+    font-style: italic;
+    font-weight: 300
+    }
+.newsreader-light {
+    font-family: "Newsreader";
+    font-weight: 300
+    }
+.signature-gradient {
+    background: linear-gradient(135deg, #F1592A 0%, #E8A04F 60%, #F8C9A8 100%)
+    }
+.grain-overlay {
+    position: absolute;
+    inset: 0;
+    opacity: 0.04;
+    pointer-events: none;
+    background-image: url(https://lh3.googleusercontent.com/aida-public/AB6AXuCYNVP7a9f01Q2lC0rSlTfWNvCa7yPk2rEt2rv7Nz5U4MPDr78PWVlPM1CoSXAsINNAhGS3aor6eVKhOKOsOx0AG_7Oz3nROKh3fVk14YO22n3-8EtLUi82d5R0QNMD61IzD5o9haZNxvIYKvxzsC_Edfq9ZB-YsfpH3JitDdtXIZ3C9k86B-HQWt2uFLVUN2IJRShW-PlCkuNyW8W4Jo_lV-8jwmNloH5VFxjZ0uumf0etoCGWoh0cTTZ0Ym8A989MU5232YlXKxBD)
+    }
+.auth-card-shadow {
+    box-shadow: 0 30px 80px -20px rgba(180, 66, 28, 0.35)
+    }
+.editorial-underline {
+    position: relative;
+    text-decoration: none
+    }
+.editorial-underline::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    width: 0;
+    height: 1.5px;
+    background-color: #F1592A;
+    transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1)
+    }
+.editorial-underline:hover::after {
+    width: 100%
+    }
+.input-focus:focus {
+    border-color: #F1592A;
+    box-shadow: 0 0 0 4px #FCE2D2;
+    outline: none
+    }
+@keyframes slideUpFade {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+        } to {
+        opacity: 1;
+        transform: translateY(0);
+        }
+    }
+.animate-editorial {
+    animation: slideUpFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards
+    }</style>
+</head>
+<body class="bg-bg text-ink font-body selection:bg-brand-soft selection:text-brand-ink min-h-screen overflow-hidden">
+<main class="flex h-screen w-full">
+<!-- LEFT PANE: 60% -->
+<section class="w-full lg:w-[60%] bg-bg relative flex flex-col p-12 lg:p-12">
+<!-- Brand Mark -->
+<div class="absolute top-12 left-12 flex items-center gap-3">
+<img alt="GlobalTT Logo" class="w-6 h-6 object-contain" src="https://lh3.googleusercontent.com/aida/ADBb0ugg2QlFCa34o3dXacpHI_7XtjSMmo7e2Ijyrk72yCXmQwKo_Hg2QBJc5iu1VHPuM10oR4hPjdDiCT7dt1UwySahCgA72KErVpj01iNy6Pfv1Akn-6LKW3VrwIS4nvOWZtC25yAUG7nIOdMITPNmnP9x5KXrcQENiCwM8jPlgeOcSw4OknEUA1cjmvP1T5WTnMW_Fa6FTM9u8H1NbTsTBdA1lZAa7eUbDur5x892CA4X5adjnFwPH0iPAm7_"/>
+<span class="font-label font-medium text-[14px] text-ink leading-none tracking-tight">GlobalTT Editor</span>
+</div>
+<!-- Content Area -->
+<div class="flex-1 flex flex-col justify-center items-center">
+<div class="w-full max-w-[460px] animate-editorial">
+<!-- Eyebrow -->
+<div class="mb-4">
+<span class="font-label text-[11px] font-medium tracking-[0.22em] text-ink-3 uppercase">Sign In</span>
+</div>
+<!-- Headline -->
+<h1 class="font-display text-[72px] leading-[0.96] tracking-[-0.04em] newsreader-light mb-4">
+<span class="newsreader-italic">Welcome</span> back.
+                    </h1>
+<!-- Subtitle -->
+<p class="font-body text-[17px] text-ink-2 mb-10 leading-relaxed">
+                        Sign in to continue editing your email projects.
+                    </p>
+<!-- Form -->
+<form class="space-y-6" onsubmit="event.preventDefault();">
+<div class="space-y-2">
+<label class="font-label text-[11px] font-medium tracking-wider text-ink-3 uppercase">Email</label>
+<input class="w-full h-[40px] px-4 rounded-md border border-rule bg-white text-[14px] font-body text-ink placeholder:text-ink-4 transition-all input-focus" placeholder="name@company.com" type="email"/>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between items-center">
+<label class="font-label text-[11px] font-medium tracking-wider text-ink-3 uppercase">Password</label>
+<a class="font-label text-[11px] text-ink-3 hover:text-brand transition-colors" href="#">Forgot?</a>
+</div>
+<input class="w-full h-[40px] px-4 rounded-md border border-rule bg-white text-[14px] font-body text-ink placeholder:text-ink-4 transition-all input-focus" placeholder="••••••••" type="password"/>
+</div>
+<button class="w-full h-[40px] bg-brand hover:bg-[#D94F25] text-white font-label text-[14px] font-semibold rounded-md shadow-sm transition-all active:scale-[0.98] transform flex items-center justify-center" type="submit">
+                            Continue
+                        </button>
+<!-- Divider -->
+<div class="relative py-4 flex items-center">
+<div class="flex-grow border-t border-rule"></div>
+<span class="flex-shrink mx-4 font-label text-[12px] text-ink-4 uppercase tracking-widest">or</span>
+<div class="flex-grow border-t border-rule"></div>
+</div>
+<!-- SSO Stack -->
+<div class="space-y-3">
+<button class="w-full h-[40px] bg-transparent border border-rule hover:bg-bg-sunken text-ink font-label text-[14px] font-medium rounded-md transition-colors flex items-center justify-center gap-3">
+<svg class="w-5 h-5" viewbox="0 0 24 24">
+<path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"></path>
+<path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"></path>
+<path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"></path>
+<path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 12-4.53z" fill="#EA4335"></path>
+</svg>
+                                Continue with Google
+                            </button>
+<button class="w-full h-[40px] bg-transparent border border-rule hover:bg-bg-sunken text-ink font-label text-[14px] font-medium rounded-md transition-colors flex items-center justify-center gap-3">
+<svg class="w-5 h-5" viewbox="0 0 23 23">
+<path d="M1 1h10v10H1z" fill="#f35325"></path><path d="M12 1h10v10H12z" fill="#81bc06"></path><path d="M1 12h10v10H1z" fill="#05a6f0"></path><path d="M12 12h10v10H12z" fill="#ffba08"></path>
+</svg>
+                                Continue with Microsoft
+                            </button>
+</div>
+</form>
+<!-- Sign up footer -->
+<div class="mt-10 text-center">
+<p class="font-body text-[14px] text-ink-2">
+                            New to GlobalTT? 
+                            <a class="newsreader-italic text-ink font-medium editorial-underline ml-1" href="#">Create an account.</a>
+</p>
+</div>
+</div>
+</div>
+</section>
+<!-- RIGHT PANE: 40% -->
+<section class="hidden lg:flex w-[40%] signature-gradient relative flex-col items-center justify-center p-16">
+<div class="grain-overlay"></div>
+<!-- Floating Preview Card -->
+<div class="w-[360px] h-[480px] bg-white rounded-lg auth-card-shadow transform rotate-[-3deg] flex flex-col overflow-hidden animate-editorial delay-100">
+<!-- Card Header -->
+<div class="p-6 pb-4 flex justify-between items-center border-b border-rule">
+<span class="font-label text-[10px] tracking-[0.15em] font-bold text-brand uppercase">Acme Co.</span>
+<span class="material-symbols-outlined text-ink-4 text-[18px]">more_horiz</span>
+</div>
+<!-- Email Mockup Body -->
+<div class="flex-1 bg-bg-cream flex flex-col p-8 items-center text-center">
+<div class="w-16 h-16 bg-brand/10 rounded-full flex items-center justify-center mb-6">
+<span class="material-symbols-outlined text-brand text-[32px]">local_mall</span>
+</div>
+<h3 class="font-display text-[28px] newsreader-light leading-tight mb-4">
+                        The <span class="newsreader-italic">Summer</span> Edit
+                    </h3>
+<p class="font-body text-[13px] text-ink-3 max-w-[200px] mb-8">
+                        Explore our latest curated collection of intentional essentials.
+                    </p>
+<div class="w-full space-y-3 mb-8">
+<div class="h-[1px] w-full bg-rule-strong opacity-40"></div>
+<div class="flex justify-between font-label text-[9px] text-ink-3 uppercase tracking-widest">
+<span>Feature 01</span>
+<span>Sustainable Fabrics</span>
+</div>
+<div class="h-[1px] w-full bg-rule-strong opacity-40"></div>
+<div class="flex justify-between font-label text-[9px] text-ink-3 uppercase tracking-widest">
+<span>Feature 02</span>
+<span>Handcrafted Quality</span>
+</div>
+</div>
+<button class="mt-auto px-6 py-2.5 bg-brand text-white font-label text-[11px] font-bold uppercase tracking-widest rounded-full">
+                        Shop the sale
+                    </button>
+</div>
+</div>
+<!-- Bottom Content -->
+<div class="mt-20 text-white max-w-[360px] w-full animate-editorial delay-200">
+<span class="font-label text-[11px] font-medium tracking-[0.22em] text-white/70 uppercase block mb-3">What You'll Build</span>
+<h2 class="font-display text-[32px] leading-tight mb-2">
+                    Emails that <span class="newsreader-italic">ship</span>.
+                </h2>
+<p class="text-white/60 font-body text-[15px] leading-relaxed">
+                    Real-time editing. Brand kits. One-click translation. Everything your marketing team needs.
+                </p>
+</div>
+</section>
+</main>
+<script>
+        // Subtle micro-interactions
+        document.addEventListener('DOMContentLoaded', () => {
+            const inputs = document.querySelectorAll('input');
+            inputs.forEach(input => {
+                input.addEventListener('focus', () => {
+                    input.parentElement.querySelector('label').style.color = '#F1592A';
+                });
+                input.addEventListener('blur', () => {
+                    input.parentElement.querySelector('label').style.color = '#6B665F';
+                });
+            });
+        });
+    </script>
+</body></html>

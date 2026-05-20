@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&amp;family=Geist:wght@100..900&amp;family=JetBrains+Mono:wght@100..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        'bg': '#FAF8F4',
+                        'bg-elevated': '#FFFFFF',
+                        'bg-sunken': '#F2EFE8',
+                        'bg-cream': '#F6F1E7',
+                        'ink': '#141414',
+                        'ink-2': '#3A3733',
+                        'ink-3': '#6B665F',
+                        'ink-4': '#9C968D',
+                        'rule': '#E7E2D8',
+                        'rule-strong': '#D8D2C4',
+                        'brand': '#F1592A',
+                        'brand-ink': '#B8421C',
+                        'brand-soft': '#FCE2D2',
+                        'brand-glow': '#F8C9A8',
+                        'amber': '#E8A04F',
+                        'success': '#3F7A3F',
+                        'danger': '#B2452B'
+                    },
+                    borderRadius: {
+                        'sm': '6px',
+                        'DEFAULT': '8px',
+                        'md': '10px',
+                        'lg': '14px',
+                        'xl': '20px',
+                        'full': '9999px'
+                    },
+                    fontFamily: {
+                        'headline': ['Newsreader', 'serif'],
+                        'display': ['Newsreader', 'serif'],
+                        'body': ['Geist', 'sans-serif'],
+                        'label': ['Geist', 'sans-serif'],
+                        'mono': ['JetBrains Mono', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #FAF8F4;
+            color: #141414;
+            font-family: 'Geist', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+            font-size: 1.25rem;
+        }
+        .editorial-rule {
+            height: 1px;
+            background-color: #E7E2D8;
+            width: 100%;
+        }
+        .nav-item-active {
+            color: #F1592A;
+            background-color: rgba(252, 226, 210, 0.3);
+            font-weight: 600;
+        }
+        .brand-kit-card:hover {
+            border-color: #D8D2C4;
+            box-shadow: 0 8px 24px -12px rgba(180,66,28,0.10);
+            transform: translateY(-2px);
+        }
+        .kit-btn-hover {
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .newsreader-italic {
+            font-family: 'Newsreader', serif;
+            font-style: italic;
+            font-weight: 300;
+        }
+        .tracking-editorial {
+            letter-spacing: 0.22em;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+<!-- TopNavBar -->
+<nav class="sticky top-0 w-full h-[64px] z-50 bg-[#FAF8F4]/95 backdrop-blur-md border-b border-[#E7E2D8] flex items-center justify-center px-16">
+<div class="flex items-center justify-between w-full max-w-[1280px]">
+<div class="flex items-center gap-6">
+<img alt="GlobalTT Logo" class="h-8 w-8 object-contain" src="https://lh3.googleusercontent.com/aida/ADBb0ugg2QlFCa34o3dXacpHI_7XtjSMmo7e2Ijyrk72yCXmQwKo_Hg2QBJc5iu1VHPuM10oR4hPjdDiCT7dt1UwySahCgA72KErVpj01iNy6Pfv1Akn-6LKW3VrwIS4nvOWZtC25yAUG7nIOdMITPNmnP9x5KXrcQENiCwM8jPlgeOcSw4OknEUA1cjmvP1T5WTnMW_Fa6FTM9u8H1NbTsTBdA1lZAa7eUbDur5x892CA4X5adjnFwPH0iPAm7_"/>
+<div class="h-4 w-[1px] bg-rule"></div>
+<button class="flex items-center gap-2 px-3 py-1.5 rounded-md hover:bg-bg-sunken transition-colors group">
+<span class="text-sm font-medium text-ink">Acme Co</span>
+<span class="material-symbols-outlined text-ink-3 group-hover:text-ink">unfold_more</span>
+</button>
+</div>
+<div class="flex items-center gap-6">
+<div class="hidden md:flex items-center gap-8 mr-4">
+<a class="text-ink-3 hover:text-ink font-medium text-sm transition-colors" href="#">Projects</a>
+<a class="text-ink font-semibold text-sm border-b-2 border-brand pb-5 translate-y-[10px]" href="#">Settings</a>
+</div>
+<button class="bg-brand text-white px-4 py-2 rounded-lg text-sm font-medium hover:translate-y-[-1px] hover:shadow-[0_6px_16px_-6px_rgba(241,89,42,0.45)] transition-all active:translate-y-0 active:shadow-none">
+                    + New project
+                </button>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-rule cursor-pointer">
+<img alt="User Avatar" class="w-full h-full object-cover" data-alt="A clean, professional headshot of a creative director in a high-key studio setting. The lighting is soft and flattering, reflecting the warm editorial aesthetic of the GlobalTT platform. The subject wears a minimalist dark turtleneck, and the overall composition is sophisticated and modern." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBgJnXiE3w2dMVzdWJWhCA_NXrkedcW_mzdQjLahWcSIpE5HCT7aVPsL9GNuDW1HnAnSPn27N_iEeQ-JZG8RcIDK4A18_1ffpLbeNyTOyCWX3_0Tl98X7HqK6sQKxoX84aWYOVbFHRSlhM_iuZBVbdebtM8l-0EOBg6IqVBTGSBopGoVI62np8dtUnqcAd06nU5u77wo-RBfSC1as55H8rOM5qFvJ5o2oNhkap8tFX2VPXq0oeZGilDZlZRTKoF0fw8ayw-OT5MjVO4"/>
+</div>
+</div>
+</div>
+</nav>
+<!-- Secondary Nav / Breadcrumbs -->
+<div class="w-full h-12 bg-bg flex items-center justify-center px-16 border-b border-rule">
+<div class="flex items-center w-full max-w-[1280px] text-sm font-medium">
+<a class="text-ink-3 hover:text-ink transition-colors" href="#">Projects</a>
+<span class="mx-3 text-rule-strong">/</span>
+<span class="text-ink">Settings</span>
+</div>
+</div>
+<main class="max-w-[1280px] mx-auto px-16 py-14">
+<!-- Masthead -->
+<header class="mb-14">
+<div class="flex flex-col gap-2">
+<span class="font-label text-[11px] font-medium text-ink-3 tracking-editorial uppercase">SETTINGS</span>
+<h1 class="text-[56px] font-display text-ink leading-[1.02] tracking-[-0.03em]">
+                    Brand <span class="newsreader-italic">kits.</span>
+</h1>
+<p class="text-lg font-body text-ink-2 max-w-[600px] mt-2">
+                    Reusable color palettes, logos, and typography for your team's emails.
+                </p>
+</div>
+<div class="editorial-rule mt-10"></div>
+</header>
+<div class="flex gap-16">
+<!-- Sidebar Navigation -->
+<aside class="w-[220px] flex-shrink-0">
+<div class="flex flex-col space-y-1">
+<a class="flex items-center gap-3 px-4 py-2 text-sm font-medium text-ink-3 hover:text-ink hover:bg-bg-sunken rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined">settings</span>
+                        General
+                    </a>
+<a class="flex items-center gap-3 px-4 py-2 text-sm font-medium text-ink-3 hover:text-ink hover:bg-bg-sunken rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined">group</span>
+                        Members
+                    </a>
+<a class="flex items-center gap-3 px-4 py-2 text-sm font-medium text-brand bg-brand-soft/30 rounded-lg translate-x-1 transition-all" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">palette</span>
+                        Brand kits
+                    </a>
+<a class="flex items-center gap-3 px-4 py-2 text-sm font-medium text-ink-3 hover:text-ink hover:bg-bg-sunken rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined">payments</span>
+                        Billing
+                    </a>
+<a class="flex items-center gap-3 px-4 py-2 text-sm font-medium text-ink-3 hover:text-ink hover:bg-bg-sunken rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined">terminal</span>
+                        API tokens
+                    </a>
+</div>
+</aside>
+<!-- Content Area -->
+<section class="flex-1 max-w-[760px]">
+<div class="flex items-center justify-between mb-2">
+<h2 class="text-xl font-body font-semibold text-ink">Brand kits · 4</h2>
+<button class="bg-brand text-white px-4 py-2 rounded-lg text-sm font-medium hover:translate-y-[-1px] hover:shadow-[0_6px_16px_-6px_rgba(241,89,42,0.45)] transition-all active:translate-y-0 active:shadow-none">
+                        + New brand kit
+                    </button>
+</div>
+<p class="text-sm text-ink-3 mb-8">
+                    Apply a kit to a project to update its colors, fonts, and logo in one click.
+                </p>
+<div class="grid grid-cols-2 gap-6">
+<!-- Card 1: Default -->
+<div class="brand-kit-card bg-bg-elevated border border-rule rounded-lg overflow-hidden transition-all duration-200 cursor-pointer relative group">
+<div class="h-16 w-full flex">
+<div class="flex-1 bg-[#F1592A]"></div>
+<div class="flex-1 bg-[#141414]"></div>
+<div class="flex-1 bg-[#F2EFE8]"></div>
+<div class="flex-1 bg-[#E8A04F]"></div>
+<div class="flex-1 bg-[#3F7A3F]"></div>
+</div>
+<div class="p-5">
+<div class="flex items-center justify-between mb-3">
+<h3 class="font-body font-semibold text-ink">Acme Corporate</h3>
+<div class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-brand-soft text-[10px] font-bold text-brand-ink uppercase tracking-wider">
+<span class="w-1.5 h-1.5 rounded-full bg-brand"></span>
+                                    Default
+                                </div>
+</div>
+<div class="flex flex-wrap gap-2 mb-4">
+<span class="font-mono text-[11px] text-ink-3 bg-bg-sunken px-2 py-0.5 rounded">#F1592A</span>
+<span class="font-mono text-[11px] text-ink-3 bg-bg-sunken px-2 py-0.5 rounded">#141414</span>
+<span class="font-mono text-[11px] text-ink-3 bg-bg-sunken px-2 py-0.5 rounded">+3</span>
+</div>
+<div class="flex items-center justify-between">
+<p class="font-body text-xs text-ink-3">
+<span class="newsreader-italic italic mr-1">Modern Serif</span> · 7 projects
+                                </p>
+<button class="p-1 hover:bg-bg-sunken rounded text-ink-3">
+<span class="material-symbols-outlined text-base">more_horiz</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Card 2: Hover State -->
+<div class="brand-kit-card bg-bg-elevated border-rule-strong shadow-[0_8px_24px_-12px_rgba(180,66,28,0.10)] rounded-lg overflow-hidden transition-all duration-200 cursor-pointer relative -translate-y-0.5 group">
+<div class="h-16 w-full flex relative">
+<div class="flex-1 bg-[#A63429]"></div>
+<div class="flex-1 bg-[#2D402E]"></div>
+<div class="flex-1 bg-[#FAF8F4]"></div>
+<div class="flex-1 bg-[#CF9C52]"></div>
+<div class="flex-1 bg-[#1B1815]"></div>
+<div class="absolute inset-0 flex items-center justify-center bg-ink/10 opacity-100 group-hover:opacity-100 transition-opacity">
+<button class="bg-brand text-white px-4 py-1.5 rounded-lg text-xs font-medium shadow-lg hover:scale-105 transition-transform">
+                                    Apply Kit
+                                </button>
+</div>
+</div>
+<div class="p-5">
+<div class="flex items-center justify-between mb-3">
+<h3 class="font-body font-semibold text-ink">Heritage Collection</h3>
+<div class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-1 text-ink-3 hover:text-brand transition-colors"><span class="material-symbols-outlined text-lg">edit</span></button>
+<button class="p-1 text-ink-3 hover:text-brand transition-colors"><span class="material-symbols-outlined text-lg">content_copy</span></button>
+</div>
+</div>
+<div class="flex flex-wrap gap-2 mb-4">
+<span class="font-mono text-[11px] text-ink-3 bg-bg-sunken px-2 py-0.5 rounded">#A63429</span>
+<span class="font-mono text-[11px] text-ink-3 bg-bg-sunken px-2 py-0.5 rounded">#2D402E</span>
+<span class="font-mono text-[11px] text-ink-3 bg-bg-sunken px-2 py-0.5 rounded">+3</span>
+</div>
+<div class="flex items-center justify-between">
+<p class="font-body text-xs text-ink-3">
+<span class="newsreader-italic italic mr-1">Newsreader</span> · Updated 2d ago
+                                </p>
+<button class="p-1 hover:bg-bg-sunken rounded text-ink-3">
+<span class="material-symbols-outlined text-base">more_horiz</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="brand-kit-card bg-bg-elevated border border-rule rounded-lg overflow-hidden transition-all duration-200 cursor-pointer relative group">
+<div class="h-16 w-full flex">
+<div class="flex-1 bg-[#607D8B]"></div>
+<div class="flex-1 bg-[#141414]"></div>
+<div class="flex-1 bg-[#FAF8F4]"></div>
+<div class="flex-1 bg-[#D4A017]"></div>
+<div class="flex-1 bg-[#C2B280]"></div>
+</div>
+<div class="p-5">
+<div class="flex items-center justify-between mb-3">
+<h3 class="font-body font-semibold text-ink">Studio Palette</h3>
+<button class="p-1 hover:bg-bg-sunken rounded text-ink-3 opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-base">settings</span>
+</button>
+</div>
+<div class="flex flex-wrap gap-2 mb-4">
+<span class="font-mono text-[11px] text-ink-3 bg-bg-sunken px-2 py-0.5 rounded">#607D8B</span>
+<span class="font-mono text-[11px] text-ink-3 bg-bg-sunken px-2 py-0.5 rounded">#141414</span>
+<span class="font-mono text-[11px] text-ink-3 bg-bg-sunken px-2 py-0.5 rounded">+3</span>
+</div>
+<div class="flex items-center justify-between">
+<p class="font-body text-xs text-ink-3">
+<span class="font-body mr-1">Geist Sans</span> · 2 projects
+                                </p>
+<button class="p-1 hover:bg-bg-sunken rounded text-ink-3">
+<span class="material-symbols-outlined text-base">more_horiz</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Card 4: Monochrome -->
+<div class="brand-kit-card bg-bg-elevated border border-rule rounded-lg overflow-hidden transition-all duration-200 cursor-pointer relative group">
+<div class="h-16 w-full flex border-b border-rule">
+<div class="flex-1 bg-[#141414]"></div>
+<div class="flex-1 bg-[#3A3733]"></div>
+<div class="flex-1 bg-[#6B665F]"></div>
+<div class="flex-1 bg-[#B6AFA3]"></div>
+<div class="flex-1 bg-[#FAF8F4]"></div>
+</div>
+<div class="p-5">
+<div class="flex items-center justify-between mb-3">
+<h3 class="font-body font-semibold text-ink">Noir Editorial</h3>
+<button class="p-1 hover:bg-bg-sunken rounded text-ink-3 opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-base">settings</span>
+</button>
+</div>
+<div class="flex flex-wrap gap-2 mb-4">
+<span class="font-mono text-[11px] text-ink-3 bg-bg-sunken px-2 py-0.5 rounded">#141414</span>
+<span class="font-mono text-[11px] text-ink-3 bg-bg-sunken px-2 py-0.5 rounded">#3A3733</span>
+<span class="font-mono text-[11px] text-ink-3 bg-bg-sunken px-2 py-0.5 rounded">+3</span>
+</div>
+<div class="flex items-center justify-between">
+<p class="font-body text-xs text-ink-3">
+<span class="newsreader-italic italic mr-1">Display Italic</span> · 0 projects
+                                </p>
+<button class="p-1 hover:bg-bg-sunken rounded text-ink-3">
+<span class="material-symbols-outlined text-base">more_horiz</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Empty State -->
+<div class="border-2 border-dashed border-rule rounded-lg bg-bg-cream/30 p-10 flex flex-col items-center justify-center text-center cursor-pointer group hover:bg-bg-cream/50 transition-colors">
+<div class="w-12 h-12 rounded-full bg-bg-elevated flex items-center justify-center text-ink-3 mb-4 group-hover:scale-110 transition-transform shadow-sm">
+<span class="material-symbols-outlined">add</span>
+</div>
+<h4 class="font-body font-semibold text-ink">Create a brand kit</h4>
+<p class="text-xs text-ink-3 mt-1">Start from scratch or import from URL</p>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- Footer decoration / Branding -->
+<footer class="max-w-[1280px] mx-auto px-16 py-20 opacity-30 flex items-center justify-center">
+<div class="flex flex-col items-center gap-4">
+<img alt="GlobalTT Monogram" class="h-6 w-6 grayscale opacity-50" src="https://lh3.googleusercontent.com/aida/ADBb0ugg2QlFCa34o3dXacpHI_7XtjSMmo7e2Ijyrk72yCXmQwKo_Hg2QBJc5iu1VHPuM10oR4hPjdDiCT7dt1UwySahCgA72KErVpj01iNy6Pfv1Akn-6LKW3VrwIS4nvOWZtC25yAUG7nIOdMITPNmnP9x5KXrcQENiCwM8jPlgeOcSw4OknEUA1cjmvP1T5WTnMW_Fa6FTM9u8H1NbTsTBdA1lZAa7eUbDur5x892CA4X5adjnFwPH0iPAm7_"/>
+<span class="font-label text-[10px] tracking-editorial">GLOBAL TRANSACTIONAL TECHNOLOGY</span>
+</div>
+</footer>
+<script>
+        // Simple micro-interactions for adding a 'scale down' effect on clicks
+        document.querySelectorAll('button').forEach(button => {
+            button.addEventListener('mousedown', () => {
+                button.classList.add('scale-95');
+            });
+            button.addEventListener('mouseup', () => {
+                button.classList.remove('scale-95');
+            });
+            button.addEventListener('mouseleave', () => {
+                button.classList.remove('scale-95');
+            });
+        });
+
+        // Initialize tooltips or simple state changes if needed
+        console.log("GlobalTT UI Initialized: Warm Editorial Mode");
+    </script>
+</body></html>
