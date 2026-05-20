@@ -146,18 +146,18 @@ export function AssetPicker({ workspaceSlug, value, altText, onSelect, onClose }
 
   return (
     <div className="fixed inset-0 z-50 bg-black/70 p-4 backdrop-blur-sm">
-      <div className="mx-auto flex h-full max-w-5xl flex-col overflow-hidden rounded-xl border border-border-strong bg-panel shadow-2xl">
-        <div className="flex items-center justify-between border-b border-border px-4 py-3">
+      <div className="mx-auto flex h-full max-w-5xl flex-col overflow-hidden rounded-xl border border-ed-rule bg-ed-panel-2 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.6)]">
+        <div className="flex items-center justify-between border-b border-ed-rule px-4 py-3">
           <div>
-            <div className="text-sm font-semibold text-fg">Asset Picker</div>
-            <div className="text-xs text-muted">Workspace library, uploads, and AI generation in one place.</div>
+            <div className="text-sm font-semibold text-ed-ink">Asset Picker</div>
+            <div className="text-xs text-ed-ink-3">Workspace library, uploads, and AI generation in one place.</div>
           </div>
-          <button type="button" className="text-muted hover:text-fg" onClick={onClose}>
+          <button type="button" className="text-ed-ink-3 hover:text-ed-ink" onClick={onClose}>
             <X size={18} />
           </button>
         </div>
 
-        <div className="flex gap-2 border-b border-border px-4 py-3">
+        <div className="flex gap-2 border-b border-ed-rule px-4 py-3">
           <TabButton active={tab === 'library'} onClick={() => setTab('library')}>Library</TabButton>
           <TabButton active={tab === 'upload'} disabled={!canEdit} onClick={() => setTab('upload')}>Upload</TabButton>
           <TabButton active={tab === 'generate'} disabled={!canEdit} onClick={() => setTab('generate')}>Generate</TabButton>
@@ -175,10 +175,10 @@ export function AssetPicker({ workspaceSlug, value, altText, onSelect, onClose }
                   placeholder="Search by alt text, prompt, or filename"
                   className="flex-1"
                 />
-                {selectedPreview && <img src={selectedPreview} alt="" className="h-10 w-10 rounded border border-border-strong object-cover" />}
+                {selectedPreview && <img src={selectedPreview} alt="" className="h-10 w-10 rounded border border-ed-rule-strong object-cover" />}
               </div>
               {loading ? (
-                <div className="flex items-center gap-2 text-sm text-muted"><Spinner size={16} /> Loading assets…</div>
+                <div className="flex items-center gap-2 text-sm text-ed-ink-3"><Spinner size={16} /> Loading assets…</div>
               ) : (
                 <AssetLibraryGrid
                   assets={assets}
@@ -216,7 +216,7 @@ export function AssetPicker({ workspaceSlug, value, altText, onSelect, onClose }
                     uploadRef.current?.click();
                   }
                 }}
-                className="rounded-lg border border-dashed border-border-strong p-10 text-center text-sm text-muted hover:border-brand hover:text-fg"
+                className="rounded-lg border border-dashed border-ed-rule-strong p-10 text-center text-sm text-ed-ink-3 hover:border-brand hover:text-ed-ink"
               >
                 {uploadBusy ? 'Uploading…' : 'Click to choose an image from your computer'}
               </div>
@@ -283,10 +283,10 @@ export function AssetPicker({ workspaceSlug, value, altText, onSelect, onClose }
             </div>
           )}
 
-          {error && <div className="mt-4 text-xs text-danger">{error}</div>}
+          {error && <div className="mt-4 text-xs text-ed-danger">{error}</div>}
         </div>
 
-        <div className="border-t border-border px-4 py-3 text-xs text-muted">
+        <div className="border-t border-ed-rule px-4 py-3 text-xs text-ed-ink-3">
           {usage ? `Quota: ${usage.count}/${usage.limit} this month` : 'Quota unavailable'}
         </div>
       </div>
@@ -310,7 +310,7 @@ function TabButton({
       type="button"
       disabled={disabled}
       onClick={onClick}
-      className={`rounded-md px-3 py-2 text-sm ${active ? 'bg-brand text-white' : 'bg-panel-2 text-fg'} disabled:cursor-not-allowed disabled:opacity-40`}
+      className={`rounded-md px-3 py-2 text-sm ${active ? 'bg-brand text-white' : 'bg-ed-panel-3 text-ed-ink'} disabled:cursor-not-allowed disabled:opacity-40`}
     >
       {children}
     </button>
