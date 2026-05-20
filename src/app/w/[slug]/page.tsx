@@ -4,6 +4,8 @@ import { NewProjectButton } from '@/components/dashboard/NewProjectButton';
 import { ProjectGrid } from '@/components/dashboard/ProjectGrid';
 import { UserMenu } from '@/components/dashboard/UserMenu';
 import { WorkspaceSwitcher } from '@/components/workspace/WorkspaceSwitcher';
+import { BrandMark } from '@/components/ui/BrandMark';
+import { PageMasthead } from '@/components/ui/PageMasthead';
 import { listUserWorkspaces, requireWorkspace } from '@/lib/auth/workspace';
 import { createClient } from '@/lib/supabase/server';
 
@@ -30,34 +32,76 @@ export default async function WorkspaceDashboard({ params }: Props) {
     listUserWorkspaces(),
   ]);
 
+  const projects = projectsRes.data ?? [];
+  const count = projects.length;
+  const mostRecent = projects[0]?.updated_at;
+
   return (
-    <main className="mx-auto max-w-6xl p-8">
-      <header className="mb-10 flex items-center justify-between gap-4">
-        <div>
-          <div className="mb-1.5 flex items-center gap-2">
-            <span className="text-[11px] font-medium uppercase tracking-[0.18em] text-brand">
-              Workspace
-            </span>
+    <main className="min-h-dvh bg-bg">
+      <header className="sticky top-0 z-30 border-b border-rule bg-bg/95 backdrop-blur">
+        <div className="mx-auto flex h-16 max-w-[1280px] items-center justify-between px-6 md:px-16">
+          <div className="flex items-center gap-3 text-ink">
+            <BrandMark size={28} />
             <WorkspaceSwitcher
               current={{ id: workspace.org.id, slug: workspace.org.slug, name: workspace.org.name }}
               workspaces={workspaces.map((w) => ({ id: w.id, slug: w.slug, name: w.name }))}
             />
           </div>
-          <h1 className="text-3xl font-bold tracking-tight text-fg">{workspace.org.name}</h1>
-        </div>
-        <div className="flex items-center gap-2">
-          <Link
-            href={settingsHref}
-            className="inline-flex min-h-9 items-center justify-center gap-2 rounded-md border border-border-strong bg-panel-2 px-4 py-2 text-sm font-medium text-fg transition-all duration-150 ease-out hover:border-brand hover:bg-panel focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
-          >
-            Settings
-          </Link>
-          <ImportButton slug={slug} />
-          <NewProjectButton slug={slug} />
-          <UserMenu email={user?.email} />
+          <div className="flex items-center gap-2">
+            <Link
+              href={settingsHref}
+              className="inline-flex h-10 items-center rounded-md px-3 text-sm text-ink-3 transition-colors hover:bg-bg-sunken hover:text-ink"
+            >
+              Settings
+            </Link>
+            <ImportButton slug={slug} />
+            <NewProjectButton slug={slug} />
+            <UserMenu email={user?.email} />
+          </div>
         </div>
       </header>
-      <ProjectGrid initial={projectsRes.data ?? []} slug={slug} />
+
+      <div className="mx-auto max-w-[1280px] px-6 md:px-16">
+        <PageMasthead
+          eyebrow="WORKSPACE"
+          title="My"
+          italicWord="projects"
+          subtitle={
+            <>
+              {count} {count === 1 ? 'project' : 'projects'}
+              {mostRecent ? (
+                <>
+                  {' '}· last updated{' '}
+                  <span className="font-mono text-[14px] text-ink-3" suppressHydrationWarning>
+                    {relativeTime(mostRecent)}
+                  </span>
+                </>
+              ) : null}
+            </>
+          }
+        />
+
+        <div className="mt-6 flex items-center justify-between">
+          <nav aria-label="Project filter" className="flex items-center gap-6 text-sm">
+            <span className="relative pb-2 font-medium text-ink">
+              All
+              <span className="absolute inset-x-0 -bottom-px h-0.5 bg-brand" />
+            </span>
+          </nav>
+        </div>
+
+        <div className="mt-6 pb-16">
+          <ProjectGrid initial={projects} slug={slug} />
+        </div>
+      </div>
     </main>
   );
+}
+
+function relativeTime(iso: string) {
+  const diff = (Date.now() - new Date(iso).getTime()) / 1000;
+  if (diff < 60) return 'just now';
+  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+  return `${Math.floor(diff / 86400)}d ago`;
 }
