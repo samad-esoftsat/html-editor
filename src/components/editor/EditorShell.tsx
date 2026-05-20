@@ -54,7 +54,7 @@ function Inner({
       <EditorModeProvider>
         <SelectionScope>
           <AssetPickerProvider workspaceSlug={workspaceSlug}>
-            <div className="flex flex-col h-dvh">
+            <div className="editor-shell flex h-dvh flex-col">
               <Topbar
                 slug={workspaceSlug}
                 currentWorkspace={currentWorkspace}
@@ -64,7 +64,7 @@ function Inner({
               />
               <div className="flex flex-1 overflow-hidden">
                 {leftPanelOpen && <LeftPanel />}
-                <div className="flex-1 bg-[#080808]"><Preview /></div>
+                <div className="flex-1 overflow-auto bg-ed-canvas-pad p-8"><Preview /></div>
               </div>
             </div>
           </AssetPickerProvider>

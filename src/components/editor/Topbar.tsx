@@ -1,16 +1,19 @@
 'use client';
 import Link from 'next/link';
-import { AlertCircle, ArrowLeft, Check, Loader2, PanelLeftClose, PanelLeftOpen, Redo2, Undo2 } from 'lucide-react';
+import { ArrowLeft, PanelLeftClose, PanelLeftOpen, Redo2, RotateCcw, Undo2 } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useEditor, useEditorStore, useTemporal } from '@/lib/editor/StoreProvider';
 import { useCanEdit } from '@/lib/editor/RoleProvider';
 import { useEffect, useState } from 'react';
 import { fade } from '@/lib/motion';
+import { cn } from '@/lib/utils/cn';
 import { WorkspaceSwitcher, type WorkspaceOption } from '@/components/workspace/WorkspaceSwitcher';
+import { BrandMark } from '@/components/ui/BrandMark';
+import { StatusBadge } from '@/components/ui/StatusBadge';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { DownloadMenu } from './DownloadMenu';
 import { TranslateMenu } from './TranslateMenu';
 import { useEditorMode } from './EditorModeProvider';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface TopbarProps {
   slug: string;
@@ -19,6 +22,8 @@ interface TopbarProps {
   leftPanelOpen: boolean;
   setLeftPanelOpen: (open: boolean) => void;
 }
+
+type SaveTone = 'saved' | 'pending' | 'saving' | 'error';
 
 export function Topbar({ slug, currentWorkspace, workspaces, leftPanelOpen, setLeftPanelOpen }: TopbarProps) {
   const name = useEditor((s) => s.name);
@@ -55,14 +60,16 @@ export function Topbar({ slug, currentWorkspace, workspaces, leftPanelOpen, setL
   const [editing, setEditing] = useState(false);
   const [draftName, setDraftName] = useState(name);
 
-  const statusIcon =
-    saving === 'saving' || saving === 'pending' ? <Loader2 size={12} className="animate-spin" /> :
-    saving === 'error' ? <AlertCircle size={12} /> :
-    <Check size={12} />;
-  const statusLabel =
-    saving === 'saving' ? 'Saving...' :
-    saving === 'pending' ? 'Pending...' :
-    saving === 'error' ? 'Save failed' : 'Saved';
+  const tone: SaveTone =
+    saving === 'saving' ? 'saving'
+    : saving === 'pending' ? 'pending'
+    : saving === 'error' ? 'error'
+    : 'saved';
+  const label =
+    saving === 'saving' ? 'Saving…'
+    : saving === 'pending' ? 'Pending…'
+    : saving === 'error' ? 'Save failed'
+    : 'Saved';
 
   async function commitName() {
     setEditing(false);
@@ -72,19 +79,27 @@ export function Topbar({ slug, currentWorkspace, workspaces, leftPanelOpen, setL
   }
 
   return (
-    <div className="flex items-center gap-4 px-5 py-2.5 border-b border-border bg-panel-2 text-sm">
+    <div className="flex h-[52px] items-center gap-3 border-b border-ed-rule bg-ed-panel-2 px-4 text-sm">
       <Link
         href={`/w/${slug}`}
-        className="inline-flex items-center gap-1.5 text-brand hover:opacity-80 transition-opacity"
+        aria-label="Back to projects"
+        className="inline-flex items-center gap-2 text-ed-ink transition-colors hover:opacity-80"
       >
-        <ArrowLeft size={14} /> Projects
+        <BrandMark size={22} className="text-ed-ink" />
       </Link>
+      <Link
+        href={`/w/${slug}`}
+        className="inline-flex items-center gap-1 text-ed-ink-3 transition-colors hover:text-ed-ink"
+      >
+        <ArrowLeft size={12} /> Projects
+      </Link>
+      <span className="text-ed-rule-strong">/</span>
       <WorkspaceSwitcher current={currentWorkspace} workspaces={workspaces} />
-      <span className="text-border-strong">|</span>
+      <span className="text-ed-rule-strong">/</span>
+
       {editing && canEdit ? (
         <input
           autoFocus
-          className="bg-panel border border-border-strong rounded px-2 py-0.5"
           value={draftName}
           onChange={(e) => setDraftName(e.target.value)}
           onBlur={commitName}
@@ -92,12 +107,20 @@ export function Topbar({ slug, currentWorkspace, workspaces, leftPanelOpen, setL
             if (e.key === 'Enter') commitName();
             if (e.key === 'Escape') { setDraftName(name); setEditing(false); }
           }}
+          className="rounded-md border border-ed-rule-strong bg-ed-panel px-2 py-1 font-serif text-[18px] font-normal text-ed-ink focus:border-brand focus:outline-none focus:ring-2 focus:ring-ed-brand-soft"
         />
       ) : canEdit ? (
-        <button onClick={() => { setDraftName(name); setEditing(true); }} className="font-semibold text-fg">{name}</button>
+        <button
+          type="button"
+          onClick={() => { setDraftName(name); setEditing(true); }}
+          className="font-serif text-[18px] font-normal text-ed-ink decoration-brand decoration-[1.5px] underline-offset-4 hover:underline"
+        >
+          {name}
+        </button>
       ) : (
-        <span className="font-semibold text-fg">{name}</span>
+        <span className="font-serif text-[18px] font-normal text-ed-ink">{name}</span>
       )}
+
       {canEdit && (
         <AnimatePresence mode="wait" initial={false}>
           <motion.span
@@ -106,19 +129,20 @@ export function Topbar({ slug, currentWorkspace, workspaces, leftPanelOpen, setL
             initial="hidden"
             animate="show"
             exit="exit"
-            className={`inline-flex items-center gap-1.5 ${saving === 'error' ? 'text-danger' : saving === 'idle' ? 'text-success' : 'text-muted'}`}
           >
-            {statusIcon} {statusLabel}
+            <StatusBadge tone={tone}>{label}</StatusBadge>
           </motion.span>
         </AnimatePresence>
       )}
+
       {!canEdit && (
-        <span className="inline-flex items-center gap-1.5 rounded-md border border-border-strong bg-panel px-2 py-0.5 text-[10px] uppercase tracking-wide text-muted-2">
+        <span className="inline-flex items-center rounded-md border border-ed-rule-strong bg-ed-panel px-2 py-0.5 text-[10px] uppercase tracking-wider text-ed-ink-3">
           View only
         </span>
       )}
-      {lastError && <span className="text-danger text-xs">{lastError}</span>}
-      <div className="ml-auto flex items-center gap-2">
+      {lastError && <span className="font-mono text-[11px] text-ed-danger">{lastError}</span>}
+
+      <div className="ml-auto flex items-center gap-1">
         {canEdit && (
           <Tooltip>
             <TooltipTrigger asChild>
@@ -126,7 +150,10 @@ export function Topbar({ slug, currentWorkspace, workspaces, leftPanelOpen, setL
                 type="button"
                 onClick={() => setLeftPanelOpen(!leftPanelOpen)}
                 aria-label={leftPanelOpen ? 'Hide sidebar' : 'Show sidebar'}
-                className="inline-flex items-center gap-1.5 rounded-md border border-border-strong px-2.5 py-1.5 text-xs text-fg hover:bg-panel hover:border-brand/40 transition-colors"
+                className={cn(
+                  'inline-flex h-8 w-8 items-center justify-center rounded-md text-ed-ink-2 transition-colors hover:bg-ed-panel-3 hover:text-ed-ink',
+                  leftPanelOpen && 'bg-ed-brand-soft text-brand hover:bg-ed-brand-soft',
+                )}
               >
                 {leftPanelOpen ? <PanelLeftClose size={14} /> : <PanelLeftOpen size={14} />}
               </button>
@@ -134,48 +161,22 @@ export function Topbar({ slug, currentWorkspace, workspaces, leftPanelOpen, setL
             <TooltipContent>{leftPanelOpen ? 'Hide sidebar' : 'Show sidebar'} (Ctrl/Cmd+\)</TooltipContent>
           </Tooltip>
         )}
+
+        <span className="mx-1 h-5 w-px bg-ed-rule" />
+
         {canEdit && <ModeToggle />}
+
         {canEdit && (
           <>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  type="button"
-                  onClick={onUndo}
-                  disabled={!canUndo}
-                  className="inline-flex items-center gap-1.5 rounded-md border border-border-strong px-2.5 py-1.5 text-xs text-fg hover:bg-panel hover:border-brand/40 transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:border-border-strong"
-                >
-                  <Undo2 size={14} /> Undo
-                </button>
-              </TooltipTrigger>
-              <TooltipContent>Undo (Ctrl/Cmd+Z)</TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  type="button"
-                  onClick={onRedo}
-                  disabled={!canRedo}
-                  className="inline-flex items-center gap-1.5 rounded-md border border-border-strong px-2.5 py-1.5 text-xs text-fg hover:bg-panel hover:border-brand/40 transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:border-border-strong"
-                >
-                  <Redo2 size={14} /> Redo
-                </button>
-              </TooltipTrigger>
-              <TooltipContent>Redo (Ctrl/Cmd+Shift+Z)</TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  type="button"
-                  onClick={onReset}
-                  disabled={!isDirty}
-                  className="inline-flex items-center gap-1.5 rounded-md border border-border-strong px-2.5 py-1.5 text-xs text-fg hover:bg-panel hover:border-brand/40 transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:border-border-strong"
-                >
-                  Reset to last saved
-                </button>
-              </TooltipTrigger>
-              <TooltipContent>Discard unsaved changes and revert to last saved version</TooltipContent>
-            </Tooltip>
+            <IconBtn onClick={onUndo} disabled={!canUndo} tooltip="Undo (Ctrl/Cmd+Z)" label="Undo">
+              <Undo2 size={14} />
+            </IconBtn>
+            <IconBtn onClick={onRedo} disabled={!canRedo} tooltip="Redo (Ctrl/Cmd+Shift+Z)" label="Redo">
+              <Redo2 size={14} />
+            </IconBtn>
+            <IconBtn onClick={onReset} disabled={!isDirty} tooltip="Discard unsaved changes and revert to last saved version" label="Reset to last saved">
+              <RotateCcw size={14} />
+            </IconBtn>
             <TranslateMenu projectId={projectId} projectName={name} slug={slug} />
           </>
         )}
@@ -185,16 +186,42 @@ export function Topbar({ slug, currentWorkspace, workspaces, leftPanelOpen, setL
   );
 }
 
+function IconBtn({
+  onClick, disabled, tooltip, label, children,
+}: {
+  onClick: () => void;
+  disabled?: boolean;
+  tooltip: string;
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <button
+          type="button"
+          onClick={onClick}
+          disabled={disabled}
+          aria-label={label}
+          className="inline-flex h-8 w-8 items-center justify-center rounded-md text-ed-ink-2 transition-colors hover:bg-ed-panel-3 hover:text-ed-ink disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+        >
+          {children}
+        </button>
+      </TooltipTrigger>
+      <TooltipContent>{tooltip}</TooltipContent>
+    </Tooltip>
+  );
+}
+
 function ModeToggle() {
   const { mode, setMode } = useEditorMode();
-  const baseBtn = 'px-2.5 py-1 text-xs transition-colors';
   return (
-    <div className="inline-flex items-center rounded-md border border-border-strong overflow-hidden">
+    <div className="inline-flex items-center overflow-hidden rounded-md border border-ed-rule-strong">
       <button
         type="button"
         aria-pressed={mode === 'edit'}
         onClick={() => setMode('edit')}
-        className={`${baseBtn} ${mode === 'edit' ? 'bg-brand text-white' : 'text-fg hover:bg-panel'}`}
+        className={`px-2.5 py-1 text-xs transition-colors ${mode === 'edit' ? 'bg-brand text-white' : 'text-ed-ink-2 hover:bg-ed-panel-3 hover:text-ed-ink'}`}
       >
         Edit
       </button>
@@ -202,7 +229,7 @@ function ModeToggle() {
         type="button"
         aria-pressed={mode === 'preview'}
         onClick={() => setMode('preview')}
-        className={`${baseBtn} ${mode === 'preview' ? 'bg-brand text-white' : 'text-fg hover:bg-panel'}`}
+        className={`px-2.5 py-1 text-xs transition-colors ${mode === 'preview' ? 'bg-brand text-white' : 'text-ed-ink-2 hover:bg-ed-panel-3 hover:text-ed-ink'}`}
       >
         Preview
       </button>
