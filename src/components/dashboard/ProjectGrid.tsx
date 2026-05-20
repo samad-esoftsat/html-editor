@@ -26,21 +26,21 @@ export function ProjectGrid({ initial, slug }: { initial: ProjectSummary[]; slug
   if (items.length === 0) {
     return (
       <EmptyState>
-        No projects yet. Click <strong className="text-fg">+ New Project</strong> to start your first campaign.
+        No projects yet. Click <strong className="text-ink">+ New project</strong> to start your first campaign.
       </EmptyState>
     );
   }
 
   return (
     <motion.div
-      className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
+      className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3"
       variants={staggerContainer(0.04)}
       initial="hidden"
       animate="show"
     >
       {loading && (
-        <div className="col-span-full flex items-center gap-2 text-sm text-muted">
-          <Spinner /> Refreshing...
+        <div className="col-span-full flex items-center gap-2 text-sm text-ink-3">
+          <Spinner /> Refreshing…
         </div>
       )}
       <AnimatePresence mode="popLayout">
