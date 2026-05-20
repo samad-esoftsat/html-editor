@@ -15,13 +15,13 @@ export function HeaderPanel() {
   const canEdit = useCanEdit();
 
   return (
-    <div className="rounded-md bg-panel-2 border border-border overflow-hidden">
-      <button type="button" onClick={() => setOpen(o => !o)} className="w-full flex items-center justify-between px-3 py-2.5 text-sm font-medium text-fg">
+    <div className="rounded-md border border-ed-rule bg-ed-panel-2 shadow-[inset_0_1px_0_rgba(237,231,220,0.04)] overflow-hidden">
+      <button type="button" onClick={() => setOpen(o => !o)} className="flex w-full items-center justify-between px-3 py-2.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-ed-ink-2 transition-colors hover:text-ed-ink">
         <span>Header</span>
-        {open ? <ChevronDown size={14} className="text-muted-2" /> : <ChevronRight size={14} className="text-muted-2" />}
+        {open ? <ChevronDown size={12} className="text-ed-ink-3" /> : <ChevronRight size={12} className="text-ed-ink-3" />}
       </button>
       {open && (
-        <fieldset disabled={!canEdit} className="space-y-3 p-3 border-t border-border min-w-0 disabled:opacity-70">
+        <fieldset disabled={!canEdit} className="space-y-3 p-3 border-t border-ed-rule min-w-0 disabled:opacity-70">
           <Field label="Logo image"><ImageInput value={h.logoSrc} onChange={(v) => setHeader({ logoSrc: v })} /></Field>
           <div className="grid grid-cols-2 gap-2">
             <Field label="Logo alt"><Input value={h.logoAlt} onChange={(e) => setHeader({ logoAlt: e.target.value })} /></Field>

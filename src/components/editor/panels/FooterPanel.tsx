@@ -21,13 +21,13 @@ export function FooterPanel() {
   const canEdit = useCanEdit();
 
   return (
-    <div className="rounded-md bg-panel-2 border border-border overflow-hidden">
-      <button type="button" onClick={() => setOpen(o => !o)} className="w-full flex items-center justify-between px-3 py-2.5 text-sm font-medium text-fg">
+    <div className="rounded-md border border-ed-rule bg-ed-panel-2 shadow-[inset_0_1px_0_rgba(237,231,220,0.04)] overflow-hidden">
+      <button type="button" onClick={() => setOpen(o => !o)} className="flex w-full items-center justify-between px-3 py-2.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-ed-ink-2 transition-colors hover:text-ed-ink">
         <span>Footer</span>
-        {open ? <ChevronDown size={14} className="text-muted-2" /> : <ChevronRight size={14} className="text-muted-2" />}
+        {open ? <ChevronDown size={12} className="text-ed-ink-3" /> : <ChevronRight size={12} className="text-ed-ink-3" />}
       </button>
       {open && (
-        <fieldset disabled={!canEdit} className="space-y-3 p-3 border-t border-border min-w-0 disabled:opacity-70">
+        <fieldset disabled={!canEdit} className="space-y-3 p-3 border-t border-ed-rule min-w-0 disabled:opacity-70">
           <Field label="Footer banner"><ImageInput value={f.bannerSrc} onChange={(v) => setFooter({ bannerSrc: v })} /></Field>
           <Field label="Banner alt"><Input value={f.bannerAlt} onChange={(e) => setFooter({ bannerAlt: e.target.value })} /></Field>
           <Field label="Company name"><Input value={f.companyName} onChange={(e) => setFooter({ companyName: e.target.value })} /></Field>
@@ -39,7 +39,7 @@ export function FooterPanel() {
           <Field label="Email"><Input value={f.email} onChange={(e) => setFooter({ email: e.target.value })} /></Field>
 
           <div>
-            <div className="text-[10px] uppercase tracking-wide text-muted-2 mb-1">Websites</div>
+            <div className="mb-1 text-[10px] font-medium uppercase tracking-[0.18em] text-ed-ink-3">Websites</div>
             <div className="space-y-2">
               {f.websites.map((w, i) => (
                 <div key={i} className="flex gap-2">
@@ -47,7 +47,7 @@ export function FooterPanel() {
                     onChange={(e) => setFooter({ websites: f.websites.map((x, j) => j === i ? { ...x, label: e.target.value } : x) })} />
                   <Input className="flex-1" placeholder="https://..." value={w.url}
                     onChange={(e) => setFooter({ websites: f.websites.map((x, j) => j === i ? { ...x, url: e.target.value } : x) })} />
-                  <button onClick={() => setFooter({ websites: f.websites.filter((_, j) => j !== i) })} className="text-muted-2 hover:text-danger px-1"><X size={14} /></button>
+                  <button onClick={() => setFooter({ websites: f.websites.filter((_, j) => j !== i) })} className="text-ed-ink-3 hover:text-ed-danger px-1"><X size={14} /></button>
                 </div>
               ))}
               {canEdit && (
@@ -57,7 +57,7 @@ export function FooterPanel() {
           </div>
 
           <div>
-            <div className="text-[10px] uppercase tracking-wide text-muted-2 mb-1">Socials</div>
+            <div className="mb-1 text-[10px] font-medium uppercase tracking-[0.18em] text-ed-ink-3">Socials</div>
             <div className="space-y-2">
               {f.socials.map((s, i) => (
                 <div key={i} className="flex gap-2">
@@ -67,7 +67,7 @@ export function FooterPanel() {
                   </Select>
                   <Input className="flex-1" placeholder="https://..." value={s.url}
                     onChange={(e) => setFooter({ socials: f.socials.map((x, j) => j === i ? { ...x, url: e.target.value } : x) })} />
-                  <button onClick={() => setFooter({ socials: f.socials.filter((_, j) => j !== i) })} className="text-muted-2 hover:text-danger px-1"><X size={14} /></button>
+                  <button onClick={() => setFooter({ socials: f.socials.filter((_, j) => j !== i) })} className="text-ed-ink-3 hover:text-ed-danger px-1"><X size={14} /></button>
                 </div>
               ))}
               {canEdit && (
