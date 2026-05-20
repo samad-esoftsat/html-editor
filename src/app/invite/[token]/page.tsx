@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { BrandMark } from '@/components/ui/BrandMark';
@@ -40,9 +41,9 @@ export default async function InvitePage({ params }: Props) {
         <InviteAcceptPanel token={token} email={user.email ?? ''} />
         <p className="mt-10 text-sm text-ink-3">
           This invitation expires in 7 days. Powered by{' '}
-          <a href="/" className="text-ink underline decoration-brand decoration-[1.5px] underline-offset-4">
+          <Link href="/" className="text-ink underline decoration-brand decoration-[1.5px] underline-offset-4">
             GlobalTT Editor
-          </a>
+          </Link>
         </p>
       </div>
     </main>
