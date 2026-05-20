@@ -3,9 +3,10 @@
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
+import { Mail } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
-import { Field } from '@/components/ui/Field';
 import { Input } from '@/components/ui/Input';
+import { RolePill } from '@/components/ui/RolePill';
 import { Select } from '@/components/ui/Select';
 import { Spinner } from '@/components/ui/Spinner';
 import { fade, scaleFade } from '@/lib/motion';
@@ -166,130 +167,139 @@ export function MembersPanel({ slug, members, invites, canManage, currentUserId 
   }
 
   return (
-    <div className="flex flex-col gap-10">
-      <section className="flex flex-col gap-4">
+    <div className="flex flex-col gap-12">
+      <section>
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-fg">Members</h2>
+          <h2 className="text-[20px] font-semibold tracking-[-0.01em] text-ink">Members</h2>
           {canManage && (
-            <Button onClick={() => setInviteOpen(true)}>Invite member</Button>
+            <Button onClick={() => setInviteOpen(true)}>+ Invite member</Button>
           )}
         </div>
+        <p className="mt-2 text-sm text-ink-3">
+          People with access to this workspace. Pending invites appear at the bottom.
+        </p>
 
-        <div className="overflow-hidden rounded-lg border border-border-strong bg-panel">
-          <table className="w-full text-sm">
-            <thead className="bg-panel-2 text-xs uppercase tracking-wide text-muted-2">
-              <tr>
-                <th className="px-4 py-2.5 text-left font-medium">Email</th>
-                <th className="px-4 py-2.5 text-left font-medium">Role</th>
-                <th className="px-4 py-2.5 text-left font-medium">Joined</th>
-                <th className="px-4 py-2.5 text-right font-medium" />
-              </tr>
-            </thead>
-            <tbody>
-              {members.map((m) => {
-                const isSelf = m.user_id === currentUserId;
-                const busy = pendingMember === m.user_id;
-                return (
-                  <tr key={m.user_id} className="border-t border-border-strong">
-                    <td className="px-4 py-3 text-fg">
-                      {m.email}
-                      {isSelf && <span className="ml-2 text-xs text-muted-2">(you)</span>}
-                    </td>
-                    <td className="px-4 py-3">
+        <table className="mt-8 w-full">
+          <thead>
+            <tr className="border-b border-rule">
+              {['Email', 'Role', 'Joined', ''].map((h, i) => (
+                <th
+                  key={i}
+                  className={`pb-2 text-left text-[11px] font-medium uppercase tracking-[0.18em] text-ink-3 ${i === 3 ? 'text-right' : ''}`}
+                >
+                  {h}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {members.map((m) => {
+              const isSelf = m.user_id === currentUserId;
+              const busy = pendingMember === m.user_id;
+              return (
+                <tr key={m.user_id} className="border-b border-rule transition-colors hover:bg-bg-sunken">
+                  <td className="py-4">
+                    <div className="flex items-center gap-3">
+                      <span className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-brand-soft text-[12px] font-semibold text-brand-ink">
+                        {(m.email[0] ?? '?').toUpperCase()}
+                      </span>
+                      <span className="text-sm text-ink">{m.email}</span>
+                    </div>
+                  </td>
+                  <td className="py-4">
+                    <div className="flex items-center gap-2">
                       {canManage && !isSelf ? (
                         <Select
                           value={m.role}
                           disabled={busy}
                           onChange={(e) => changeRole(m.user_id, e.target.value as Role)}
-                          className="w-32"
+                          className="h-8 w-32 rounded-md border border-rule bg-bg-elevated text-sm text-ink"
                         >
                           <option value="owner">Owner</option>
                           <option value="editor">Editor</option>
                           <option value="viewer">Viewer</option>
                         </Select>
                       ) : (
-                        <span className="text-muted">{ROLE_LABEL[m.role]}</span>
+                        <RolePill>{ROLE_LABEL[m.role].toUpperCase()}</RolePill>
                       )}
-                    </td>
-                    <td className="px-4 py-3 text-muted">{formatDate(m.created_at)}</td>
-                    <td className="px-4 py-3 text-right">
-                      {(canManage || isSelf) && (
-                        <Button
-                          variant="ghost"
-                          onClick={() => removeMember(m)}
-                          disabled={busy}
-                          className="text-danger hover:text-danger hover:bg-danger/10"
-                        >
-                          {isSelf ? 'Leave' : 'Remove'}
-                        </Button>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+                      {isSelf && <RolePill variant="soft">YOU</RolePill>}
+                    </div>
+                  </td>
+                  <td className="py-4 font-mono text-[12px] text-ink-3" suppressHydrationWarning>
+                    {formatDate(m.created_at)}
+                  </td>
+                  <td className="py-4 text-right">
+                    {(canManage || isSelf) && (
+                      <button
+                        type="button"
+                        onClick={() => removeMember(m)}
+                        disabled={busy}
+                        className="rounded-md px-2 py-1 text-sm text-ink-3 transition-colors hover:bg-bg-sunken hover:text-danger disabled:opacity-40"
+                      >
+                        {isSelf ? 'Leave' : 'Remove'}
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
       </section>
 
-      <section className="flex flex-col gap-4">
-        <h2 className="text-lg font-semibold text-fg">Pending invites</h2>
-        <div className="rounded-md border border-border-strong bg-panel px-4 py-2 text-xs text-muted">
+      <section>
+        <h3 className="text-sm font-medium text-ink-2">
+          Pending invitations · <span className="font-mono text-ink-3">{invites.length}</span>
+        </h3>
+        <p className="mt-1 text-sm text-ink-3">
           Invite links don&apos;t send emails yet — share the link manually until email delivery lands.
-        </div>
+        </p>
         {invites.length === 0 ? (
-          <div className="rounded-lg border border-border-strong bg-panel p-5 text-sm text-muted">
-            No pending invites.
+          <div className="mt-4 rounded-md border border-dashed border-rule-strong bg-bg-cream p-6 text-sm text-ink-3">
+            No pending invitations.
           </div>
         ) : (
-          <div className="overflow-hidden rounded-lg border border-border-strong bg-panel">
-            <table className="w-full text-sm">
-              <thead className="bg-panel-2 text-xs uppercase tracking-wide text-muted-2">
-                <tr>
-                  <th className="px-4 py-2.5 text-left font-medium">Email</th>
-                  <th className="px-4 py-2.5 text-left font-medium">Role</th>
-                  <th className="px-4 py-2.5 text-left font-medium">Expires</th>
-                  <th className="px-4 py-2.5 text-right font-medium" />
-                </tr>
-              </thead>
-              <tbody>
-                {invites.map((inv) => {
-                  const busy = pendingInvite === inv.id;
-                  return (
-                    <tr key={inv.id} className="border-t border-border-strong">
-                      <td className="px-4 py-3 text-fg">{inv.email}</td>
-                      <td className="px-4 py-3 text-muted">{ROLE_LABEL[inv.role]}</td>
-                      <td className="px-4 py-3 text-muted">{formatDate(inv.expires_at)}</td>
-                      <td className="px-4 py-3 text-right">
-                        <div className="inline-flex items-center gap-1 justify-end">
-                          <Button
-                            variant="ghost"
-                            onClick={async () => {
-                              const ok = await copyToClipboard(inviteUrl(inv.token));
-                              if (ok) toast.success('Invite link copied');
-                              else toast.error('Failed to copy');
-                            }}
-                          >
-                            Copy link
-                          </Button>
-                          {canManage && (
-                            <Button
-                              variant="ghost"
-                              onClick={() => revokeInvite(inv)}
-                              disabled={busy}
-                              className="text-danger hover:text-danger hover:bg-danger/10"
-                            >
-                              Revoke
-                            </Button>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+          <ul className="mt-4 space-y-2">
+            {invites.map((inv) => {
+              const busy = pendingInvite === inv.id;
+              return (
+                <li key={inv.id} className="flex items-center gap-4 rounded-md border border-rule bg-bg-sunken px-4 py-3">
+                  <span className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-bg-elevated text-ink-3">
+                    <Mail size={14} />
+                  </span>
+                  <span className="flex-1 text-sm text-ink">{inv.email}</span>
+                  <RolePill>{ROLE_LABEL[inv.role].toUpperCase()}</RolePill>
+                  <span className="font-mono text-[12px] text-ink-3" suppressHydrationWarning>
+                    exp {formatDate(inv.expires_at)}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      const ok = await copyToClipboard(inviteUrl(inv.token));
+                      if (ok) toast.success('Invite link copied');
+                      else toast.error('Failed to copy');
+                    }}
+                    className="text-sm text-ink-2 underline-offset-4 hover:text-ink hover:underline"
+                  >
+                    Copy link
+                  </button>
+                  {canManage && (
+                    <button
+                      type="button"
+                      onClick={() => revokeInvite(inv)}
+                      disabled={busy}
+                      className="text-sm text-ink-3 underline-offset-4 hover:text-danger hover:underline disabled:opacity-40"
+                    >
+                      Revoke
+                    </button>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        )}
+        {invites.length > 0 && (
+          <p className="mt-3 text-sm text-ink-3">Invitations expire in 7 days.</p>
         )}
       </section>
 
@@ -362,7 +372,7 @@ function InviteDialog({ open, onClose, slug, onInvited }: InviteDialogProps) {
     <AnimatePresence>
       {open && (
         <motion.div
-          className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 p-6"
+          className="fixed inset-0 z-[200] flex items-center justify-center bg-ink/40 backdrop-blur-sm p-6"
           onClick={() => { if (!busy) onClose(); }}
           variants={fade}
           initial="hidden"
@@ -370,37 +380,46 @@ function InviteDialog({ open, onClose, slug, onInvited }: InviteDialogProps) {
           exit="exit"
         >
           <motion.div
-            className="w-[460px] max-w-full rounded-xl border border-border-strong bg-panel p-6"
+            className="w-[460px] max-w-full rounded-[14px] border border-rule bg-bg-elevated p-6 shadow-[0_30px_80px_-20px_rgba(20,20,20,0.25)]"
             onClick={(e) => e.stopPropagation()}
             variants={scaleFade}
             initial="hidden"
             animate="show"
             exit="exit"
           >
-            <div className="mb-1 font-semibold text-fg">Invite a member</div>
-            <div className="mb-5 text-sm text-muted">
+            <div className="mb-1 text-[20px] font-semibold tracking-[-0.01em] text-ink">Invite a member</div>
+            <div className="mb-5 text-sm text-ink-3">
               They&apos;ll get an invite link valid for 7 days.
             </div>
 
             <div className="flex flex-col gap-4">
-              <Field label="Email">
+              <div>
+                <label htmlFor="invite-email" className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.05em] text-ink-3">Email</label>
                 <Input
+                  id="invite-email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="teammate@company.com"
                   maxLength={320}
                   autoFocus
+                  className="h-10 w-full rounded-md border border-rule bg-bg-elevated px-3 text-sm text-ink placeholder:text-ink-4 focus:border-brand focus:ring-4 focus:ring-brand-soft"
                 />
-              </Field>
+              </div>
 
-              <Field label="Role">
-                <Select value={role} onChange={(e) => setRole(e.target.value as Role)}>
+              <div>
+                <label htmlFor="invite-role" className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.05em] text-ink-3">Role</label>
+                <Select
+                  id="invite-role"
+                  value={role}
+                  onChange={(e) => setRole(e.target.value as Role)}
+                  className="h-10 w-full rounded-md border border-rule bg-bg-elevated px-3 text-sm text-ink"
+                >
                   <option value="owner">Owner — full access including billing</option>
                   <option value="editor">Editor — create and edit projects</option>
                   <option value="viewer">Viewer — read-only access</option>
                 </Select>
-              </Field>
+              </div>
             </div>
 
             <div className="mt-6 flex justify-end gap-2">
@@ -437,7 +456,7 @@ function CreatedInviteDialog({ url, onClose }: CreatedInviteDialogProps) {
   return (
     <AnimatePresence>
       <motion.div
-        className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 p-6"
+        className="fixed inset-0 z-[200] flex items-center justify-center bg-ink/40 backdrop-blur-sm p-6"
         onClick={onClose}
         variants={fade}
         initial="hidden"
@@ -445,20 +464,27 @@ function CreatedInviteDialog({ url, onClose }: CreatedInviteDialogProps) {
         exit="exit"
       >
         <motion.div
-          className="w-[500px] max-w-full rounded-xl border border-border-strong bg-panel p-6"
+          className="w-[500px] max-w-full rounded-[14px] border border-rule bg-bg-elevated p-6 shadow-[0_30px_80px_-20px_rgba(20,20,20,0.25)]"
           onClick={(e) => e.stopPropagation()}
           variants={scaleFade}
           initial="hidden"
           animate="show"
           exit="exit"
         >
-          <div className="mb-1 font-semibold text-fg">Invite link ready</div>
-          <div className="mb-4 text-sm text-muted">
+          <div className="mb-1 text-[20px] font-semibold tracking-[-0.01em] text-ink">Invite link ready</div>
+          <div className="mb-5 text-sm text-ink-3">
             Email delivery isn&apos;t set up yet. Copy this link and send it to your teammate manually. It expires in 7 days.
           </div>
-          <Field label="Invite URL">
-            <Input readOnly value={url} onFocus={(e) => e.currentTarget.select()} />
-          </Field>
+          <div>
+            <label htmlFor="invite-url" className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.05em] text-ink-3">Invite URL</label>
+            <Input
+              id="invite-url"
+              readOnly
+              value={url}
+              onFocus={(e) => e.currentTarget.select()}
+              className="h-10 w-full rounded-md border border-rule bg-bg-elevated px-3 text-sm text-ink placeholder:text-ink-4 focus:border-brand focus:ring-4 focus:ring-brand-soft"
+            />
+          </div>
           <div className="mt-6 flex justify-end gap-2">
             <Button variant="ghost" onClick={onClose}>Done</Button>
             <Button onClick={copy}>{copied ? 'Copied!' : 'Copy link'}</Button>
