@@ -58,34 +58,24 @@ export function InviteAcceptPanel({ token, email }: Props) {
     }
   }
 
+  // `email` is intentionally unused inside the panel (the page renders it);
+  // kept in props for future "you are signed in as" UI without a breaking API change.
+  void email;
+
   return (
-    <div className="w-[420px] max-w-full rounded-xl border border-border-strong bg-panel-2 p-8">
-      <div className="mb-6 text-center">
-        <div className="text-2xl font-extrabold text-brand">GT</div>
-        <div className="text-sm text-muted">GlobalTT Email Editor</div>
-      </div>
-
-      <h1 className="mb-2 text-center text-lg font-semibold text-fg">
-        You&apos;ve been invited
-      </h1>
-      <p className="mb-6 text-center text-sm text-muted">
-        Accept this invite to join the workspace as{' '}
-        <span className="text-fg">{email}</span>.
-      </p>
-
-      <div className="flex flex-col gap-2">
-        <Button onClick={accept} disabled={busy || done} className="w-full">
-          {busy ? <Spinner /> : done ? 'Accepted' : 'Accept invite'}
-        </Button>
-        <Button
-          variant="ghost"
-          onClick={() => router.replace('/')}
-          disabled={busy}
-          className="w-full"
-        >
-          Cancel
-        </Button>
-      </div>
+    <div className="mt-8 flex w-full max-w-[460px] flex-col gap-3">
+      <Button onClick={accept} disabled={busy || done} className="h-11 w-full">
+        {busy ? <Spinner /> : done ? 'Accepted' : 'Accept invitation'}
+      </Button>
+      <Button
+        type="button"
+        variant="ghost"
+        onClick={() => router.replace('/')}
+        disabled={busy}
+        className="w-full"
+      >
+        Decline
+      </Button>
     </div>
   );
 }
