@@ -11,6 +11,7 @@ import { Field } from '@/components/ui/Field';
 import { ImageInput } from '../ImageInput';
 import { BulletList } from '../BulletList';
 import { confirmDialog } from '@/lib/utils/confirm';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface Props { section: ProductSection; index: number; total: number; }
 
@@ -30,17 +31,32 @@ export function ProductSectionPanel({ section, index, total }: Props) {
         </button>
         {canEdit && (
           <div className="flex items-center gap-1 text-muted-2">
-            <button disabled={index === 0} onClick={() => store.getState().moveSection(section.id, 'up')} className="disabled:opacity-30 hover:text-fg"><ArrowUp size={12} /></button>
-            <button disabled={index === total - 1} onClick={() => store.getState().moveSection(section.id, 'down')} className="disabled:opacity-30 hover:text-fg"><ArrowDown size={12} /></button>
-            <button onClick={async () => {
-              const ok = await confirmDialog({
-                title: 'Remove section?',
-                message: `"${section.title}" will be removed.`,
-                confirmLabel: 'Remove',
-                danger: true,
-              });
-              if (ok) store.getState().removeSection(section.id);
-            }} className="hover:text-danger"><Trash2 size={12} /></button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button aria-label="Move section up" disabled={index === 0} onClick={() => store.getState().moveSection(section.id, 'up')} className="disabled:opacity-30 hover:text-fg"><ArrowUp size={12} /></button>
+              </TooltipTrigger>
+              <TooltipContent>Move section up</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button aria-label="Move section down" disabled={index === total - 1} onClick={() => store.getState().moveSection(section.id, 'down')} className="disabled:opacity-30 hover:text-fg"><ArrowDown size={12} /></button>
+              </TooltipTrigger>
+              <TooltipContent>Move section down</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button aria-label="Remove section" onClick={async () => {
+                  const ok = await confirmDialog({
+                    title: 'Remove section?',
+                    message: `"${section.title}" will be removed.`,
+                    confirmLabel: 'Remove',
+                    danger: true,
+                  });
+                  if (ok) store.getState().removeSection(section.id);
+                }} className="hover:text-danger"><Trash2 size={12} /></button>
+              </TooltipTrigger>
+              <TooltipContent>Remove section</TooltipContent>
+            </Tooltip>
           </div>
         )}
       </div>

@@ -7,6 +7,7 @@ import { GripVertical } from 'lucide-react';
 import { EditableText } from './EditableText';
 import { useEditorMode } from '../EditorModeProvider';
 import { useDragSensors } from '../canvas/useDragSensors';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 export interface EditableBulletListProps {
   bullets: string[];
@@ -198,15 +199,20 @@ function SortableBulletItem({
       style={style}
       onKeyDown={(e) => onKeyDown(e, index)}
     >
-      <button
-        type="button"
-        aria-label="Drag to reorder bullet"
-        className="bullet-grip inline-flex items-center justify-center cursor-grab active:cursor-grabbing text-muted hover:text-brand p-1 min-w-[28px] min-h-[28px] align-middle"
-        {...attributes}
-        {...(listeners as Record<string, unknown> | undefined ?? {})}
-      >
-        <GripVertical size={14} />
-      </button>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            type="button"
+            aria-label="Drag to reorder bullet"
+            className="bullet-grip inline-flex items-center justify-center cursor-grab active:cursor-grabbing text-muted hover:text-brand p-1 min-w-[28px] min-h-[28px] align-middle"
+            {...attributes}
+            {...(listeners as Record<string, unknown> | undefined ?? {})}
+          >
+            <GripVertical size={14} />
+          </button>
+        </TooltipTrigger>
+        <TooltipContent side="left">Drag to reorder bullet</TooltipContent>
+      </Tooltip>
       <EditableText
         value={bullet}
         onChange={(v) => onChangeText(index, v)}

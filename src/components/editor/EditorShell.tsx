@@ -9,6 +9,7 @@ import { useRole } from '@/lib/editor/RoleProvider';
 import { AssetPickerProvider } from './AssetPickerProvider';
 import { EditorModeProvider } from './EditorModeProvider';
 import { SectionSelectionProvider } from './SectionSelectionProvider';
+import { TooltipProvider } from '@/components/ui/tooltip';
 import { Topbar } from './Topbar';
 import { LeftPanel } from './LeftPanel';
 import { Preview } from './Preview';
@@ -49,25 +50,27 @@ function Inner({
   useUndoRedoShortcuts(canEdit);
   const [leftPanelOpen, setLeftPanelOpen] = useState(true);
   return (
-    <EditorModeProvider>
-      <SelectionScope>
-        <AssetPickerProvider workspaceSlug={workspaceSlug}>
-          <div className="flex flex-col h-dvh">
-            <Topbar
-              slug={workspaceSlug}
-              currentWorkspace={currentWorkspace}
-              workspaces={workspaces}
-              leftPanelOpen={leftPanelOpen}
-              setLeftPanelOpen={setLeftPanelOpen}
-            />
-            <div className="flex flex-1 overflow-hidden">
-              {leftPanelOpen && <LeftPanel />}
-              <div className="flex-1 bg-[#080808]"><Preview /></div>
+    <TooltipProvider>
+      <EditorModeProvider>
+        <SelectionScope>
+          <AssetPickerProvider workspaceSlug={workspaceSlug}>
+            <div className="flex flex-col h-dvh">
+              <Topbar
+                slug={workspaceSlug}
+                currentWorkspace={currentWorkspace}
+                workspaces={workspaces}
+                leftPanelOpen={leftPanelOpen}
+                setLeftPanelOpen={setLeftPanelOpen}
+              />
+              <div className="flex flex-1 overflow-hidden">
+                {leftPanelOpen && <LeftPanel />}
+                <div className="flex-1 bg-[#080808]"><Preview /></div>
+              </div>
             </div>
-          </div>
-        </AssetPickerProvider>
-      </SelectionScope>
-    </EditorModeProvider>
+          </AssetPickerProvider>
+        </SelectionScope>
+      </EditorModeProvider>
+    </TooltipProvider>
   );
 }
 

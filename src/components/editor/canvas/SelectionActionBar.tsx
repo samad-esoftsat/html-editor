@@ -4,6 +4,7 @@ import { useEditorStore } from '@/lib/editor/StoreProvider';
 import { confirmDialog } from '@/lib/utils/confirm';
 import { useEditorMode } from '../EditorModeProvider';
 import { useSectionSelection } from '../SectionSelectionProvider';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 export function SelectionActionBar() {
   const { mode } = useEditorMode();
@@ -85,14 +86,19 @@ export function SelectionActionBar() {
         <ArrowDown size={14} /> Down
       </button>
       <span className="text-border-strong">|</span>
-      <button
-        type="button"
-        aria-label="Clear selection"
-        onClick={clear}
-        className="rounded p-1.5 text-muted hover:text-fg hover:bg-panel"
-      >
-        <X size={14} />
-      </button>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            type="button"
+            aria-label="Clear selection"
+            onClick={clear}
+            className="rounded p-1.5 text-muted hover:text-fg hover:bg-panel"
+          >
+            <X size={14} />
+          </button>
+        </TooltipTrigger>
+        <TooltipContent>Clear selection (Esc)</TooltipContent>
+      </Tooltip>
     </div>
   );
 }

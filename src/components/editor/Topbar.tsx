@@ -10,6 +10,7 @@ import { WorkspaceSwitcher, type WorkspaceOption } from '@/components/workspace/
 import { DownloadMenu } from './DownloadMenu';
 import { TranslateMenu } from './TranslateMenu';
 import { useEditorMode } from './EditorModeProvider';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface TopbarProps {
   slug: string;
@@ -119,46 +120,62 @@ export function Topbar({ slug, currentWorkspace, workspaces, leftPanelOpen, setL
       {lastError && <span className="text-danger text-xs">{lastError}</span>}
       <div className="ml-auto flex items-center gap-2">
         {canEdit && (
-          <button
-            type="button"
-            onClick={() => setLeftPanelOpen(!leftPanelOpen)}
-            title={leftPanelOpen ? 'Hide sidebar (Ctrl/Cmd+\\)' : 'Show sidebar (Ctrl/Cmd+\\)'}
-            aria-label={leftPanelOpen ? 'Hide sidebar' : 'Show sidebar'}
-            className="inline-flex items-center gap-1.5 rounded-md border border-border-strong px-2.5 py-1.5 text-xs text-fg hover:bg-panel hover:border-brand/40 transition-colors"
-          >
-            {leftPanelOpen ? <PanelLeftClose size={14} /> : <PanelLeftOpen size={14} />}
-          </button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                onClick={() => setLeftPanelOpen(!leftPanelOpen)}
+                aria-label={leftPanelOpen ? 'Hide sidebar' : 'Show sidebar'}
+                className="inline-flex items-center gap-1.5 rounded-md border border-border-strong px-2.5 py-1.5 text-xs text-fg hover:bg-panel hover:border-brand/40 transition-colors"
+              >
+                {leftPanelOpen ? <PanelLeftClose size={14} /> : <PanelLeftOpen size={14} />}
+              </button>
+            </TooltipTrigger>
+            <TooltipContent>{leftPanelOpen ? 'Hide sidebar' : 'Show sidebar'} (Ctrl/Cmd+\)</TooltipContent>
+          </Tooltip>
         )}
         {canEdit && <ModeToggle />}
         {canEdit && (
           <>
-            <button
-              type="button"
-              onClick={onUndo}
-              disabled={!canUndo}
-              title="Undo (Ctrl/Cmd+Z)"
-              className="inline-flex items-center gap-1.5 rounded-md border border-border-strong px-2.5 py-1.5 text-xs text-fg hover:bg-panel hover:border-brand/40 transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:border-border-strong"
-            >
-              <Undo2 size={14} /> Undo
-            </button>
-            <button
-              type="button"
-              onClick={onRedo}
-              disabled={!canRedo}
-              title="Redo (Ctrl/Cmd+Shift+Z)"
-              className="inline-flex items-center gap-1.5 rounded-md border border-border-strong px-2.5 py-1.5 text-xs text-fg hover:bg-panel hover:border-brand/40 transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:border-border-strong"
-            >
-              <Redo2 size={14} /> Redo
-            </button>
-            <button
-              type="button"
-              onClick={onReset}
-              disabled={!isDirty}
-              title="Discard unsaved changes and revert to last saved version"
-              className="inline-flex items-center gap-1.5 rounded-md border border-border-strong px-2.5 py-1.5 text-xs text-fg hover:bg-panel hover:border-brand/40 transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:border-border-strong"
-            >
-              Reset to last saved
-            </button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  onClick={onUndo}
+                  disabled={!canUndo}
+                  className="inline-flex items-center gap-1.5 rounded-md border border-border-strong px-2.5 py-1.5 text-xs text-fg hover:bg-panel hover:border-brand/40 transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:border-border-strong"
+                >
+                  <Undo2 size={14} /> Undo
+                </button>
+              </TooltipTrigger>
+              <TooltipContent>Undo (Ctrl/Cmd+Z)</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  onClick={onRedo}
+                  disabled={!canRedo}
+                  className="inline-flex items-center gap-1.5 rounded-md border border-border-strong px-2.5 py-1.5 text-xs text-fg hover:bg-panel hover:border-brand/40 transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:border-border-strong"
+                >
+                  <Redo2 size={14} /> Redo
+                </button>
+              </TooltipTrigger>
+              <TooltipContent>Redo (Ctrl/Cmd+Shift+Z)</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  onClick={onReset}
+                  disabled={!isDirty}
+                  className="inline-flex items-center gap-1.5 rounded-md border border-border-strong px-2.5 py-1.5 text-xs text-fg hover:bg-panel hover:border-brand/40 transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:border-border-strong"
+                >
+                  Reset to last saved
+                </button>
+              </TooltipTrigger>
+              <TooltipContent>Discard unsaved changes and revert to last saved version</TooltipContent>
+            </Tooltip>
             <TranslateMenu projectId={projectId} projectName={name} slug={slug} />
           </>
         )}

@@ -7,6 +7,7 @@ import {
   useSectionSelection,
 } from '@/components/editor/SectionSelectionProvider';
 import { EditorModeProvider, useEditorMode } from '@/components/editor/EditorModeProvider';
+import { TooltipProvider } from '@/components/ui/tooltip';
 
 const mockDuplicate = vi.fn();
 const mockRemove = vi.fn();
@@ -44,12 +45,14 @@ function ForcePreview() {
 
 function Wrap({ ids, sectionIds = ['a', 'b', 'c'] }: { ids: string[]; sectionIds?: string[] }) {
   return (
-    <EditorModeProvider>
-      <SectionSelectionProvider sectionIds={sectionIds}>
-        <Seed ids={ids} />
-        <SelectionActionBar />
-      </SectionSelectionProvider>
-    </EditorModeProvider>
+    <TooltipProvider>
+      <EditorModeProvider>
+        <SectionSelectionProvider sectionIds={sectionIds}>
+          <Seed ids={ids} />
+          <SelectionActionBar />
+        </SectionSelectionProvider>
+      </EditorModeProvider>
+    </TooltipProvider>
   );
 }
 
@@ -113,13 +116,15 @@ describe('SelectionActionBar', () => {
 
   it('renders nothing in preview mode even with selection', () => {
     const { container } = render(
-      <EditorModeProvider>
-        <ForcePreview />
-        <SectionSelectionProvider sectionIds={['a']}>
-          <Seed ids={['a']} />
-          <SelectionActionBar />
-        </SectionSelectionProvider>
-      </EditorModeProvider>
+      <TooltipProvider>
+        <EditorModeProvider>
+          <ForcePreview />
+          <SectionSelectionProvider sectionIds={['a']}>
+            <Seed ids={['a']} />
+            <SelectionActionBar />
+          </SectionSelectionProvider>
+        </EditorModeProvider>
+      </TooltipProvider>
     );
     expect(container.querySelector('[data-selection-bar]')).toBeNull();
   });
