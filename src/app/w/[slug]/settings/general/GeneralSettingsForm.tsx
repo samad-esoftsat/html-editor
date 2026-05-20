@@ -3,7 +3,6 @@
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
-import { Field } from '@/components/ui/Field';
 import { Input } from '@/components/ui/Input';
 import { confirmDialog } from '@/lib/utils/confirm';
 import { toast } from '@/lib/utils/toast';
@@ -107,30 +106,45 @@ export function GeneralSettingsForm({ initialSlug, initialName }: Props) {
   }
 
   return (
-    <div className="flex flex-col gap-10">
-      <form onSubmit={save} className="flex flex-col gap-5">
-        <h2 className="text-lg font-semibold text-fg">General</h2>
+    <div className="flex flex-col gap-12">
+      <form onSubmit={save} className="flex flex-col gap-6">
+        <h2 className="text-[20px] font-semibold tracking-[-0.01em] text-ink">General</h2>
 
-        <Field label="Workspace name">
+        <div>
+          <label htmlFor="ws-name" className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.05em] text-ink-3">
+            Workspace name
+          </label>
           <Input
+            id="ws-name"
             value={name}
             onChange={(e) => setName(e.target.value)}
             maxLength={200}
             placeholder="Acme Inc."
+            className="h-10 w-full rounded-md border border-rule bg-bg-elevated px-3 text-sm text-ink placeholder:text-ink-4 focus:border-brand focus:ring-4 focus:ring-brand-soft"
           />
-        </Field>
+        </div>
 
-        <Field label="Slug">
-          <Input
-            value={slug}
-            onChange={(e) => setSlug(e.target.value)}
-            maxLength={40}
-            placeholder="acme"
-          />
-          <span className="mt-1 block text-xs text-muted-2">
-            Used in the URL: /w/<span className="text-muted">{slug || 'slug'}</span>
-          </span>
-        </Field>
+        <div>
+          <label htmlFor="ws-slug" className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.05em] text-ink-3">
+            Slug
+          </label>
+          <div className="flex items-stretch overflow-hidden rounded-md border border-rule bg-bg-elevated focus-within:border-brand focus-within:ring-4 focus-within:ring-brand-soft">
+            <span className="inline-flex items-center border-r border-rule bg-bg-sunken px-3 font-mono text-[12px] text-ink-3">
+              /w/
+            </span>
+            <Input
+              id="ws-slug"
+              value={slug}
+              onChange={(e) => setSlug(e.target.value)}
+              maxLength={40}
+              placeholder="acme"
+              className="h-10 flex-1 border-0 bg-transparent px-3 text-sm text-ink focus:outline-none focus:ring-0"
+            />
+          </div>
+          <p className="mt-1.5 text-[12px] text-ink-3">
+            Lowercase letters, digits, and hyphens. 3–40 characters.
+          </p>
+        </div>
 
         <div className="flex justify-end">
           <Button type="submit" disabled={!dirty || saving}>
@@ -139,15 +153,17 @@ export function GeneralSettingsForm({ initialSlug, initialName }: Props) {
         </div>
       </form>
 
-      <div className="rounded-lg border border-danger/40 bg-panel p-5">
-        <h2 className="mb-1 text-sm font-semibold text-danger">Danger zone</h2>
-        <p className="mb-4 text-sm text-muted">
-          Deleting this workspace removes all projects, brand kits, members, and pending invites.
+      <section className="rounded-[14px] border border-danger/40 bg-bg-elevated p-6">
+        <h2 className="text-sm font-semibold text-danger">Danger zone</h2>
+        <p className="mt-1 text-sm text-ink-2">
+          Deleting this workspace removes all projects, brand kits, members, and pending invites. This cannot be undone.
         </p>
-        <Button variant="danger" onClick={onDelete} disabled={deleting}>
-          {deleting ? 'Deleting…' : 'Delete workspace'}
-        </Button>
-      </div>
+        <div className="mt-4">
+          <Button variant="danger" onClick={onDelete} disabled={deleting}>
+            {deleting ? 'Deleting…' : 'Delete workspace'}
+          </Button>
+        </div>
+      </section>
     </div>
   );
 }
