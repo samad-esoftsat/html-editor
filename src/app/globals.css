@@ -160,9 +160,25 @@ body.editor-shell,
   pointer-events: auto;
 }
 
-.editable-image-alt { opacity: 0; transition: opacity 100ms; }
+.editable-image-wrap {
+  position: relative;
+  display: inline-block;
+}
+.editable-image-alt {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -22px;
+  text-align: left;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 100ms;
+}
 .editable-image-wrap:hover .editable-image-alt,
-.editable-image-wrap:focus-within .editable-image-alt { opacity: 1; }
+.editable-image-wrap:focus-within .editable-image-alt {
+  opacity: 1;
+  pointer-events: auto;
+}
 
 .section-insert-bar {
   position: relative;

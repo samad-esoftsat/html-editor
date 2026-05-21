@@ -54,9 +54,9 @@ export function EditableImage({
     );
     if (!onAltChange) return img;
     return (
-      <span className="editable-image-wrap inline-flex flex-col items-stretch">
+      <span className="editable-image-wrap">
         {img}
-        <span className="editable-image-alt block text-[12px] text-ed-ink-3 mt-1 px-1">
+        <span className="editable-image-alt text-[12px] text-ed-ink-3 px-1">
           Alt:{' '}
           <EditableText
             value={alt}
