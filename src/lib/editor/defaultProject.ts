@@ -1,10 +1,10 @@
-import { v4 as uuid } from 'uuid';
-import type { ProductSection, ProjectData } from './types';
+import type { ProjectData, ProductSectionBlock } from './types';
 import { SCHEMA_VERSION } from './types';
+import { makeHeaderBlock, makeFooterBlock, makeProductSectionBlock } from './blocks';
 
 const CONTACT_URL = 'https://www.globaltt.com/en/quickContact-GlobalTT.html';
 
-const SECTION_BLUEPRINTS: Array<Omit<ProductSection, 'id'>> = [
+const SECTION_BLUEPRINTS: Array<Omit<ProductSectionBlock, 'type' | 'id'>> = [
   {
     title: 'Starlink Solutions',
     bullets: [
@@ -128,34 +128,36 @@ export function createDefaultProject(): ProjectData {
       footerTextColor: '#fafafa',
       contactUrl: CONTACT_URL,
     },
-    header: {
-      logoSrc: 'https://36af7d465b.imgdist.com/pub/bfra/wpnsx7uw/j2q/4ah/ptb/logo%20%282%29.png',
-      logoAlt: 'GlobalTT Logo',
-      logoWidth: 390,
-      title: 'Critical communication - Satellite - RadioLink - TwoWay Radio overIP',
-      titleFontSize: 18,
-      bannerSrc: 'https://ipseos.eu/wp-content/uploads/2024/05/Untitled-11x-1-e1718357911485.png',
-      bannerAlt: 'Coverage Map',
-      sectionHeading: 'Satellite High Throughput Connectivity',
-      sectionHeadingFontSize: 25,
-    },
-    sections: SECTION_BLUEPRINTS.map((section) => ({ ...section, id: uuid() })),
-    footer: {
-      bannerSrc: 'https://ipseos.eu/wp-content/uploads/2024/05/TELEPORT-8-Copy.png',
-      bannerAlt: 'Teleport',
-      companyName: 'GlobalTT Satellite Teleport',
-      address: 'Scientifique Parc Einstein,\nLouvain-la-Neuve, Belgium',
-      phone: '+32 (0)10 39 50 70',
-      phoneTel: '+3210395070',
-      email: 'info@globaltt.com',
-      websites: [
-        { label: 'www.globaltt.com', url: 'https://www.globaltt.com' },
-        { label: 'www.Ipseos.eu', url: 'https://www.ipseos.eu' },
-      ],
-      socials: [
-        { platform: 'facebook', url: 'https://www.facebook.com/pages/GlobalTT-Broadband-High-Speed-Internet-Satellite/182799832710' },
-        { platform: 'linkedin', url: 'https://www.linkedin.com/company/globaltt?trk=top_nav_home' },
-      ],
-    },
+    blocks: [
+      makeHeaderBlock({
+        logoSrc: 'https://36af7d465b.imgdist.com/pub/bfra/wpnsx7uw/j2q/4ah/ptb/logo%20%282%29.png',
+        logoAlt: 'GlobalTT Logo',
+        logoWidth: 390,
+        title: 'Critical communication - Satellite - RadioLink - TwoWay Radio overIP',
+        titleFontSize: 18,
+        bannerSrc: 'https://ipseos.eu/wp-content/uploads/2024/05/Untitled-11x-1-e1718357911485.png',
+        bannerAlt: 'Coverage Map',
+        sectionHeading: 'Satellite High Throughput Connectivity',
+        sectionHeadingFontSize: 25,
+      }),
+      ...SECTION_BLUEPRINTS.map((s) => makeProductSectionBlock(s)),
+      makeFooterBlock({
+        bannerSrc: 'https://ipseos.eu/wp-content/uploads/2024/05/TELEPORT-8-Copy.png',
+        bannerAlt: 'Teleport',
+        companyName: 'GlobalTT Satellite Teleport',
+        address: 'Scientifique Parc Einstein,\nLouvain-la-Neuve, Belgium',
+        phone: '+32 (0)10 39 50 70',
+        phoneTel: '+3210395070',
+        email: 'info@globaltt.com',
+        websites: [
+          { label: 'www.globaltt.com', url: 'https://www.globaltt.com' },
+          { label: 'www.Ipseos.eu', url: 'https://www.ipseos.eu' },
+        ],
+        socials: [
+          { platform: 'facebook', url: 'https://www.facebook.com/pages/GlobalTT-Broadband-High-Speed-Internet-Satellite/182799832710' },
+          { platform: 'linkedin', url: 'https://www.linkedin.com/company/globaltt?trk=top_nav_home' },
+        ],
+      }),
+    ],
   };
 }

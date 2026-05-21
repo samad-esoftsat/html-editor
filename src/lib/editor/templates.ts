@@ -1,6 +1,6 @@
-import { v4 as uuid } from 'uuid';
-import type { ProductSection, ProjectData } from './types';
+import type { ProjectData } from './types';
 import { SCHEMA_VERSION } from './types';
+import { makeHeaderBlock, makeFooterBlock, makeProductSectionBlock } from './blocks';
 import { createDefaultProject } from './defaultProject';
 
 export interface TemplateDefinition {
@@ -11,17 +11,6 @@ export interface TemplateDefinition {
 }
 
 const BLANK_SECTION_COUNT = 8;
-
-function blankSection(): ProductSection {
-  return {
-    id: uuid(),
-    title: '',
-    bullets: ['', '', '', '', ''],
-    imageSrc: '',
-    imageAlt: '',
-    ctaText: 'Contact Us',
-  };
-}
 
 export function createBlankProject(): ProjectData {
   return {
@@ -39,29 +28,17 @@ export function createBlankProject(): ProjectData {
       footerTextColor: '#fafafa',
       contactUrl: '',
     },
-    header: {
-      logoSrc: '',
-      logoAlt: '',
-      logoWidth: 390,
-      title: '',
-      titleFontSize: 18,
-      bannerSrc: '',
-      bannerAlt: '',
-      sectionHeading: '',
-      sectionHeadingFontSize: 25,
-    },
-    sections: Array.from({ length: BLANK_SECTION_COUNT }, blankSection),
-    footer: {
-      bannerSrc: '',
-      bannerAlt: '',
-      companyName: '',
-      address: '',
-      phone: '',
-      phoneTel: '',
-      email: '',
-      websites: [],
-      socials: [],
-    },
+    blocks: [
+      makeHeaderBlock(),
+      ...Array.from({ length: BLANK_SECTION_COUNT }, () =>
+        makeProductSectionBlock({
+          title: '',
+          bullets: ['', '', '', '', ''],
+          ctaText: 'Contact Us',
+        }),
+      ),
+      makeFooterBlock(),
+    ],
   };
 }
 
