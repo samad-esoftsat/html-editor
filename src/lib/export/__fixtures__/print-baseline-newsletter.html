@@ -7,10 +7,13 @@
 <style>
 @page {
   size: A4 portrait;
-  margin: 32mm 12mm 32mm 12mm;
+  margin: 32mm 12mm 48mm 12mm;
   @top-center    { content: element(header-region); }
   @bottom-center { content: element(footer-region); }
 }
+@page :first { margin-top: 32mm; }
+.print-footer { font-size: 11px; line-height: 1.35; }
+.print-footer img { max-height: 40px; }
 
 * { box-sizing: border-box; }
 body { margin: 0; padding: 0; }
@@ -31,9 +34,9 @@ body { font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 16p
 </style>
 </head>
 <body>
-<div class="running-header"><div class="print-header" style="text-align: center; max-width: 710px; margin: 0 auto;"><a href="#" target="_blank"><img src="#" alt="" width="390" style="display: block; max-width: 100%; height: auto; margin: 0 auto;"></a><div style="text-align: center; padding: 6px 0; font-size: 18px; font-weight: bold;">Monthly update</div><img src="#" alt="" style="display: block; max-width: 100%; height: auto; margin: 4px auto;"><div style="text-align: center; padding: 6px 0; font-size: 25px; font-weight: bold;">What we shipped this month</div></div></div>
+<div class="running-header"><div class="print-header" style="text-align: center; max-width: 710px; margin: 0 auto;"><div style="text-align: center; padding: 6px 0; font-size: 18px; font-weight: bold;">Monthly update</div><div style="text-align: center; padding: 6px 0; font-size: 25px; font-weight: bold;">What we shipped this month</div></div></div>
 <div class="running-footer"><div class="print-footer" style="text-align: center; max-width: 710px; margin: 0 auto; background-color: #000000; color: #fafafa; padding: 8px 12px;">
-<img src="#" alt="" style="display: block; max-width: 100%; height: auto; margin: 0 auto 6px;">
+
 <div style="font-weight: bold;"></div>
 <div style="margin: 0; color: #fafafa;"></div>
 

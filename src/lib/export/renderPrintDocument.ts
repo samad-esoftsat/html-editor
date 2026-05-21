@@ -13,10 +13,13 @@ const SOCIAL_ICON: Record<SocialPlatform, { url: string; alt: string }> = {
 const PRINT_CSS = `
 @page {
   size: A4 portrait;
-  margin: 32mm 12mm 32mm 12mm;
+  margin: 32mm 12mm 48mm 12mm;
   @top-center    { content: element(header-region); }
   @bottom-center { content: element(footer-region); }
 }
+@page :first { margin-top: 32mm; }
+.print-footer { font-size: 11px; line-height: 1.35; }
+.print-footer img { max-height: 40px; }
 
 * { box-sizing: border-box; }
 body { margin: 0; padding: 0; }
@@ -49,19 +52,17 @@ body { font-family: ${family}; font-size: ${data.global.baseFontSize}px; color: 
 }
 
 function renderHeaderForPrint(header: HeaderBlock, data: ProjectData): string {
-  const logoSrc = urlSafe(header.logoSrc);
-  const bannerSrc = urlSafe(header.bannerSrc);
   const contactUrl = urlSafe(data.global.contactUrl);
   const logoWidth = Math.min(header.logoWidth, 600);
 
-  const logo = logoSrc
-    ? `<a href="${attrEscape(contactUrl)}" target="_blank"><img src="${attrEscape(logoSrc)}" alt="${attrEscape(header.logoAlt)}" width="${logoWidth}" style="display: block; max-width: 100%; height: auto; margin: 0 auto;"></a>`
+  const logo = header.logoSrc
+    ? `<a href="${attrEscape(contactUrl)}" target="_blank"><img src="${attrEscape(urlSafe(header.logoSrc))}" alt="${attrEscape(header.logoAlt)}" width="${logoWidth}" style="display: block; max-width: 100%; height: auto; margin: 0 auto;"></a>`
     : '';
   const title = header.title
     ? `<div style="text-align: center; padding: 6px 0; font-size: ${header.titleFontSize}px; font-weight: bold;">${htmlEscape(header.title)}</div>`
     : '';
-  const banner = bannerSrc
-    ? `<img src="${attrEscape(bannerSrc)}" alt="${attrEscape(header.bannerAlt)}" style="display: block; max-width: 100%; height: auto; margin: 4px auto;">`
+  const banner = header.bannerSrc
+    ? `<img src="${attrEscape(urlSafe(header.bannerSrc))}" alt="${attrEscape(header.bannerAlt)}" style="display: block; max-width: 100%; height: auto; margin: 4px auto;">`
     : '';
   const sectionHeading = header.sectionHeading
     ? `<div style="text-align: center; padding: 6px 0; font-size: ${header.sectionHeadingFontSize}px; font-weight: bold;">${htmlEscape(header.sectionHeading)}</div>`
@@ -73,10 +74,9 @@ function renderHeaderForPrint(header: HeaderBlock, data: ProjectData): string {
 function renderFooterForPrint(footer: FooterBlock, data: ProjectData): string {
   const bg = footer.backgroundColor ?? data.global.footerBackgroundColor;
   const fg = footer.textColor ?? data.global.footerTextColor;
-  const bannerSrc = urlSafe(footer.bannerSrc);
 
-  const banner = bannerSrc
-    ? `<img src="${attrEscape(bannerSrc)}" alt="${attrEscape(footer.bannerAlt)}" style="display: block; max-width: 100%; height: auto; margin: 0 auto 6px;">`
+  const banner = footer.bannerSrc
+    ? `<img src="${attrEscape(urlSafe(footer.bannerSrc))}" alt="${attrEscape(footer.bannerAlt)}" style="display: block; max-width: 100%; height: auto; margin: 0 auto 6px;">`
     : '';
   const address = (footer.address || '')
     .split('\n')
@@ -118,14 +118,17 @@ function renderProductSectionForPrint(section: ProductSectionBlock, idx: number,
   const buttonColor = section.buttonColor ?? data.global.buttonColor;
   const bg = section.backgroundColor ?? '';
   const ctaUrl = urlSafe(section.ctaUrl ?? data.global.contactUrl);
-  const imageSrc = urlSafe(section.imageSrc);
 
   const bulletsHtml = section.bullets
     .map((b) => `<li style="margin: 4px 0; font-size: ${bulletSize}px; color: ${attrEscape(textColor)};">${htmlEscape(b)}</li>`)
     .join('');
 
-  const imageCol = `<div style="flex: 0 0 50%; padding: 12px;"><img src="${attrEscape(imageSrc)}" alt="${attrEscape(section.imageAlt)}" style="display: block; max-width: 100%; height: auto;"></div>`;
-  const textCol = `<div style="flex: 0 0 50%; padding: 12px;">
+  const hasImage = !!section.imageSrc;
+  const imageCol = hasImage
+    ? `<div style="flex: 0 0 50%; padding: 12px;"><img src="${attrEscape(urlSafe(section.imageSrc))}" alt="${attrEscape(section.imageAlt)}" style="display: block; max-width: 100%; height: auto;"></div>`
+    : '';
+  const textFlex = hasImage ? 'flex: 0 0 50%;' : 'flex: 1 1 100%;';
+  const textCol = `<div style="${textFlex} padding: 12px;">
 <h2 style="margin: 0 0 6px 0; font-size: ${titleSize}px; color: ${attrEscape(textColor)};">${htmlEscape(section.title)}</h2>
 <ul style="margin: 0 0 10px 0; padding-left: 20px;">${bulletsHtml}</ul>
 <a href="${attrEscape(ctaUrl)}" target="_blank" style="display: inline-block; padding: 8px 16px; background-color: ${attrEscape(buttonColor)}; color: ${attrEscape(data.global.buttonTextColor)}; text-decoration: none; border-radius: 4px; font-weight: bold;">${htmlEscape(section.ctaText)}</a>
@@ -183,8 +186,9 @@ ${titleHtml}${bodyHtml}${ctaHtml}
 </section>`;
   }
   const flexDir = block.imagePosition === 'left' ? 'row' : 'row-reverse';
+  const imageColumn = imgHtml ? `<div style="flex: 0 0 40%;">${imgHtml}</div>` : '';
   return `<section class="article article-${block.imagePosition}" style="background-color: ${attrEscape(bg)}; display: flex; flex-direction: ${flexDir}; gap: 12px; padding: 16px;">
-<div style="flex: 0 0 40%;">${imgHtml}</div>
+${imageColumn}
 <div style="flex: 1;">${titleHtml}${bodyHtml}${ctaHtml}</div>
 </section>`;
 }
