@@ -58,11 +58,11 @@ export function PreviewBody() {
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
         <SortableContext items={middleBlocks.map((b) => b.id)} strategy={verticalListSortingStrategy}>
           {data.blocks.map((block) => {
+            const idx = middleBlocks.findIndex((b) => b.id === block.id);
             switch (block.type) {
               case 'header':
                 return <HeaderBlockView key={block.id} block={block} global={data.global} />;
-              case 'product-section': {
-                const idx = middleBlocks.findIndex((b) => b.id === block.id);
+              case 'product-section':
                 return (
                   <ProductSectionView
                     key={block.id}
@@ -72,9 +72,7 @@ export function PreviewBody() {
                     total={middleBlocks.length}
                   />
                 );
-              }
-              case 'hero': {
-                const idx = middleBlocks.findIndex((b) => b.id === block.id);
+              case 'hero':
                 return (
                   <HeroBlockView
                     key={block.id}
@@ -84,9 +82,7 @@ export function PreviewBody() {
                     total={middleBlocks.length}
                   />
                 );
-              }
-              case 'article': {
-                const idx = middleBlocks.findIndex((b) => b.id === block.id);
+              case 'article':
                 return (
                   <ArticleView
                     key={block.id}
@@ -96,9 +92,7 @@ export function PreviewBody() {
                     total={middleBlocks.length}
                   />
                 );
-              }
-              case 'cta-banner': {
-                const idx = middleBlocks.findIndex((b) => b.id === block.id);
+              case 'cta-banner':
                 return (
                   <CTABannerView
                     key={block.id}
@@ -108,7 +102,6 @@ export function PreviewBody() {
                     total={middleBlocks.length}
                   />
                 );
-              }
               case 'footer':
                 return <FooterBlockView key={block.id} block={block} global={data.global} />;
             }
