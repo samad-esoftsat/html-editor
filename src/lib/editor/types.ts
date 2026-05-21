@@ -119,7 +119,7 @@ export type Block =
   | CTABannerBlock
   | FooterBlock;
 
-// Legacy aliases — preserved to minimize Phase 1 call-site churn. Phase 2 deletes these.
+// Legacy aliases — preserved for callers from Phase 1. Safe to retain; remove in a later cleanup pass.
 export type Header = HeaderBlock;
 export type ProductSection = ProductSectionBlock;
 export type Footer = FooterBlock;
