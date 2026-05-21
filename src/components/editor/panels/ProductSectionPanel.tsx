@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { ChevronDown, ChevronRight, ArrowUp, ArrowDown, Trash2 } from 'lucide-react';
 import { useEditorStore } from '@/lib/editor/StoreProvider';
 import { useCanEdit } from '@/lib/editor/RoleProvider';
-import type { ProductSection } from '@/lib/editor/types';
+import type { ProductSectionBlock } from '@/lib/editor/types';
 import { Input } from '@/components/ui/Input';
 import { NumberInput } from '@/components/ui/NumberInput';
 import { ColorPicker } from '@/components/ui/ColorPicker';
@@ -14,14 +14,14 @@ import { confirmDialog } from '@/lib/utils/confirm';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils/cn';
 
-interface Props { section: ProductSection; index: number; total: number; }
+interface Props { block: ProductSectionBlock; index: number; total: number; }
 
-export function ProductSectionPanel({ section, index, total }: Props) {
+export function ProductSectionPanel({ block, index, total }: Props) {
   const [open, setOpen] = useState(false);
   const [overrides, setOverrides] = useState(false);
   const store = useEditorStore();
   const canEdit = useCanEdit();
-  const set = (patch: Partial<ProductSection>) => store.getState().setSection(section.id, patch);
+  const set = (patch: Partial<ProductSectionBlock>) => store.getState().setSection(block.id, patch);
 
   return (
     <div className={cn(
@@ -35,19 +35,19 @@ export function ProductSectionPanel({ section, index, total }: Props) {
           className="flex flex-1 items-center gap-2 text-left text-[12px] font-semibold uppercase tracking-[0.14em] text-ed-ink-2 transition-colors hover:text-ed-ink"
         >
           {open ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
-          <span className="truncate">{section.title || '(untitled)'}</span>
+          <span className="truncate">{block.title || '(untitled)'}</span>
         </button>
         {canEdit && (
           <div className="flex items-center gap-1 text-ed-ink-3">
             <Tooltip>
               <TooltipTrigger asChild>
-                <button aria-label="Move section up" disabled={index === 0} onClick={() => store.getState().moveSection(section.id, 'up')} className="inline-flex h-7 w-7 items-center justify-center rounded-md text-ed-ink-3 transition-colors hover:bg-ed-panel-3 hover:text-ed-ink disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-ed-ink-3"><ArrowUp size={12} /></button>
+                <button aria-label="Move section up" disabled={index === 0} onClick={() => store.getState().moveSection(block.id, 'up')} className="inline-flex h-7 w-7 items-center justify-center rounded-md text-ed-ink-3 transition-colors hover:bg-ed-panel-3 hover:text-ed-ink disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-ed-ink-3"><ArrowUp size={12} /></button>
               </TooltipTrigger>
               <TooltipContent>Move section up</TooltipContent>
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
-                <button aria-label="Move section down" disabled={index === total - 1} onClick={() => store.getState().moveSection(section.id, 'down')} className="inline-flex h-7 w-7 items-center justify-center rounded-md text-ed-ink-3 transition-colors hover:bg-ed-panel-3 hover:text-ed-ink disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-ed-ink-3"><ArrowDown size={12} /></button>
+                <button aria-label="Move section down" disabled={index === total - 1} onClick={() => store.getState().moveSection(block.id, 'down')} className="inline-flex h-7 w-7 items-center justify-center rounded-md text-ed-ink-3 transition-colors hover:bg-ed-panel-3 hover:text-ed-ink disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-ed-ink-3"><ArrowDown size={12} /></button>
               </TooltipTrigger>
               <TooltipContent>Move section down</TooltipContent>
             </Tooltip>
@@ -56,11 +56,11 @@ export function ProductSectionPanel({ section, index, total }: Props) {
                 <button aria-label="Remove section" onClick={async () => {
                   const ok = await confirmDialog({
                     title: 'Remove section?',
-                    message: `"${section.title}" will be removed.`,
+                    message: `"${block.title}" will be removed.`,
                     confirmLabel: 'Remove',
                     danger: true,
                   });
-                  if (ok) store.getState().removeSection(section.id);
+                  if (ok) store.getState().removeSection(block.id);
                 }} className="inline-flex h-7 w-7 items-center justify-center rounded-md text-ed-ink-3 transition-colors hover:bg-ed-panel-3 hover:text-ed-danger disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-ed-ink-3"><Trash2 size={12} /></button>
               </TooltipTrigger>
               <TooltipContent>Remove section</TooltipContent>
@@ -71,13 +71,13 @@ export function ProductSectionPanel({ section, index, total }: Props) {
       {open && (
         <div className="border-t border-ed-rule">
           <fieldset disabled={!canEdit} className="space-y-3 p-3 min-w-0 disabled:opacity-70">
-            <Field label="Title"><Input value={section.title} onChange={(e) => set({ title: e.target.value })} /></Field>
-            <Field label="Image"><ImageInput value={section.imageSrc} onChange={(v) => set({ imageSrc: v })} /></Field>
-            <Field label="Image alt"><Input value={section.imageAlt} onChange={(e) => set({ imageAlt: e.target.value })} /></Field>
-            <Field label="Bullets"><BulletList bullets={section.bullets} onChange={(next) => set({ bullets: next })} /></Field>
+            <Field label="Title"><Input value={block.title} onChange={(e) => set({ title: e.target.value })} /></Field>
+            <Field label="Image"><ImageInput value={block.imageSrc} onChange={(v) => set({ imageSrc: v })} /></Field>
+            <Field label="Image alt"><Input value={block.imageAlt} onChange={(e) => set({ imageAlt: e.target.value })} /></Field>
+            <Field label="Bullets"><BulletList bullets={block.bullets} onChange={(next) => set({ bullets: next })} /></Field>
             <div className="grid grid-cols-2 gap-2">
-              <Field label="Button text"><Input value={section.ctaText} onChange={(e) => set({ ctaText: e.target.value })} /></Field>
-              <Field label="Button URL (override)"><Input value={section.ctaUrl ?? ''} onChange={(e) => set({ ctaUrl: e.target.value || undefined })} /></Field>
+              <Field label="Button text"><Input value={block.ctaText} onChange={(e) => set({ ctaText: e.target.value })} /></Field>
+              <Field label="Button URL (override)"><Input value={block.ctaUrl ?? ''} onChange={(e) => set({ ctaUrl: e.target.value || undefined })} /></Field>
             </div>
           </fieldset>
           <div className="px-3 pb-3">
@@ -86,11 +86,11 @@ export function ProductSectionPanel({ section, index, total }: Props) {
             </button>
             {overrides && (
               <fieldset disabled={!canEdit} className="grid grid-cols-2 gap-2 pt-1 min-w-0 disabled:opacity-70">
-                <Field label="Title size px"><NumberInput value={section.titleFontSize ?? 0} onChange={(v) => set({ titleFontSize: v || undefined })} min={0} max={60} /></Field>
-                <Field label="Bullet size px"><NumberInput value={section.bulletFontSize ?? 0} onChange={(v) => set({ bulletFontSize: v || undefined })} min={0} max={32} /></Field>
-                <Field label="Text color"><ColorPicker value={section.textColor ?? ''} onChange={(v) => set({ textColor: v || undefined })} /></Field>
-                <Field label="Button color"><ColorPicker value={section.buttonColor ?? ''} onChange={(v) => set({ buttonColor: v || undefined })} /></Field>
-                <div className="col-span-2"><Field label="Section background"><ColorPicker value={section.backgroundColor ?? ''} onChange={(v) => set({ backgroundColor: v || undefined })} /></Field></div>
+                <Field label="Title size px"><NumberInput value={block.titleFontSize ?? 0} onChange={(v) => set({ titleFontSize: v || undefined })} min={0} max={60} /></Field>
+                <Field label="Bullet size px"><NumberInput value={block.bulletFontSize ?? 0} onChange={(v) => set({ bulletFontSize: v || undefined })} min={0} max={32} /></Field>
+                <Field label="Text color"><ColorPicker value={block.textColor ?? ''} onChange={(v) => set({ textColor: v || undefined })} /></Field>
+                <Field label="Button color"><ColorPicker value={block.buttonColor ?? ''} onChange={(v) => set({ buttonColor: v || undefined })} /></Field>
+                <div className="col-span-2"><Field label="Section background"><ColorPicker value={block.backgroundColor ?? ''} onChange={(v) => set({ backgroundColor: v || undefined })} /></Field></div>
               </fieldset>
             )}
           </div>

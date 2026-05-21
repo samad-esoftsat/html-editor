@@ -1,8 +1,9 @@
 'use client';
 import { useState } from 'react';
 import { ChevronDown, ChevronRight, X, Plus } from 'lucide-react';
-import { useEditor, useEditorStore } from '@/lib/editor/StoreProvider';
+import { useEditorStore } from '@/lib/editor/StoreProvider';
 import { useCanEdit } from '@/lib/editor/RoleProvider';
+import type { FooterBlock, SocialPlatform } from '@/lib/editor/types';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
 import { Select } from '@/components/ui/Select';
@@ -10,13 +11,13 @@ import { Field } from '@/components/ui/Field';
 import { ColorPicker } from '@/components/ui/ColorPicker';
 import { ImageInput } from '../ImageInput';
 import { Button } from '@/components/ui/Button';
-import type { SocialPlatform } from '@/lib/editor/types';
 
 const PLATFORMS: SocialPlatform[] = ['facebook', 'linkedin', 'twitter', 'youtube', 'instagram'];
 
-export function FooterPanel() {
+interface Props { block: FooterBlock; }
+
+export function FooterPanel({ block }: Props) {
   const [open, setOpen] = useState(false);
-  const f = useEditor((s) => s.data.footer);
   const setFooter = useEditorStore().getState().setFooter;
   const canEdit = useCanEdit();
 
@@ -28,30 +29,30 @@ export function FooterPanel() {
       </button>
       {open && (
         <fieldset disabled={!canEdit} className="space-y-3 p-3 border-t border-ed-rule min-w-0 disabled:opacity-70">
-          <Field label="Footer banner"><ImageInput value={f.bannerSrc} onChange={(v) => setFooter({ bannerSrc: v })} /></Field>
-          <Field label="Banner alt"><Input value={f.bannerAlt} onChange={(e) => setFooter({ bannerAlt: e.target.value })} /></Field>
-          <Field label="Company name"><Input value={f.companyName} onChange={(e) => setFooter({ companyName: e.target.value })} /></Field>
-          <Field label="Address (multi-line)"><Textarea rows={3} value={f.address} onChange={(e) => setFooter({ address: e.target.value })} /></Field>
+          <Field label="Footer banner"><ImageInput value={block.bannerSrc} onChange={(v) => setFooter({ bannerSrc: v })} /></Field>
+          <Field label="Banner alt"><Input value={block.bannerAlt} onChange={(e) => setFooter({ bannerAlt: e.target.value })} /></Field>
+          <Field label="Company name"><Input value={block.companyName} onChange={(e) => setFooter({ companyName: e.target.value })} /></Field>
+          <Field label="Address (multi-line)"><Textarea rows={3} value={block.address} onChange={(e) => setFooter({ address: e.target.value })} /></Field>
           <div className="grid grid-cols-2 gap-2">
-            <Field label="Phone (display)"><Input value={f.phone} onChange={(e) => setFooter({ phone: e.target.value })} /></Field>
-            <Field label="Phone (tel link)"><Input value={f.phoneTel} onChange={(e) => setFooter({ phoneTel: e.target.value })} /></Field>
+            <Field label="Phone (display)"><Input value={block.phone} onChange={(e) => setFooter({ phone: e.target.value })} /></Field>
+            <Field label="Phone (tel link)"><Input value={block.phoneTel} onChange={(e) => setFooter({ phoneTel: e.target.value })} /></Field>
           </div>
-          <Field label="Email"><Input value={f.email} onChange={(e) => setFooter({ email: e.target.value })} /></Field>
+          <Field label="Email"><Input value={block.email} onChange={(e) => setFooter({ email: e.target.value })} /></Field>
 
           <div>
             <div className="mb-1 text-[10px] font-medium uppercase tracking-[0.18em] text-ed-ink-3">Websites</div>
             <div className="space-y-2">
-              {f.websites.map((w, i) => (
+              {block.websites.map((w, i) => (
                 <div key={i} className="flex gap-2">
                   <Input className="flex-1" placeholder="Label" value={w.label}
-                    onChange={(e) => setFooter({ websites: f.websites.map((x, j) => j === i ? { ...x, label: e.target.value } : x) })} />
+                    onChange={(e) => setFooter({ websites: block.websites.map((x, j) => j === i ? { ...x, label: e.target.value } : x) })} />
                   <Input className="flex-1" placeholder="https://..." value={w.url}
-                    onChange={(e) => setFooter({ websites: f.websites.map((x, j) => j === i ? { ...x, url: e.target.value } : x) })} />
-                  <button onClick={() => setFooter({ websites: f.websites.filter((_, j) => j !== i) })} className="text-ed-ink-3 hover:text-ed-danger px-1"><X size={14} /></button>
+                    onChange={(e) => setFooter({ websites: block.websites.map((x, j) => j === i ? { ...x, url: e.target.value } : x) })} />
+                  <button onClick={() => setFooter({ websites: block.websites.filter((_, j) => j !== i) })} className="text-ed-ink-3 hover:text-ed-danger px-1"><X size={14} /></button>
                 </div>
               ))}
               {canEdit && (
-                <Button variant="secondary" className="w-full" onClick={() => setFooter({ websites: [...f.websites, { label: '', url: '' }] })}><Plus size={14} /> Website</Button>
+                <Button variant="secondary" className="w-full" onClick={() => setFooter({ websites: [...block.websites, { label: '', url: '' }] })}><Plus size={14} /> Website</Button>
               )}
             </div>
           </div>
@@ -59,26 +60,26 @@ export function FooterPanel() {
           <div>
             <div className="mb-1 text-[10px] font-medium uppercase tracking-[0.18em] text-ed-ink-3">Socials</div>
             <div className="space-y-2">
-              {f.socials.map((s, i) => (
+              {block.socials.map((s, i) => (
                 <div key={i} className="flex gap-2">
                   <Select className="w-32" value={s.platform}
-                    onChange={(e) => setFooter({ socials: f.socials.map((x, j) => j === i ? { ...x, platform: e.target.value as SocialPlatform } : x) })}>
+                    onChange={(e) => setFooter({ socials: block.socials.map((x, j) => j === i ? { ...x, platform: e.target.value as SocialPlatform } : x) })}>
                     {PLATFORMS.map(p => <option key={p} value={p}>{p}</option>)}
                   </Select>
                   <Input className="flex-1" placeholder="https://..." value={s.url}
-                    onChange={(e) => setFooter({ socials: f.socials.map((x, j) => j === i ? { ...x, url: e.target.value } : x) })} />
-                  <button onClick={() => setFooter({ socials: f.socials.filter((_, j) => j !== i) })} className="text-ed-ink-3 hover:text-ed-danger px-1"><X size={14} /></button>
+                    onChange={(e) => setFooter({ socials: block.socials.map((x, j) => j === i ? { ...x, url: e.target.value } : x) })} />
+                  <button onClick={() => setFooter({ socials: block.socials.filter((_, j) => j !== i) })} className="text-ed-ink-3 hover:text-ed-danger px-1"><X size={14} /></button>
                 </div>
               ))}
               {canEdit && (
-                <Button variant="secondary" className="w-full" onClick={() => setFooter({ socials: [...f.socials, { platform: 'facebook', url: '' }] })}><Plus size={14} /> Social</Button>
+                <Button variant="secondary" className="w-full" onClick={() => setFooter({ socials: [...block.socials, { platform: 'facebook', url: '' }] })}><Plus size={14} /> Social</Button>
               )}
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-2">
-            <Field label="Background override"><ColorPicker value={f.backgroundColor ?? ''} onChange={(v) => setFooter({ backgroundColor: v || undefined })} /></Field>
-            <Field label="Text override"><ColorPicker value={f.textColor ?? ''} onChange={(v) => setFooter({ textColor: v || undefined })} /></Field>
+            <Field label="Background override"><ColorPicker value={block.backgroundColor ?? ''} onChange={(v) => setFooter({ backgroundColor: v || undefined })} /></Field>
+            <Field label="Text override"><ColorPicker value={block.textColor ?? ''} onChange={(v) => setFooter({ textColor: v || undefined })} /></Field>
           </div>
         </fieldset>
       )}
