@@ -87,12 +87,13 @@ export function ProductSectionView({ block, global: g, index, total }: Props) {
         target="_blank"
         rel="noreferrer"
         onClick={blockNav}
+        className="cta-edit-anchor"
         style={{
-          display: 'inline-block', background: buttonColor, color: g.buttonTextColor,
+          display: 'inline-block', position: 'relative', background: buttonColor, color: g.buttonTextColor,
           padding: '10px 30px', borderRadius: 10, fontWeight: 700, fontSize: 16, textDecoration: 'none',
         }}
       >
-        <span className="inline-link-wrap inline-flex items-center gap-1">
+        <span className="inline-flex items-center">
           <EditableText
             value={block.ctaText}
             onChange={(v) => setSection(block.id, { ctaText: v })}

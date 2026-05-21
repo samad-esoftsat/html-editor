@@ -142,7 +142,7 @@ export function EditableBulletList({
       aria-label={ariaLabel}
       data-bullet-list={ariaLabel}
       className={className}
-      style={{ margin: 0, paddingLeft: '20px' }}
+      style={{ margin: '1em 0', paddingLeft: '40px' }}
     >
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onBulletDragEnd}>
         <SortableContext items={ids} strategy={verticalListSortingStrategy}>
@@ -204,7 +204,7 @@ function SortableBulletItem({
           <button
             type="button"
             aria-label="Drag to reorder bullet"
-            className="bullet-grip inline-flex items-center justify-center cursor-grab active:cursor-grabbing text-ed-ink-3 hover:text-brand p-1 min-w-[28px] min-h-[28px] align-middle"
+            className="bullet-grip inline-flex items-center justify-center cursor-grab active:cursor-grabbing text-ed-ink-3 hover:text-brand p-1"
             {...attributes}
             {...(listeners as Record<string, unknown> | undefined ?? {})}
           >

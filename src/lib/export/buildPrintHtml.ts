@@ -1,9 +1,7 @@
-const PRINT_STYLE = `<style>
-@page { size: A4 portrait; margin: 12mm; }
-* {
-  -webkit-print-color-adjust: exact !important;
-  print-color-adjust: exact !important;
-}
+import type { ProjectData } from '@/lib/editor/types';
+import { renderPrintDocument } from './renderPrintDocument';
+
+const TOOLBAR_CSS = `<style>
 @media print {
   .no-print { display: none !important; }
 }
@@ -33,26 +31,29 @@ const PRINT_STYLE = `<style>
 .no-print button:hover { background: #4338ca; }
 </style>`;
 
-const PRINT_SCRIPT = `<script>
-(function () {
-  window.addEventListener('load', function () {
+const TOOLBAR_HTML = `<div class="no-print pagedjs_not_pageable"><button type="button" onclick="window.print()">Print / Save as PDF</button></div>`;
+
+const PAGED_SCRIPT = `<script src="/vendor/paged.polyfill.js"></script>`;
+
+const AUTO_PRINT_SCRIPT = `<script>
+window.addEventListener('load', function () {
+  if (window.PagedConfig) {
+    window.PagedConfig.after = function () {
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () { window.print(); });
+      });
+    };
+  } else {
     requestAnimationFrame(function () {
       requestAnimationFrame(function () { window.print(); });
     });
-  });
-})();
+  }
+});
 </script>`;
 
-const TOOLBAR = `<div class="no-print"><button type="button" onclick="window.print()">Print / Save as PDF</button></div>`;
-
-export function buildPrintHtml(emailHtml: string): string {
-  if (!emailHtml.includes('</head>')) {
-    throw new Error('buildPrintHtml: input must contain a </head> tag');
-  }
-  const withHead = emailHtml.replace('</head>', `${PRINT_STYLE}${PRINT_SCRIPT}</head>`);
-  if (!/<body[^>]*>/i.test(withHead)) {
-    throw new Error('buildPrintHtml: input must contain a <body> tag');
-  }
-  // Insert toolbar as the first child of <body>. Match the opening <body ...> tag.
-  return withHead.replace(/<body([^>]*)>/, (_match, attrs) => `<body${attrs}>${TOOLBAR}`);
+export function buildPrintHtml(data: ProjectData): string {
+  const document = renderPrintDocument(data);
+  const withCss = document.replace('</head>', `${TOOLBAR_CSS}</head>`);
+  const withToolbar = withCss.replace(/<body([^>]*)>/, (_match, attrs) => `<body${attrs}>${TOOLBAR_HTML}`);
+  return withToolbar.replace('</body>', `${PAGED_SCRIPT}${AUTO_PRINT_SCRIPT}</body>`);
 }

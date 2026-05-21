@@ -12,17 +12,15 @@ export function SectionInsertBar({ atIndex }: SectionInsertBarProps) {
   const store = useEditorStore();
   if (mode === 'preview') return null;
   return (
-    <div className="section-insert-bar relative h-3 my-1">
-      <div className="absolute inset-0 flex items-center justify-center">
-        <button
-          type="button"
-          aria-label="Add section"
-          onClick={() => store.getState().addSection(atIndex)}
-          className="section-insert-btn inline-flex items-center gap-1 rounded-full border border-ed-rule-strong bg-ed-panel-2 px-3 py-1 text-xs text-ed-ink-2 transition-colors hover:border-brand hover:text-brand"
-        >
-          <Plus size={12} /> Add section
-        </button>
-      </div>
+    <div className="section-insert-bar">
+      <button
+        type="button"
+        aria-label="Add section"
+        onClick={() => store.getState().addSection(atIndex)}
+        className="section-insert-btn inline-flex items-center gap-1 rounded-full border border-ed-rule-strong bg-ed-panel-2 px-3 py-1 text-xs text-ed-ink-2 transition-colors hover:border-brand hover:text-brand"
+      >
+        <Plus size={12} /> Add section
+      </button>
     </div>
   );
 }

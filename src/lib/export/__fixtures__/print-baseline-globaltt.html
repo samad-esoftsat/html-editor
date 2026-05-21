@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>Print preview</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+@page {
+  size: A4 portrait;
+  margin: 32mm 12mm 48mm 12mm;
+  @top-center    { content: element(header-region); }
+  @bottom-center { content: element(footer-region); }
+}
+@page :first { margin-top: 32mm; }
+.print-footer { font-size: 11px; line-height: 1.35; }
+.print-footer img { max-height: 40px; }
+
+* { box-sizing: border-box; }
+body { margin: 0; padding: 0; }
+
+.running-header { position: running(header-region); }
+.running-footer { position: running(footer-region); }
+.running-header, .running-footer { display: none; }
+
+.print-block {
+  break-inside: avoid;
+  page-break-inside: avoid;
+  margin: 0 auto;
+  max-width: 710px;
+}
+
+main { width: 100%; }
+body { font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 16px; color: #000000; background: #d0d0d0; }
+</style>
+</head>
+<body>
+<div class="running-header"><div class="print-header" style="text-align: center; max-width: 710px; margin: 0 auto;"><a href="https://www.globaltt.com/en/quickContact-GlobalTT.html" target="_blank"><img src="https://36af7d465b.imgdist.com/pub/bfra/wpnsx7uw/j2q/4ah/ptb/logo%20%282%29.png" alt="GlobalTT Logo" width="390" style="display: block; max-width: 100%; height: auto; margin: 0 auto;"></a><div style="text-align: center; padding: 6px 0; font-size: 18px; font-weight: bold;">Critical communication - Satellite - RadioLink - TwoWay Radio overIP</div><img src="https://ipseos.eu/wp-content/uploads/2024/05/Untitled-11x-1-e1718357911485.png" alt="Coverage Map" style="display: block; max-width: 100%; height: auto; margin: 4px auto;"><div style="text-align: center; padding: 6px 0; font-size: 25px; font-weight: bold;">Satellite High Throughput Connectivity</div></div></div>
+<div class="running-footer"><div class="print-footer" style="text-align: center; max-width: 710px; margin: 0 auto; background-color: #000000; color: #fafafa; padding: 8px 12px;">
+<img src="https://ipseos.eu/wp-content/uploads/2024/05/TELEPORT-8-Copy.png" alt="Teleport" style="display: block; max-width: 100%; height: auto; margin: 0 auto 6px;">
+<div style="font-weight: bold;">GlobalTT Satellite Teleport</div>
+<div style="margin: 0; color: #fafafa;">Scientifique Parc Einstein,</div><div style="margin: 0; color: #fafafa;">Louvain-la-Neuve, Belgium</div>
+<div style="margin: 4px 0 0 0;"><a href="tel:+3210395070" style="color: #fafafa; text-decoration: none;">+32 (0)10 39 50 70</a></div>
+<div style="margin: 2px 0 0 0;"><a href="mailto:info@globaltt.com" style="color: #fafafa; text-decoration: none;">info@globaltt.com</a></div>
+<div style="margin: 4px 0 0 0;"><a href="https://www.globaltt.com" target="_blank" style="color: #fafafa; text-decoration: none;">www.globaltt.com</a> &amp; <a href="https://www.ipseos.eu" target="_blank" style="color: #fafafa; text-decoration: none;">www.Ipseos.eu</a></div>
+<div style="margin: 6px 0 0 0;"><a href="https://www.facebook.com/pages/GlobalTT-Broadband-High-Speed-Internet-Satellite/182799832710" target="_blank" style="display: inline-block; margin-right: 4px;"><img src="https://app-rsrc.getbee.io/public/resources/social-networks-icon-sets/circle-color/facebook@2x.png" alt="Facebook" width="24" height="24" style="border: 0; display: inline-block;"></a><a href="https://www.linkedin.com/company/globaltt?trk=top_nav_home" target="_blank" style="display: inline-block; margin-right: 4px;"><img src="https://app-rsrc.getbee.io/public/resources/social-networks-icon-sets/circle-color/linkedin@2x.png" alt="LinkedIn" width="24" height="24" style="border: 0; display: inline-block;"></a></div>
+</div></div>
+<main>
+<div class="print-block"><section class="product-section" style="display: flex; flex-direction: row;"><div style="flex: 0 0 50%; padding: 12px;"><img src="https://ipseos.eu/wp-content/uploads/2024/08/Starlink-Mini-Dish-on-a-field-next-to-laptop.png" alt="Starlink" style="display: block; max-width: 100%; height: auto;"></div><div style="flex: 0 0 50%; padding: 12px;">
+<h2 style="margin: 0 0 6px 0; font-size: 22px; color: #000000;">Starlink Solutions</h2>
+<ul style="margin: 0 0 10px 0; padding-left: 20px;"><li style="margin: 4px 0; font-size: 16px; color: #000000;">NEW - Worldwide satellite internet.</li><li style="margin: 4px 0; font-size: 16px; color: #000000;">Low Earth Orbit(LEO)</li><li style="margin: 4px 0; font-size: 16px; color: #000000;">Latency &lt;45msec</li><li style="margin: 4px 0; font-size: 16px; color: #000000;">From 150 Mbps Up to 450 Mbps.</li><li style="margin: 4px 0; font-size: 16px; color: #000000;">Land, Vehicle, Maritime, Aero.</li></ul>
+<a href="https://www.globaltt.com/en/quickContact-GlobalTT.html" target="_blank" style="display: inline-block; padding: 8px 16px; background-color: #f1592a; color: #ffffff; text-decoration: none; border-radius: 4px; font-weight: bold;">Contact Us</a>
+</div></section></div>
+<div class="print-block"><section class="product-section reverse" style="display: flex; flex-direction: row;"><div style="flex: 0 0 50%; padding: 12px;">
+<h2 style="margin: 0 0 6px 0; font-size: 21px; color: #000000;">V-Sat GEO Satellite Ku-Band</h2>
+<ul style="margin: 0 0 10px 0; padding-left: 20px;"><li style="margin: 4px 0; font-size: 15px; color: #000000;">Direct from Belgium (EU Teleport).</li><li style="margin: 4px 0; font-size: 15px; color: #000000;">One single satellite direct connectivity.</li><li style="margin: 4px 0; font-size: 15px; color: #000000;">Fully secured, reliable, high availability 99,8%.</li><li style="margin: 4px 0; font-size: 15px; color: #000000;">Up to 50 Mbps.</li><li style="margin: 4px 0; font-size: 15px; color: #000000;">Mining, Oil &amp; Gaz, Embassies...</li></ul>
+<a href="https://www.globaltt.com/en/quickContact-GlobalTT.html" target="_blank" style="display: inline-block; padding: 8px 16px; background-color: #f1592a; color: #ffffff; text-decoration: none; border-radius: 4px; font-weight: bold;">Contact Us</a>
+</div><div style="flex: 0 0 50%; padding: 12px;"><img src="https://ipseos.eu/wp-content/uploads/2024/07/Ku-Band-1-2.png" alt="Ku Band" style="display: block; max-width: 100%; height: auto;"></div></section></div>
+<div class="print-block"><section class="product-section" style="display: flex; flex-direction: row;"><div style="flex: 0 0 50%; padding: 12px;"><img src="https://ipseos.eu/wp-content/uploads/2024/07/C-Band-1-1.png" alt="C-Band" style="display: block; max-width: 100%; height: auto;"></div><div style="flex: 0 0 50%; padding: 12px;">
+<h2 style="margin: 0 0 6px 0; font-size: 22px; color: #000000;">V-Sat Satellite PRO</h2>
+<ul style="margin: 0 0 10px 0; padding-left: 20px;"><li style="margin: 4px 0; font-size: 16px; color: #000000;">Direct from Belgium.</li><li style="margin: 4px 0; font-size: 16px; color: #000000;">One Satellite direct connectivity.</li><li style="margin: 4px 0; font-size: 16px; color: #000000;">Fully secured, high availability &amp; reliability of 99,99%</li><li style="margin: 4px 0; font-size: 16px; color: #000000;">Up to 50 Mbps.</li><li style="margin: 4px 0; font-size: 16px; color: #000000;">Embassies, Mining, Camp...</li></ul>
+<a href="https://www.globaltt.com/en/quickContact-GlobalTT.html" target="_blank" style="display: inline-block; padding: 8px 16px; background-color: #f1592a; color: #ffffff; text-decoration: none; border-radius: 4px; font-weight: bold;">Contact Us</a>
+</div></section></div>
+<div class="print-block"><section class="product-section reverse" style="display: flex; flex-direction: row;"><div style="flex: 0 0 50%; padding: 12px;">
+<h2 style="margin: 0 0 6px 0; font-size: 22px; color: #000000;">V-Sat GEO Satellite Ka-Band</h2>
+<ul style="margin: 0 0 10px 0; padding-left: 20px;"><li style="margin: 4px 0; font-size: 16px; color: #000000;">Direct from Belgium.</li><li style="margin: 4px 0; font-size: 16px; color: #000000;">Fully secured, availability 95%.</li><li style="margin: 4px 0; font-size: 16px; color: #000000;">Up to 50 Mbps.</li><li style="margin: 4px 0; font-size: 16px; color: #000000;">SOHO, Small Office, Back-up.</li></ul>
+<a href="https://www.globaltt.com/en/quickContact-GlobalTT.html" target="_blank" style="display: inline-block; padding: 8px 16px; background-color: #f1592a; color: #ffffff; text-decoration: none; border-radius: 4px; font-weight: bold;">Contact Us</a>
+</div><div style="flex: 0 0 50%; padding: 12px;"><img src="https://ipseos.eu/wp-content/uploads/2024/07/Ka-Band-1-3.png" alt="Ka-Band" style="display: block; max-width: 100%; height: auto;"></div></section></div>
+<div class="print-block"><section class="product-section" style="display: flex; flex-direction: row;"><div style="flex: 0 0 50%; padding: 12px;"><img src="https://ipseos.eu/wp-content/uploads/2024/05/bgan76D58270-copy-1.jpg" alt="BGAN" style="display: block; max-width: 100%; height: auto;"></div><div style="flex: 0 0 50%; padding: 12px;">
+<h2 style="margin: 0 0 6px 0; font-size: 22px; color: #000000;">BGAN/Thuraya-IP</h2>
+<ul style="margin: 0 0 10px 0; padding-left: 20px;"><li style="margin: 4px 0; font-size: 16px; color: #000000;">Worldwide secured access.</li><li style="margin: 4px 0; font-size: 16px; color: #000000;">GEO, L-Band, Internet</li><li style="margin: 4px 0; font-size: 16px; color: #000000;">1,2 Mbps internet.</li><li style="margin: 4px 0; font-size: 16px; color: #000000;">Battery &amp; AC.</li><li style="margin: 4px 0; font-size: 16px; color: #000000;">Voice/tel. line &amp; internet.</li></ul>
+<a href="https://www.globaltt.com/en/quickContact-GlobalTT.html" target="_blank" style="display: inline-block; padding: 8px 16px; background-color: #f1592a; color: #ffffff; text-decoration: none; border-radius: 4px; font-weight: bold;">Contact Us</a>
+</div></section></div>
+<div class="print-block"><section class="product-section reverse" style="display: flex; flex-direction: row;"><div style="flex: 0 0 50%; padding: 12px;">
+<h2 style="margin: 0 0 6px 0; font-size: 22px; color: #000000;">Iridium GO Exec</h2>
+<ul style="margin: 0 0 10px 0; padding-left: 20px;"><li style="margin: 4px 0; font-size: 16px; color: #000000;">Worldwide coverage.</li><li style="margin: 4px 0; font-size: 16px; color: #000000;">Satellite LEO.</li><li style="margin: 4px 0; font-size: 16px; color: #000000;">Phone &amp; data access.</li><li style="margin: 4px 0; font-size: 16px; color: #000000;">88 Kbps/22 Kbps.</li><li style="margin: 4px 0; font-size: 16px; color: #000000;">Battery and AC.</li></ul>
+<a href="https://www.globaltt.com/en/quickContact-GlobalTT.html" target="_blank" style="display: inline-block; padding: 8px 16px; background-color: #f1592a; color: #ffffff; text-decoration: none; border-radius: 4px; font-weight: bold;">Contact Us</a>
+</div><div style="flex: 0 0 50%; padding: 12px;"><img src="https://ipseos.eu/wp-content/uploads/2024/05/1677665900145-copy.png" alt="Iridium GO Exec" style="display: block; max-width: 100%; height: auto;"></div></section></div>
+<div class="print-block"><section class="product-section" style="display: flex; flex-direction: row;"><div style="flex: 0 0 50%; padding: 12px;"><img src="https://ipseos.eu/wp-content/uploads/2024/08/sATTELITE-PHONE.png" alt="Iridium PTT" style="display: block; max-width: 100%; height: auto;"></div><div style="flex: 0 0 50%; padding: 12px;">
+<h2 style="margin: 0 0 6px 0; font-size: 22px; color: #000000;">Iridium PTT</h2>
+<ul style="margin: 0 0 10px 0; padding-left: 20px;"><li style="margin: 4px 0; font-size: 14px; color: #000000;">Dual Mode: PTT and Phone modes.</li><li style="margin: 4px 0; font-size: 14px; color: #000000;">Secure Dialogue: AES-256 encryption.</li><li style="margin: 4px 0; font-size: 14px; color: #000000;">Walkie Talkie : two way radio</li><li style="margin: 4px 0; font-size: 14px; color: #000000;">Satellite: instant communication</li></ul>
+<a href="https://www.globaltt.com/en/quickContact-GlobalTT.html" target="_blank" style="display: inline-block; padding: 8px 16px; background-color: #f1592a; color: #ffffff; text-decoration: none; border-radius: 4px; font-weight: bold;">Contact Us</a>
+</div></section></div>
+<div class="print-block"><section class="product-section reverse" style="display: flex; flex-direction: row;"><div style="flex: 0 0 50%; padding: 12px;">
+<h2 style="margin: 0 0 6px 0; font-size: 22px; color: #000000;">Wi-Fi Long Range</h2>
+<ul style="margin: 0 0 10px 0; padding-left: 20px;"><li style="margin: 4px 0; font-size: 16px; color: #000000;">Wi-Fi 2.4 GHz/5 GHz</li><li style="margin: 4px 0; font-size: 16px; color: #000000;">Radio WI-FI Range : 1.5 Km</li><li style="margin: 4px 0; font-size: 16px; color: #000000;">Repeater 10 Km radio link.</li><li style="margin: 4px 0; font-size: 16px; color: #000000;">Adaptive interference control.</li><li style="margin: 4px 0; font-size: 16px; color: #000000;">Security Access, Cyber, and ISP billing</li></ul>
+<a href="https://www.globaltt.com/en/quickContact-GlobalTT.html" target="_blank" style="display: inline-block; padding: 8px 16px; background-color: #f1592a; color: #ffffff; text-decoration: none; border-radius: 4px; font-weight: bold;">Contact Us</a>
+</div><div style="flex: 0 0 50%; padding: 12px;"><img src="https://ipseos.eu/wp-content/uploads/2024/08/DSCF0503-222Copy.png" alt="WiFi Long Range" style="display: block; max-width: 100%; height: auto;"></div></section></div>
+</main>
+</body>
+</html>

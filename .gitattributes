@@ -1,1 +1,3 @@
 src/lib/export/__fixtures__/*.html -text eol=lf
+public/vendor/paged.polyfill.js binary
+public/vendor/paged.polyfill.LICENSE.txt text eol=lf

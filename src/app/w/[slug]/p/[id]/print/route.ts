@@ -1,9 +1,8 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { findWorkspace } from '@/lib/auth/workspace';
-import { renderEmail } from '@/lib/export/renderEmail';
 import { buildPrintHtml } from '@/lib/export/buildPrintHtml';
-import type { ProjectData } from '@/lib/editor/types';
+import { migrate } from '@/lib/editor/migrate';
 
 interface Ctx {
   params: Promise<{ slug: string; id: string }>;
@@ -33,8 +32,7 @@ export async function GET(_req: NextRequest, { params }: Ctx) {
 
   if (!data) return notFoundResponse();
 
-  const emailHtml = renderEmail(data.data as ProjectData);
-  const printHtml = buildPrintHtml(emailHtml);
+  const printHtml = buildPrintHtml(migrate(data.data));
 
   return new NextResponse(printHtml, {
     status: 200,

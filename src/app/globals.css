@@ -144,25 +144,84 @@ body.editor-shell,
 .preview-canvas p  { margin: 1em 0; }
 .preview-canvas a  { color: -webkit-link; text-decoration: underline; }
 
-.editable-link-icon { opacity: 0; transition: opacity 100ms; }
-.inline-link-wrap:hover .editable-link-icon,
-.inline-link-wrap:focus-within .editable-link-icon,
-.editable-link-icon:focus-visible { opacity: 1; }
+.editable-link-icon {
+  position: absolute;
+  right: -28px;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 100ms;
+}
+.cta-edit-anchor:hover .editable-link-icon,
+.cta-edit-anchor:focus-within .editable-link-icon,
+.editable-link-icon:focus-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
 
-.editable-image-alt { opacity: 0; transition: opacity 100ms; }
+.editable-image-wrap {
+  position: relative;
+  display: inline-block;
+}
+.editable-image-alt {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -22px;
+  text-align: left;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 100ms;
+}
 .editable-image-wrap:hover .editable-image-alt,
-.editable-image-wrap:focus-within .editable-image-alt { opacity: 1; }
+.editable-image-wrap:focus-within .editable-image-alt {
+  opacity: 1;
+  pointer-events: auto;
+}
 
-.section-insert-bar .section-insert-btn { opacity: 0; transition: opacity 100ms; }
+.section-insert-bar {
+  position: relative;
+  height: 0;
+}
+.section-insert-bar::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -12px;
+  height: 24px;
+}
+.section-insert-bar .section-insert-btn {
+  position: absolute;
+  left: 50%;
+  top: -12px;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 100ms;
+  z-index: 5;
+}
 .section-insert-bar:hover .section-insert-btn,
+.section-insert-bar:focus-within .section-insert-btn,
 .section-insert-btn:focus-visible { opacity: 1; }
 
 .section-wrap .block-toolbar { opacity: 0; transition: opacity 100ms; }
 .section-wrap:hover .block-toolbar,
 .section-wrap:focus-within .block-toolbar { opacity: 1; }
 
-.bullet-row .bullet-grip { opacity: 0; transition: opacity 100ms; }
+.bullet-row {
+  position: relative;
+}
+.bullet-row .bullet-grip {
+  position: absolute;
+  left: -24px;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0;
+  transition: opacity 100ms;
+}
 .bullet-row:hover .bullet-grip,
+.bullet-row:focus-within .bullet-grip,
 .bullet-grip:focus-visible { opacity: 1; }
 
 .section-wrap.selected {
