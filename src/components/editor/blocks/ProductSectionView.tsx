@@ -4,7 +4,7 @@ import type { ProductSectionBlock, GlobalStyles } from '@/lib/editor/types';
 import { useEditorStore } from '@/lib/editor/StoreProvider';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { SectionToolbar } from '../canvas/SectionToolbar';
+import { BlockToolbar } from '../canvas/BlockToolbar';
 import { SectionInsertBar } from '../canvas/SectionInsertBar';
 import { useSectionSelection } from '../SectionSelectionProvider';
 import { useEditorMode } from '../EditorModeProvider';
@@ -127,9 +127,9 @@ export function ProductSectionView({ block, global: g, index, total }: Props) {
           data-selected={selected || undefined}
           onMouseDown={onMouseDown}
         >
-          <SectionToolbar
-            sectionId={block.id}
-            sectionTitle={block.title ?? ''}
+          <BlockToolbar
+            blockId={block.id}
+            blockLabel={block.title ?? ''}
             dragAttributes={attributes as unknown as Record<string, unknown>}
             dragListeners={listeners as unknown as Record<string, unknown> | undefined}
           />

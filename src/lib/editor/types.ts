@@ -68,9 +68,58 @@ export interface FooterBlock extends BlockBase {
   textColor?: string;
 }
 
-export type Block = HeaderBlock | ProductSectionBlock | FooterBlock;
+export interface HeroBlock extends BlockBase {
+  type: 'hero';
+  imageSrc: string;
+  imageAlt: string;
+  title: string;
+  subtitle: string;
+  ctaText: string;
+  ctaUrl?: string;
+  titleFontSize?: number;
+  subtitleFontSize?: number;
+  backgroundColor?: string;
+  textColor?: string;
+  buttonColor?: string;
+}
 
-// Legacy aliases — preserved to minimize Phase 1 call-site churn. Phase 2 deletes these.
+export interface ArticleBlock extends BlockBase {
+  type: 'article';
+  imageSrc: string;
+  imageAlt: string;
+  title: string;
+  body: string;
+  ctaText: string;
+  ctaUrl?: string;
+  imagePosition: 'top' | 'left' | 'right';
+  titleFontSize?: number;
+  bodyFontSize?: number;
+  backgroundColor?: string;
+  textColor?: string;
+}
+
+export interface CTABannerBlock extends BlockBase {
+  type: 'cta-banner';
+  title: string;
+  subtitle: string;
+  ctaText: string;
+  ctaUrl?: string;
+  align: 'left' | 'center';
+  titleFontSize?: number;
+  backgroundColor?: string;
+  textColor?: string;
+  buttonColor?: string;
+}
+
+export type Block =
+  | HeaderBlock
+  | ProductSectionBlock
+  | HeroBlock
+  | ArticleBlock
+  | CTABannerBlock
+  | FooterBlock;
+
+// Legacy aliases — preserved for callers from Phase 1. Safe to retain; remove in a later cleanup pass.
 export type Header = HeaderBlock;
 export type ProductSection = ProductSectionBlock;
 export type Footer = FooterBlock;

@@ -157,9 +157,9 @@ body.editor-shell,
 .section-insert-bar:hover .section-insert-btn,
 .section-insert-btn:focus-visible { opacity: 1; }
 
-.section-wrap .section-toolbar { opacity: 0; transition: opacity 100ms; }
-.section-wrap:hover .section-toolbar,
-.section-wrap:focus-within .section-toolbar { opacity: 1; }
+.section-wrap .block-toolbar { opacity: 0; transition: opacity 100ms; }
+.section-wrap:hover .block-toolbar,
+.section-wrap:focus-within .block-toolbar { opacity: 1; }
 
 .bullet-row .bullet-grip { opacity: 0; transition: opacity 100ms; }
 .bullet-row:hover .bullet-grip,

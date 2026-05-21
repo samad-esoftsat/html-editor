@@ -151,3 +151,66 @@ describe('renderEmail (reference fragments)', () => {
     expect(html).toContain('https://example.com/?a=1&amp;b=2');
   });
 });
+
+describe('renderEmail (Phase 2 block types)', () => {
+  function projectWithMiddle(middle: import('@/lib/editor/types').Block[]) {
+    const base = createDefaultProject();
+    const header = base.blocks[0];
+    const footer = base.blocks[base.blocks.length - 1];
+    return { ...base, blocks: [header, ...middle, footer] };
+  }
+
+  it('renders a hero block with title, subtitle, image, and CTA', () => {
+    const hero: import('@/lib/editor/types').HeroBlock = {
+      type: 'hero', id: 'h', imageSrc: 'https://example.com/h.png', imageAlt: 'pic',
+      title: 'Big news', subtitle: 'Some sub', ctaText: 'Learn more', ctaUrl: 'https://example.com/x',
+    };
+    const html = renderEmail(projectWithMiddle([hero]));
+    expect(html).toContain('Big news');
+    expect(html).toContain('Some sub');
+    expect(html).toContain('https://example.com/h.png');
+    expect(html).toContain('https://example.com/x');
+    expect(html).toContain('Learn more');
+  });
+
+  it('renders an article block with imagePosition=top', () => {
+    const a: import('@/lib/editor/types').ArticleBlock = {
+      type: 'article', id: 'a', imageSrc: 'https://example.com/a.png', imageAlt: '',
+      title: 'Article title', body: 'Line 1\nLine 2', ctaText: 'Read', imagePosition: 'top',
+    };
+    const html = renderEmail(projectWithMiddle([a]));
+    expect(html).toContain('Article title');
+    expect(html).toContain('Line 1');
+    expect(html).toContain('Line 2');
+  });
+
+  it('renders an article block with imagePosition=left as a two-column nested table', () => {
+    const a: import('@/lib/editor/types').ArticleBlock = {
+      type: 'article', id: 'a', imageSrc: 'https://example.com/a.png', imageAlt: '',
+      title: 'Side by side', body: 'b', ctaText: 'Read', imagePosition: 'left',
+    };
+    const html = renderEmail(projectWithMiddle([a]));
+    expect(html).toContain('Side by side');
+    expect(html.split('class="article-col"').length - 1).toBeGreaterThanOrEqual(2);
+  });
+
+  it('renders a cta-banner block', () => {
+    const c: import('@/lib/editor/types').CTABannerBlock = {
+      type: 'cta-banner', id: 'c', title: 'Ready?', subtitle: 'Sub', ctaText: 'Go', align: 'center',
+    };
+    const html = renderEmail(projectWithMiddle([c]));
+    expect(html).toContain('Ready?');
+    expect(html).toContain('Sub');
+    expect(html).toContain('text-align: center');
+  });
+
+  it('escapes XSS in hero title', () => {
+    const hero: import('@/lib/editor/types').HeroBlock = {
+      type: 'hero', id: 'h', imageSrc: '', imageAlt: '',
+      title: '<script>x()</script>', subtitle: '', ctaText: 'Go',
+    };
+    const html = renderEmail(projectWithMiddle([hero]));
+    expect(html).not.toContain('<script>x()</script>');
+    expect(html).toContain('&lt;script&gt;x()&lt;/script&gt;');
+  });
+});

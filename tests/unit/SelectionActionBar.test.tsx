@@ -22,9 +22,9 @@ const fakeBlocks = [
 vi.mock('@/lib/editor/StoreProvider', () => ({
   useEditorStore: () => ({
     getState: () => ({
-      duplicateSection: mockDuplicate,
-      removeSection: mockRemove,
-      moveSection: mockMove,
+      duplicateBlock: mockDuplicate,
+      removeBlock: mockRemove,
+      moveBlock: mockMove,
       data: { blocks: fakeBlocks },
     }),
   }),
@@ -80,12 +80,12 @@ describe('SelectionActionBar', () => {
     expect(screen.getByText(/2 selected/i)).toBeTruthy();
     expect(screen.getByLabelText(/duplicate selected/i)).toBeTruthy();
     expect(screen.getByLabelText(/delete selected/i)).toBeTruthy();
-    expect(screen.getByLabelText(/move selected sections up/i)).toBeTruthy();
-    expect(screen.getByLabelText(/move selected sections down/i)).toBeTruthy();
+    expect(screen.getByLabelText(/move selected blocks up/i)).toBeTruthy();
+    expect(screen.getByLabelText(/move selected blocks down/i)).toBeTruthy();
     expect(screen.getByLabelText(/clear selection/i)).toBeTruthy();
   });
 
-  it('Duplicate calls duplicateSection for each selected id in store order', () => {
+  it('Duplicate calls duplicateBlock for each selected id in store order', () => {
     render(<Wrap ids={['b', 'a']} />); // toggled in 'b, a' order
     fireEvent.click(screen.getByLabelText(/duplicate selected/i));
     expect(mockDuplicate.mock.calls).toEqual([['a'], ['b']]);
@@ -108,15 +108,15 @@ describe('SelectionActionBar', () => {
     expect(mockRemove).not.toHaveBeenCalled();
   });
 
-  it('Move up calls moveSection in document order', () => {
+  it('Move up calls moveBlock in document order', () => {
     render(<Wrap ids={['a', 'b']} />);
-    fireEvent.click(screen.getByLabelText(/move selected sections up/i));
+    fireEvent.click(screen.getByLabelText(/move selected blocks up/i));
     expect(mockMove.mock.calls).toEqual([['a', 'up'], ['b', 'up']]);
   });
 
-  it('Move down calls moveSection in reverse document order', () => {
+  it('Move down calls moveBlock in reverse document order', () => {
     render(<Wrap ids={['a', 'b']} />);
-    fireEvent.click(screen.getByLabelText(/move selected sections down/i));
+    fireEvent.click(screen.getByLabelText(/move selected blocks down/i));
     expect(mockMove.mock.calls).toEqual([['b', 'down'], ['a', 'down']]);
   });
 

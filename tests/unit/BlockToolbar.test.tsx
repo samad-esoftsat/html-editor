@@ -1,8 +1,8 @@
-// tests/unit/SectionToolbar.test.tsx
+// tests/unit/BlockToolbar.test.tsx
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import React from 'react';
-import { SectionToolbar } from '@/components/editor/canvas/SectionToolbar';
+import { BlockToolbar } from '@/components/editor/canvas/BlockToolbar';
 import { EditorModeProvider, useEditorMode } from '@/components/editor/EditorModeProvider';
 import { TooltipProvider } from '@/components/ui/tooltip';
 
@@ -10,7 +10,7 @@ const mockDuplicate = vi.fn();
 const mockRemove = vi.fn();
 vi.mock('@/lib/editor/StoreProvider', () => ({
   useEditorStore: () => ({
-    getState: () => ({ duplicateSection: mockDuplicate, removeSection: mockRemove }),
+    getState: () => ({ duplicateBlock: mockDuplicate, removeBlock: mockRemove }),
   }),
 }));
 
@@ -25,7 +25,7 @@ function ForcePreview() {
   return null;
 }
 
-describe('SectionToolbar', () => {
+describe('BlockToolbar', () => {
   beforeEach(() => {
     mockDuplicate.mockClear();
     mockRemove.mockClear();
@@ -36,24 +36,24 @@ describe('SectionToolbar', () => {
     render(
       <TooltipProvider>
         <EditorModeProvider>
-          <SectionToolbar sectionId="abc" sectionTitle="Title" dragAttributes={{}} dragListeners={{}} />
+          <BlockToolbar blockId="abc" blockLabel="Title" dragAttributes={{}} dragListeners={{}} />
         </EditorModeProvider>
       </TooltipProvider>
     );
-    expect(screen.getByLabelText('Drag to reorder section')).toBeTruthy();
-    expect(screen.getByLabelText('Duplicate section')).toBeTruthy();
-    expect(screen.getByLabelText('Delete section')).toBeTruthy();
+    expect(screen.getByLabelText('Drag to reorder block')).toBeTruthy();
+    expect(screen.getByLabelText('Duplicate block')).toBeTruthy();
+    expect(screen.getByLabelText('Delete block')).toBeTruthy();
   });
 
-  it('clicking duplicate calls duplicateSection with the section id', () => {
+  it('clicking duplicate calls duplicateBlock with the block id', () => {
     render(
       <TooltipProvider>
         <EditorModeProvider>
-          <SectionToolbar sectionId="abc" sectionTitle="Title" dragAttributes={{}} dragListeners={{}} />
+          <BlockToolbar blockId="abc" blockLabel="Title" dragAttributes={{}} dragListeners={{}} />
         </EditorModeProvider>
       </TooltipProvider>
     );
-    fireEvent.click(screen.getByLabelText('Duplicate section'));
+    fireEvent.click(screen.getByLabelText('Duplicate block'));
     expect(mockDuplicate).toHaveBeenCalledWith('abc');
   });
 
@@ -62,11 +62,11 @@ describe('SectionToolbar', () => {
     render(
       <TooltipProvider>
         <EditorModeProvider>
-          <SectionToolbar sectionId="abc" sectionTitle="Title" dragAttributes={{}} dragListeners={{}} />
+          <BlockToolbar blockId="abc" blockLabel="Title" dragAttributes={{}} dragListeners={{}} />
         </EditorModeProvider>
       </TooltipProvider>
     );
-    fireEvent.click(screen.getByLabelText('Delete section'));
+    fireEvent.click(screen.getByLabelText('Delete block'));
     await waitFor(() => expect(mockRemove).toHaveBeenCalledWith('abc'));
   });
 
@@ -75,11 +75,11 @@ describe('SectionToolbar', () => {
     render(
       <TooltipProvider>
         <EditorModeProvider>
-          <SectionToolbar sectionId="abc" sectionTitle="Title" dragAttributes={{}} dragListeners={{}} />
+          <BlockToolbar blockId="abc" blockLabel="Title" dragAttributes={{}} dragListeners={{}} />
         </EditorModeProvider>
       </TooltipProvider>
     );
-    fireEvent.click(screen.getByLabelText('Delete section'));
+    fireEvent.click(screen.getByLabelText('Delete block'));
     await waitFor(() => expect(mockConfirm).toHaveBeenCalled());
     expect(mockRemove).not.toHaveBeenCalled();
   });
@@ -89,10 +89,10 @@ describe('SectionToolbar', () => {
       <TooltipProvider>
         <EditorModeProvider>
           <ForcePreview />
-          <SectionToolbar sectionId="abc" sectionTitle="Title" dragAttributes={{}} dragListeners={{}} />
+          <BlockToolbar blockId="abc" blockLabel="Title" dragAttributes={{}} dragListeners={{}} />
         </EditorModeProvider>
       </TooltipProvider>
     );
-    expect(container.querySelector('button[aria-label="Duplicate section"]')).toBeNull();
+    expect(container.querySelector('button[aria-label="Duplicate block"]')).toBeNull();
   });
 });

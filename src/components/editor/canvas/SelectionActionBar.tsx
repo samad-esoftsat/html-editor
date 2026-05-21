@@ -1,7 +1,6 @@
 'use client';
 import { ArrowDown, ArrowUp, Copy, X } from 'lucide-react';
 import { useEditorStore } from '@/lib/editor/StoreProvider';
-import { productSections } from '@/lib/editor/blocks';
 import { confirmDialog } from '@/lib/utils/confirm';
 import { useEditorMode } from '../EditorModeProvider';
 import { useSectionSelection } from '../SectionSelectionProvider';
@@ -14,38 +13,38 @@ export function SelectionActionBar() {
   if (mode === 'preview') return null;
   if (selected.size === 0) return null;
 
-  const stateIds = productSections(store.getState().data.blocks).map((b) => b.id);
-  const ordered = stateIds.filter((id) => selected.has(id));
+  const middleIds = store.getState().data.blocks.slice(1, -1).map((b) => b.id);
+  const ordered = middleIds.filter((id) => selected.has(id));
 
   function onDuplicate() {
-    const { duplicateSection } = store.getState();
-    for (const id of ordered) duplicateSection(id);
+    const { duplicateBlock } = store.getState();
+    for (const id of ordered) duplicateBlock(id);
   }
 
   async function onDelete() {
     const ok = await confirmDialog({
-      title: ordered.length === 1 ? 'Delete section?' : `Delete ${ordered.length} sections?`,
+      title: ordered.length === 1 ? 'Delete block?' : `Delete ${ordered.length} blocks?`,
       message:
         ordered.length === 1
-          ? 'This will remove the section from the email.'
-          : `This will remove ${ordered.length} sections from the email.`,
+          ? 'This will remove the block from the email.'
+          : `This will remove ${ordered.length} blocks from the email.`,
       confirmLabel: 'Delete',
       danger: true,
     });
     if (!ok) return;
-    const { removeSection } = store.getState();
-    for (const id of ordered) removeSection(id);
+    const { removeBlock } = store.getState();
+    for (const id of ordered) removeBlock(id);
     clear();
   }
 
   function onMoveUp() {
-    const { moveSection } = store.getState();
-    for (const id of ordered) moveSection(id, 'up');
+    const { moveBlock } = store.getState();
+    for (const id of ordered) moveBlock(id, 'up');
   }
 
   function onMoveDown() {
-    const { moveSection } = store.getState();
-    for (const id of ordered.slice().reverse()) moveSection(id, 'down');
+    const { moveBlock } = store.getState();
+    for (const id of ordered.slice().reverse()) moveBlock(id, 'down');
   }
 
   return (
@@ -56,7 +55,7 @@ export function SelectionActionBar() {
       <span className="px-2 font-medium text-ed-ink">{ordered.length} selected</span>
       <button
         type="button"
-        aria-label="Duplicate selected sections"
+        aria-label="Duplicate selected blocks"
         onClick={onDuplicate}
         className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-ed-ink-2 transition-colors hover:bg-ed-panel-3 hover:text-ed-ink"
       >
@@ -64,7 +63,7 @@ export function SelectionActionBar() {
       </button>
       <button
         type="button"
-        aria-label="Delete selected sections"
+        aria-label="Delete selected blocks"
         onClick={onDelete}
         className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-ed-ink-2 transition-colors hover:bg-ed-panel-3 hover:text-ed-danger"
       >
@@ -72,7 +71,7 @@ export function SelectionActionBar() {
       </button>
       <button
         type="button"
-        aria-label="Move selected sections up"
+        aria-label="Move selected blocks up"
         onClick={onMoveUp}
         className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-ed-ink-2 transition-colors hover:bg-ed-panel-3 hover:text-ed-ink"
       >
@@ -80,7 +79,7 @@ export function SelectionActionBar() {
       </button>
       <button
         type="button"
-        aria-label="Move selected sections down"
+        aria-label="Move selected blocks down"
         onClick={onMoveDown}
         className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-ed-ink-2 transition-colors hover:bg-ed-panel-3 hover:text-ed-ink"
       >

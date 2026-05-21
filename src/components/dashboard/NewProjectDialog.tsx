@@ -89,27 +89,36 @@ export function NewProjectDialog({ open, onClose, slug }: Props) {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-3 mb-6">
-              {TEMPLATES.map((t) => {
-                const active = selected === t.id;
-                return (
-                  <button
-                    key={t.id}
-                    type="button"
-                    onClick={() => setSelected(t.id)}
-                    className={cn(
-                      'text-left rounded-lg p-4 border transition',
-                      active
-                        ? 'border-brand bg-bg-sunken'
-                        : 'border-rule bg-bg-sunken hover:border-brand',
-                    )}
-                  >
-                    <div className="font-semibold text-ink">{t.label}</div>
-                    <div className="text-xs text-ink-3 mt-1">{t.description}</div>
-                  </button>
-                );
-              })}
-            </div>
+            {(['Quick start', 'Layouts'] as const).map((group) => {
+              const entries = TEMPLATES.filter((t) => t.group === group);
+              if (entries.length === 0) return null;
+              return (
+                <section key={group} className="mb-5">
+                  <div className="mb-2 text-[11px] font-medium uppercase tracking-[0.05em] text-ink-3">{group}</div>
+                  <div className="grid grid-cols-2 gap-3">
+                    {entries.map((t) => {
+                      const active = selected === t.id;
+                      return (
+                        <button
+                          key={t.id}
+                          type="button"
+                          onClick={() => setSelected(t.id)}
+                          className={cn(
+                            'text-left rounded-lg p-4 border transition',
+                            active
+                              ? 'border-brand bg-bg-sunken'
+                              : 'border-rule bg-bg-sunken hover:border-brand',
+                          )}
+                        >
+                          <div className="font-semibold text-ink">{t.label}</div>
+                          <div className="text-xs text-ink-3 mt-1">{t.description}</div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </section>
+              );
+            })}
 
             <div className="mt-6 flex justify-end gap-2">
               <Button variant="ghost" onClick={onClose} disabled={busy}>Cancel</Button>

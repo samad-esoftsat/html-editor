@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { extractTranslatable, applyTranslations } from '@/lib/translate/fields';
 import { findHeader, findFooter, productSections } from '@/lib/editor/blocks';
+import { createDefaultProject } from '@/lib/editor/defaultProject';
 import type { ProjectData } from '@/lib/editor/types';
 
 function sample(): ProjectData {
@@ -152,5 +153,57 @@ describe('applyTranslations', () => {
     });
     expect(productSections(result.blocks).length).toBe(2);
     expect(productSections(result.blocks)[0].bullets.length).toBe(2);
+  });
+});
+
+describe('translate fields (Phase 2 block types)', () => {
+  function withMiddle(middle: import('@/lib/editor/types').Block[]): import('@/lib/editor/types').ProjectData {
+    const base = createDefaultProject();
+    const header = base.blocks[0];
+    const footer = base.blocks[base.blocks.length - 1];
+    return { ...base, blocks: [header, ...middle, footer] };
+  }
+
+  it('extracts hero, article, and cta-banner strings under blocks.${i}.* namespace', () => {
+    const hero: import('@/lib/editor/types').HeroBlock = {
+      type: 'hero', id: 'h', imageSrc: '', imageAlt: 'alt-h', title: 'HeroT', subtitle: 'HeroS', ctaText: 'HeroC',
+    };
+    const article: import('@/lib/editor/types').ArticleBlock = {
+      type: 'article', id: 'a', imageSrc: '', imageAlt: 'alt-a', title: 'ArtT', body: 'ArtB', ctaText: 'ArtC', imagePosition: 'top',
+    };
+    const cta: import('@/lib/editor/types').CTABannerBlock = {
+      type: 'cta-banner', id: 'c', title: 'CTAt', subtitle: 'CTAs', ctaText: 'CTAc', align: 'center',
+    };
+    const out = extractTranslatable(withMiddle([hero, article, cta]));
+    // Header is at index 0, so hero is at 1, article at 2, cta at 3.
+    expect(out['blocks.1.hero.title']).toBe('HeroT');
+    expect(out['blocks.1.hero.subtitle']).toBe('HeroS');
+    expect(out['blocks.1.hero.imageAlt']).toBe('alt-h');
+    expect(out['blocks.1.hero.ctaText']).toBe('HeroC');
+    expect(out['blocks.2.article.title']).toBe('ArtT');
+    expect(out['blocks.2.article.body']).toBe('ArtB');
+    expect(out['blocks.2.article.imageAlt']).toBe('alt-a');
+    expect(out['blocks.2.article.ctaText']).toBe('ArtC');
+    expect(out['blocks.3.ctaBanner.title']).toBe('CTAt');
+    expect(out['blocks.3.ctaBanner.subtitle']).toBe('CTAs');
+    expect(out['blocks.3.ctaBanner.ctaText']).toBe('CTAc');
+  });
+
+  it('applies translations back to the right blocks', () => {
+    const hero: import('@/lib/editor/types').HeroBlock = {
+      type: 'hero', id: 'h', imageSrc: '', imageAlt: 'orig', title: 'Orig', subtitle: 'Origs', ctaText: 'Origc',
+    };
+    const data = withMiddle([hero]);
+    const translated = applyTranslations(data, {
+      'blocks.1.hero.title': 'Translated',
+      'blocks.1.hero.subtitle': 'Translateds',
+      'blocks.1.hero.imageAlt': 'Translatedalt',
+      'blocks.1.hero.ctaText': 'Translatedc',
+    });
+    const h = translated.blocks[1] as import('@/lib/editor/types').HeroBlock;
+    expect(h.title).toBe('Translated');
+    expect(h.subtitle).toBe('Translateds');
+    expect(h.imageAlt).toBe('Translatedalt');
+    expect(h.ctaText).toBe('Translatedc');
   });
 });

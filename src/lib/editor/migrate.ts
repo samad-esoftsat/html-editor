@@ -82,6 +82,10 @@ export function downgradeV2ToV1(v2: ProjectData): V1ProjectData {
   const footer = v2.blocks.find((b): b is FooterBlock => b.type === 'footer');
   const sections = v2.blocks.filter((b): b is ProductSectionBlock => b.type === 'product-section');
   if (!header || !footer) throw new Error('downgradeV2ToV1: missing header or footer block');
+  const phase2 = v2.blocks.filter((b) => b.type === 'hero' || b.type === 'article' || b.type === 'cta-banner');
+  if (phase2.length > 0) {
+    throw new Error(`downgradeV2ToV1: cannot downgrade — document contains ${phase2.length} Phase 2 block(s) (hero/article/cta-banner) with no V1 equivalent`);
+  }
   const { type: _ht, id: _hi, locked: _hl, ...headerFields } = header;
   const { type: _ft, id: _fi, locked: _fl, ...footerFields } = footer;
   return {
