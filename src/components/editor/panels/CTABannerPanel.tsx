@@ -80,6 +80,7 @@ export function CTABannerPanel({ block, index, total }: Props) {
                   <button
                     key={a}
                     type="button"
+                    disabled={!canEdit}
                     onClick={() => set({ align: a })}
                     className={cn(
                       'rounded-md border px-2 py-1 text-xs capitalize transition-colors',

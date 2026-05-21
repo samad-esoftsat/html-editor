@@ -82,6 +82,7 @@ export function ArticlePanel({ block, index, total }: Props) {
                   <button
                     key={p}
                     type="button"
+                    disabled={!canEdit}
                     onClick={() => set({ imagePosition: p })}
                     className={cn(
                       'rounded-md border px-2 py-1 text-xs capitalize transition-colors',
