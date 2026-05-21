@@ -1,7 +1,8 @@
 import { createStore, type StoreApi } from 'zustand/vanilla';
 import { temporal, type TemporalState } from 'zundo';
 import { v4 as uuid } from 'uuid';
-import type { Footer, GlobalStyles, Header, ProductSection, ProjectData } from './types';
+import type { Block, Footer, GlobalStyles, Header, ProductSection, ProductSectionBlock, ProjectData } from './types';
+import { findHeader, findFooter, makeProductSectionBlock } from './blocks';
 
 export type SaveStatus = 'idle' | 'pending' | 'saving' | 'error';
 
@@ -37,6 +38,13 @@ export interface EditorState {
   applyBrandKit(snapshot: BrandKitSnapshot): void;
   resetToSaved(): void;
 
+  updateBlock(id: string, patch: Partial<Block>): void;
+  addBlock(block: Block, atIndex?: number): void;
+  removeBlock(id: string): void;
+  moveBlock(id: string, dir: 'up' | 'down'): void;
+  duplicateBlock(id: string): void;
+  reorderBlocks(next: Block[]): void;
+
   markSaving(status: SaveStatus, error?: string | null): void;
   markSaved(updatedAt: string, data: ProjectData, name: string, brandKitId: string | null): void;
 }
@@ -63,15 +71,20 @@ interface Init {
 const HISTORY_THROTTLE_MS = 500;
 const HISTORY_LIMIT = 100;
 
-function blankSection(): ProductSection {
-  return {
-    id: uuid(),
-    title: 'New Product',
-    bullets: ['Feature one', 'Feature two'],
-    imageSrc: '',
-    imageAlt: '',
-    ctaText: 'Contact Us',
-  };
+function isLocked(b: Block): boolean {
+  return b.locked === true;
+}
+
+function validateInvariant(blocks: Block[]): boolean {
+  if (blocks.length < 2) return false;
+  if (blocks[0].type !== 'header') return false;
+  if (blocks[blocks.length - 1].type !== 'footer') return false;
+  for (let i = 1; i < blocks.length - 1; i++) {
+    if (blocks[i].type !== 'product-section') return false;
+  }
+  if (blocks.filter((b) => b.type === 'header').length !== 1) return false;
+  if (blocks.filter((b) => b.type === 'footer').length !== 1) return false;
+  return true;
 }
 
 export function createEditorStore(init: Init): EditorStore {
@@ -85,7 +98,7 @@ export function createEditorStore(init: Init): EditorStore {
 
   const store = createStore<EditorState>()(
     temporal(
-      (set) => ({
+      (set, get) => ({
         projectId: init.projectId,
         name: init.name,
         data: init.data,
@@ -102,74 +115,106 @@ export function createEditorStore(init: Init): EditorStore {
         setGlobal: (patch) => set((state) => ({
           data: { ...state.data, global: { ...state.data.global, ...patch } },
         })),
-        setHeader: (patch) => set((state) => ({
-          data: { ...state.data, header: { ...state.data.header, ...patch } },
+
+        // Block-generic core actions
+        updateBlock: (id, patch) => set((state) => ({
+          data: {
+            ...state.data,
+            blocks: state.data.blocks.map((b) =>
+              b.id === id ? ({ ...b, ...patch } as Block) : b,
+            ),
+          },
         })),
-        setFooter: (patch) => set((state) => ({
-          data: { ...state.data, footer: { ...state.data.footer, ...patch } },
-        })),
-        addSection: (atIndex) => set((state) => {
-          const fresh = blankSection();
-          const sections = state.data.sections.slice();
-          if (typeof atIndex === 'number' && atIndex >= 0 && atIndex <= sections.length) {
-            sections.splice(atIndex, 0, fresh);
-          } else {
-            sections.push(fresh);
-          }
-          return { data: { ...state.data, sections } };
+
+        addBlock: (block, atIndex) => set((state) => {
+          const blocks = state.data.blocks.slice();
+          const insertAt = typeof atIndex === 'number'
+            ? Math.max(1, Math.min(atIndex, blocks.length - 1))
+            : blocks.length - 1;
+          blocks.splice(insertAt, 0, block);
+          if (!validateInvariant(blocks)) return state;
+          return { data: { ...state.data, blocks } };
         }),
-        removeSection: (id) => set((state) => ({
-          data: { ...state.data, sections: state.data.sections.filter((section) => section.id !== id) },
-        })),
-        moveSection: (id, dir) => set((state) => {
-          const arr = state.data.sections;
-          const idx = arr.findIndex((section) => section.id === id);
+
+        removeBlock: (id) => set((state) => {
+          const target = state.data.blocks.find((b) => b.id === id);
+          if (!target || isLocked(target)) return state;
+          const blocks = state.data.blocks.filter((b) => b.id !== id);
+          if (!validateInvariant(blocks)) return state;
+          return { data: { ...state.data, blocks } };
+        }),
+
+        moveBlock: (id, dir) => set((state) => {
+          const arr = state.data.blocks;
+          const idx = arr.findIndex((b) => b.id === id);
           if (idx === -1) return state;
           const swap = dir === 'up' ? idx - 1 : idx + 1;
           if (swap < 0 || swap >= arr.length) return state;
+          if (isLocked(arr[idx]) || isLocked(arr[swap])) return state;
           const next = arr.slice();
           [next[idx], next[swap]] = [next[swap], next[idx]];
-          return { data: { ...state.data, sections: next } };
+          if (!validateInvariant(next)) return state;
+          return { data: { ...state.data, blocks: next } };
         }),
-        duplicateSection: (id) => set((state) => {
-          const idx = state.data.sections.findIndex((s) => s.id === id);
+
+        duplicateBlock: (id) => set((state) => {
+          const idx = state.data.blocks.findIndex((b) => b.id === id);
           if (idx < 0) return state;
-          const src = state.data.sections[idx];
-          const copy: ProductSection = {
-            ...src,
-            id: uuid(),
-            bullets: src.bullets.slice(),
-          };
-          const sections = state.data.sections.slice();
-          sections.splice(idx + 1, 0, copy);
-          return { data: { ...state.data, sections } };
+          const src = state.data.blocks[idx];
+          if (src.type !== 'product-section') return state;
+          const copy: ProductSectionBlock = { ...src, id: uuid(), bullets: src.bullets.slice() };
+          const blocks = state.data.blocks.slice();
+          blocks.splice(idx + 1, 0, copy);
+          return { data: { ...state.data, blocks } };
         }),
-        reorderSections: (next) => set((state) => ({
-          data: { ...state.data, sections: next },
-        })),
-        setSection: (id, patch) => set((state) => ({
-          data: {
-            ...state.data,
-            sections: state.data.sections.map((section) => (
-              section.id === id ? { ...section, ...patch } : section
-            )),
-          },
-        })),
+
+        reorderBlocks: (next) => set((state) => {
+          if (!validateInvariant(next)) return state;
+          return { data: { ...state.data, blocks: next } };
+        }),
+
+        // Legacy wrapper actions — same call signatures, delegate to core
+        setHeader: (patch) => {
+          const id = findHeader(get().data.blocks).id;
+          get().updateBlock(id, patch);
+        },
+        setFooter: (patch) => {
+          const id = findFooter(get().data.blocks).id;
+          get().updateBlock(id, patch);
+        },
+        addSection: (atIndex) => {
+          // Legacy atIndex was section-relative. Translate to block-relative: header at 0 → block index = atIndex + 1.
+          const blockIndex = typeof atIndex === 'number' ? atIndex + 1 : undefined;
+          get().addBlock(makeProductSectionBlock(), blockIndex);
+        },
+        removeSection: (id) => get().removeBlock(id),
+        moveSection: (id, dir) => get().moveBlock(id, dir),
+        duplicateSection: (id) => get().duplicateBlock(id),
+        reorderSections: (next) => {
+          const blocks = get().data.blocks;
+          const header = findHeader(blocks);
+          const footer = findFooter(blocks);
+          get().reorderBlocks([header, ...(next as ProductSectionBlock[]), footer]);
+        },
+        setSection: (id, patch) => get().updateBlock(id, patch),
+
         setProjectBrandKit: (id) => {
           flushHistoryCooldown();
           set({ brandKitId: id });
         },
-        applyBrandKit: (snapshot) => set((state) => ({
-          data: {
-            ...state.data,
-            global: snapshot.global
-              ? { ...state.data.global, ...snapshot.global }
-              : state.data.global,
-            footer: snapshot.footer
-              ? { ...state.data.footer, ...snapshot.footer }
-              : state.data.footer,
-          },
-        })),
+        applyBrandKit: (snapshot) => set((state) => {
+          const nextGlobal = snapshot.global
+            ? { ...state.data.global, ...snapshot.global }
+            : state.data.global;
+          if (!snapshot.footer) {
+            return { data: { ...state.data, global: nextGlobal } };
+          }
+          const footerId = findFooter(state.data.blocks).id;
+          const blocks = state.data.blocks.map((b) =>
+            b.id === footerId ? ({ ...b, ...snapshot.footer } as Block) : b,
+          );
+          return { data: { ...state.data, global: nextGlobal, blocks } };
+        }),
         resetToSaved: () => set((state) => ({
           data: state.lastSavedData,
           name: state.lastSavedName,
