@@ -1,5 +1,8 @@
-import type { Footer, Header, ProductSection, ProjectData, SocialPlatform } from '@/lib/editor/types';
-import { findHeader, findFooter, productSections } from '@/lib/editor/blocks';
+import type {
+  ArticleBlock, Block, CTABannerBlock, Footer, Header, HeroBlock,
+  ProductSection, ProjectData, SocialPlatform,
+} from '@/lib/editor/types';
+import { findHeader, findFooter } from '@/lib/editor/blocks';
 import { attrEscape, htmlEscape, urlSafe } from './escape';
 
 const SOCIAL_ICON: Record<SocialPlatform, { url: string; alt: string }> = {
@@ -147,19 +150,142 @@ ${MSO_CLOSE}
 </table>`;
 }
 
+function renderHero(block: HeroBlock, data: ProjectData): string {
+  const bg = block.backgroundColor ?? data.global.backgroundColor;
+  const fg = block.textColor ?? data.global.textColor;
+  const buttonColor = block.buttonColor ?? data.global.buttonColor;
+  const buttonTextColor = data.global.buttonTextColor;
+  const titleSize = block.titleFontSize ?? Math.max(data.global.headingFontSize, 28);
+  const subtitleSize = block.subtitleFontSize ?? data.global.baseFontSize;
+  const ctaUrl = urlSafe(block.ctaUrl ?? data.global.contactUrl);
+  const imageHtml = block.imageSrc
+    ? `<img src="${attrEscape(urlSafe(block.imageSrc))}" alt="${attrEscape(block.imageAlt)}" style="display: block; max-width: 100%; height: auto; border: 0; margin: 0 auto 16px;">`
+    : '';
+  const subtitleHtml = block.subtitle
+    ? `<p style="font-size: ${subtitleSize}px; color: ${attrEscape(fg)}; margin: 0 0 24px;">${htmlEscape(block.subtitle)}</p>`
+    : '';
+  return `<table role="presentation" class="row row-hero" width="100%" border="0" cellpadding="0" cellspacing="0" style="background-color: ${attrEscape(bg)};">
+<tr><td>
+${MSO_OPEN}
+<table role="presentation" class="row-content" width="710" border="0" cellpadding="0" cellspacing="0" align="center">
+<tr><td align="center" style="padding: 40px 24px; color: ${attrEscape(fg)};">
+${imageHtml}
+<h1 style="font-size: ${titleSize}px; font-weight: 700; margin: 0 0 12px; color: ${attrEscape(fg)};">${htmlEscape(block.title)}</h1>
+${subtitleHtml}
+<a href="${attrEscape(ctaUrl)}" target="_blank" style="display: inline-block; padding: 14px 28px; background-color: ${attrEscape(buttonColor)}; color: ${attrEscape(buttonTextColor)}; text-decoration: none; font-weight: 600; border-radius: 4px;">${htmlEscape(block.ctaText)}</a>
+</td></tr>
+</table>
+${MSO_CLOSE}
+</td></tr>
+</table>`;
+}
+
+function renderArticle(block: ArticleBlock, data: ProjectData): string {
+  const bg = block.backgroundColor ?? data.global.backgroundColor;
+  const fg = block.textColor ?? data.global.textColor;
+  const titleSize = block.titleFontSize ?? data.global.headingFontSize;
+  const bodySize = block.bodyFontSize ?? data.global.baseFontSize;
+  const ctaUrl = urlSafe(block.ctaUrl ?? data.global.contactUrl);
+
+  const imgHtml = block.imageSrc
+    ? `<img src="${attrEscape(urlSafe(block.imageSrc))}" alt="${attrEscape(block.imageAlt)}" style="display: block; max-width: 100%; height: auto; border: 0;">`
+    : '';
+  const titleHtml = `<h2 style="margin: 0 0 8px; font-size: ${titleSize}px; color: ${attrEscape(fg)};">${htmlEscape(block.title)}</h2>`;
+  const bodyHtml = `<p style="margin: 0 0 16px; font-size: ${bodySize}px; color: ${attrEscape(fg)}; white-space: pre-wrap;">${htmlEscape(block.body)}</p>`;
+  const ctaHtml = block.ctaText
+    ? `<a href="${attrEscape(ctaUrl)}" target="_blank" style="color: ${attrEscape(data.global.buttonColor)}; font-weight: 600; text-decoration: none;">${htmlEscape(block.ctaText)}</a>`
+    : '';
+  const textCell = `<td class="article-col" valign="top" style="padding: 16px;">${titleHtml}${bodyHtml}${ctaHtml}</td>`;
+  const imageCell = `<td class="article-col" width="40%" valign="top" style="padding: 16px;">${imgHtml}</td>`;
+
+  let inner: string;
+  if (block.imagePosition === 'top') {
+    inner = `<tr><td class="article-col article-image" valign="top" style="padding: 24px 24px 8px;">${imgHtml}</td></tr>
+<tr>${textCell}</tr>`;
+  } else if (block.imagePosition === 'left') {
+    inner = `<tr>${imageCell}${textCell}</tr>`;
+  } else {
+    inner = `<tr>${textCell}${imageCell}</tr>`;
+  }
+
+  return `<table role="presentation" class="row row-article" width="100%" border="0" cellpadding="0" cellspacing="0" style="background-color: ${attrEscape(bg)};">
+<tr><td>
+${MSO_OPEN}
+<table role="presentation" class="row-content stack" width="710" border="0" cellpadding="0" cellspacing="0" align="center">
+${inner}
+</table>
+${MSO_CLOSE}
+</td></tr>
+</table>`;
+}
+
+function renderCTABanner(block: CTABannerBlock, data: ProjectData): string {
+  const bg = block.backgroundColor ?? data.global.backgroundColor;
+  const fg = block.textColor ?? data.global.textColor;
+  const buttonColor = block.buttonColor ?? data.global.buttonColor;
+  const buttonTextColor = data.global.buttonTextColor;
+  const titleSize = block.titleFontSize ?? data.global.headingFontSize;
+  const ctaUrl = urlSafe(block.ctaUrl ?? data.global.contactUrl);
+
+  const titleHtml = block.title
+    ? `<h2 style="margin: 0 0 8px; font-size: ${titleSize}px; color: ${attrEscape(fg)};">${htmlEscape(block.title)}</h2>`
+    : '';
+  const subtitleHtml = block.subtitle
+    ? `<p style="margin: 0 0 16px; color: ${attrEscape(fg)};">${htmlEscape(block.subtitle)}</p>`
+    : '';
+
+  return `<table role="presentation" class="row row-cta-banner" width="100%" border="0" cellpadding="0" cellspacing="0" style="background-color: ${attrEscape(bg)};">
+<tr><td>
+${MSO_OPEN}
+<table role="presentation" class="row-content" width="710" border="0" cellpadding="0" cellspacing="0" align="center">
+<tr><td style="padding: 32px 24px; text-align: ${block.align};">
+${titleHtml}
+${subtitleHtml}
+<a href="${attrEscape(ctaUrl)}" target="_blank" style="display: inline-block; padding: 12px 24px; background-color: ${attrEscape(buttonColor)}; color: ${attrEscape(buttonTextColor)}; text-decoration: none; font-weight: 600;">${htmlEscape(block.ctaText)}</a>
+</td></tr>
+</table>
+${MSO_CLOSE}
+</td></tr>
+</table>`;
+}
+
 function renderBody(data: ProjectData): string {
   const bg = data.global.backgroundColor;
   const fontFamily = data.global.fontFamily;
   const fontSize = data.global.baseFontSize;
   const header = findHeader(data.blocks);
   const footer = findFooter(data.blocks);
-  const sections = productSections(data.blocks);
-  const sectionsHtml = sections.map((s, i) => renderSection(s, i, data)).join('\n');
+
+  let middleIndex = -1;
+  const middleHtml = data.blocks
+    .map((block) => {
+      switch (block.type) {
+        case 'header':
+        case 'footer':
+          return '';
+        case 'product-section': {
+          middleIndex += 1;
+          return renderSection(block, middleIndex, data);
+        }
+        case 'hero':
+          middleIndex += 1;
+          return renderHero(block, data);
+        case 'article':
+          middleIndex += 1;
+          return renderArticle(block, data);
+        case 'cta-banner':
+          middleIndex += 1;
+          return renderCTABanner(block, data);
+      }
+    })
+    .filter(Boolean)
+    .join('\n');
+
   return `<body style="margin: 0; padding: 0; background-color: ${attrEscape(bg)}; font-family: ${attrEscape(fontFamily)}; font-size: ${fontSize}px;">
 <table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0" style="background-color: ${attrEscape(bg)};">
 <tr><td align="center">
 ${renderHeader(header, data.global.contactUrl)}
-${sectionsHtml}
+${middleHtml}
 ${renderFooter(footer, data)}
 </td></tr>
 </table>
