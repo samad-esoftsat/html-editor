@@ -80,7 +80,7 @@ function validateInvariant(blocks: Block[]): boolean {
   if (blocks[0].type !== 'header') return false;
   if (blocks[blocks.length - 1].type !== 'footer') return false;
   for (let i = 1; i < blocks.length - 1; i++) {
-    if (blocks[i].type !== 'product-section') return false;
+    if (blocks[i].type === 'header' || blocks[i].type === 'footer') return false;
   }
   if (blocks.filter((b) => b.type === 'header').length !== 1) return false;
   if (blocks.filter((b) => b.type === 'footer').length !== 1) return false;
@@ -161,8 +161,10 @@ export function createEditorStore(init: Init): EditorStore {
           const idx = state.data.blocks.findIndex((b) => b.id === id);
           if (idx < 0) return state;
           const src = state.data.blocks[idx];
-          if (src.type !== 'product-section') return state;
-          const copy: ProductSectionBlock = { ...src, id: uuid(), bullets: src.bullets.slice() };
+          if (isLocked(src)) return state;
+          const copy: Block = src.type === 'product-section'
+            ? { ...src, id: uuid(), bullets: src.bullets.slice() }
+            : { ...src, id: uuid() };
           const blocks = state.data.blocks.slice();
           blocks.splice(idx + 1, 0, copy);
           if (!validateInvariant(blocks)) return state;
