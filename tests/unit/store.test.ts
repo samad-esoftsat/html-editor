@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { createDefaultProject } from '@/lib/editor/defaultProject';
 import { createEditorStore } from '@/lib/editor/store';
+import { productSections } from '@/lib/editor/blocks';
 
 const NOW = '2026-05-05T10:00:00Z';
 
@@ -25,9 +26,9 @@ describe('editor store', () => {
 
   it('addSection appends a new blank section with unique id', () => {
     const store = freshStore();
-    const before = store.getState().data.sections.length;
+    const before = productSections(store.getState().data.blocks).length;
     store.getState().addSection();
-    const after = store.getState().data.sections;
+    const after = productSections(store.getState().data.blocks);
     expect(after.length).toBe(before + 1);
     expect(after.at(-1)!.title).toBe('New Product');
     expect(new Set(after.map((section) => section.id)).size).toBe(after.length);
@@ -35,60 +36,60 @@ describe('editor store', () => {
 
   it('removeSection removes by id', () => {
     const store = freshStore();
-    const target = store.getState().data.sections[2].id;
+    const target = productSections(store.getState().data.blocks)[2].id;
     store.getState().removeSection(target);
-    expect(store.getState().data.sections.find((section) => section.id === target)).toBeUndefined();
+    expect(productSections(store.getState().data.blocks).find((section) => section.id === target)).toBeUndefined();
   });
 
   it('moveSection up swaps with previous', () => {
     const store = freshStore();
-    const ids = store.getState().data.sections.map((section) => section.id);
+    const ids = productSections(store.getState().data.blocks).map((section) => section.id);
     store.getState().moveSection(ids[3], 'up');
-    const after = store.getState().data.sections.map((section) => section.id);
+    const after = productSections(store.getState().data.blocks).map((section) => section.id);
     expect(after[2]).toBe(ids[3]);
     expect(after[3]).toBe(ids[2]);
   });
 
   it('moveSection up at index 0 is a noop', () => {
     const store = freshStore();
-    const ids = store.getState().data.sections.map((section) => section.id);
+    const ids = productSections(store.getState().data.blocks).map((section) => section.id);
     store.getState().moveSection(ids[0], 'up');
-    expect(store.getState().data.sections.map((section) => section.id)).toEqual(ids);
+    expect(productSections(store.getState().data.blocks).map((section) => section.id)).toEqual(ids);
   });
 
   it('moveSection down at last index is a noop', () => {
     const store = freshStore();
-    const ids = store.getState().data.sections.map((section) => section.id);
+    const ids = productSections(store.getState().data.blocks).map((section) => section.id);
     store.getState().moveSection(ids.at(-1)!, 'down');
-    expect(store.getState().data.sections.map((section) => section.id)).toEqual(ids);
+    expect(productSections(store.getState().data.blocks).map((section) => section.id)).toEqual(ids);
   });
 
   it('setSection patches one section, leaves siblings untouched', () => {
     const store = freshStore();
-    const id = store.getState().data.sections[2].id;
-    const otherTitleBefore = store.getState().data.sections[3].title;
+    const id = productSections(store.getState().data.blocks)[2].id;
+    const otherTitleBefore = productSections(store.getState().data.blocks)[3].title;
     store.getState().setSection(id, { title: 'Renamed' });
-    expect(store.getState().data.sections[2].title).toBe('Renamed');
-    expect(store.getState().data.sections[3].title).toBe(otherTitleBefore);
+    expect(productSections(store.getState().data.blocks)[2].title).toBe('Renamed');
+    expect(productSections(store.getState().data.blocks)[3].title).toBe(otherTitleBefore);
   });
 });
 
 describe('addSection with atIndex', () => {
   it('inserts at the given index', () => {
     const store = freshStore();
-    const startCount = store.getState().data.sections.length;
-    const firstId = store.getState().data.sections[0]?.id;
+    const startCount = productSections(store.getState().data.blocks).length;
+    const firstId = productSections(store.getState().data.blocks)[0]?.id;
     store.getState().addSection(0);
-    const after = store.getState().data.sections;
+    const after = productSections(store.getState().data.blocks);
     expect(after.length).toBe(startCount + 1);
     expect(after[1]?.id).toBe(firstId);
   });
 
   it('appends when no index is given', () => {
     const store = freshStore();
-    const startCount = store.getState().data.sections.length;
+    const startCount = productSections(store.getState().data.blocks).length;
     store.getState().addSection();
-    expect(store.getState().data.sections.length).toBe(startCount + 1);
+    expect(productSections(store.getState().data.blocks).length).toBe(startCount + 1);
   });
 });
 
@@ -96,10 +97,13 @@ describe('duplicateSection', () => {
   // Use a one-section store so "length === 2 after duplicate" is unambiguous
   function singleSectionStore() {
     const base = createDefaultProject();
+    const firstSection = productSections(base.blocks)[0];
+    const header = base.blocks.find((b) => b.type === 'header')!;
+    const footer = base.blocks.find((b) => b.type === 'footer')!;
     return createEditorStore({
       projectId: 'p1',
       name: 'Test',
-      data: { ...base, sections: [base.sections[0]] },
+      data: { ...base, blocks: [header, firstSection, footer] },
       brandKitId: null,
       workspaceSlug: 'test-ws',
       serverUpdatedAt: NOW,
@@ -108,9 +112,9 @@ describe('duplicateSection', () => {
 
   it('inserts a copy with a fresh id right after the source', () => {
     const store = singleSectionStore();
-    const src = store.getState().data.sections[0];
+    const src = productSections(store.getState().data.blocks)[0];
     store.getState().duplicateSection(src.id);
-    const after = store.getState().data.sections;
+    const after = productSections(store.getState().data.blocks);
     expect(after.length).toBe(2);
     expect(after[0].id).toBe(src.id);
     expect(after[1].id).not.toBe(src.id);
@@ -121,9 +125,9 @@ describe('duplicateSection', () => {
 
   it('is a no-op for unknown id', () => {
     const store = singleSectionStore();
-    const before = store.getState().data.sections;
+    const before = productSections(store.getState().data.blocks);
     store.getState().duplicateSection('nonexistent-id');
-    expect(store.getState().data.sections).toBe(before);
+    expect(productSections(store.getState().data.blocks)).toStrictEqual(before);
   });
 });
 
@@ -131,9 +135,10 @@ describe('reorderSections', () => {
   it('replaces the sections array with the provided value', () => {
     const store = freshStore();
     store.getState().addSection();
-    const [a, b] = store.getState().data.sections;
+    const sections = productSections(store.getState().data.blocks);
+    const [a, b] = sections;
     store.getState().reorderSections([b, a]);
-    const next = store.getState().data.sections;
+    const next = productSections(store.getState().data.blocks);
     expect(next[0].id).toBe(b.id);
     expect(next[1].id).toBe(a.id);
   });

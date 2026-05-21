@@ -12,14 +12,20 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 const mockDuplicate = vi.fn();
 const mockRemove = vi.fn();
 const mockMove = vi.fn();
-const fakeSections = [{ id: 'a' }, { id: 'b' }, { id: 'c' }];
+const fakeBlocks = [
+  { id: '__header__', type: 'header' },
+  { id: 'a', type: 'product-section' },
+  { id: 'b', type: 'product-section' },
+  { id: 'c', type: 'product-section' },
+  { id: '__footer__', type: 'footer' },
+];
 vi.mock('@/lib/editor/StoreProvider', () => ({
   useEditorStore: () => ({
     getState: () => ({
       duplicateSection: mockDuplicate,
       removeSection: mockRemove,
       moveSection: mockMove,
-      data: { sections: fakeSections },
+      data: { blocks: fakeBlocks },
     }),
   }),
 }));

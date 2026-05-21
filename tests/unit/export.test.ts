@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { renderEmail } from '@/lib/export/renderEmail';
 import { createDefaultProject } from '@/lib/editor/defaultProject';
+import { productSections } from '@/lib/editor/blocks';
 
 describe('renderEmail (skeleton)', () => {
   it('returns a string starting with <!DOCTYPE html>', () => {
@@ -78,7 +79,7 @@ describe('renderEmail (skeleton)', () => {
 
   it('escapes XSS attempts in section title', () => {
     const data = createDefaultProject();
-    data.sections[0].title = '<script>alert(1)</script>';
+    productSections(data.blocks)[0].title = '<script>alert(1)</script>';
     const html = renderEmail(data);
     expect(html).not.toContain('<script>alert(1)</script>');
     expect(html).toContain('&lt;script&gt;alert(1)&lt;/script&gt;');
@@ -86,7 +87,7 @@ describe('renderEmail (skeleton)', () => {
 
   it('blocks javascript: in CTA URL by replacing with #', () => {
     const data = createDefaultProject();
-    data.sections[0].ctaUrl = 'javascript:alert(1)';
+    productSections(data.blocks)[0].ctaUrl = 'javascript:alert(1)';
     const html = renderEmail(data);
     expect(html).not.toContain('javascript:alert(1)');
   });
@@ -145,7 +146,7 @@ describe('renderEmail (reference fragments)', () => {
 
   it('escapes & in any URL-derived attribute (no raw & character)', () => {
     const data = createDefaultProject();
-    data.sections[0].ctaUrl = 'https://example.com/?a=1&b=2';
+    productSections(data.blocks)[0].ctaUrl = 'https://example.com/?a=1&b=2';
     const html = renderEmail(data);
     expect(html).toContain('https://example.com/?a=1&amp;b=2');
   });
