@@ -102,3 +102,33 @@ describe('renderPrintDocument — header and footer content', () => {
     expect(html).toContain('&lt;script&gt;alert(1)&lt;/script&gt;');
   });
 });
+
+describe('renderPrintDocument — product sections', () => {
+  it('renders each product section wrapped in a .print-block div', () => {
+    const html = renderPrintDocument(createDefaultProject());
+    // GlobalTT has 8 product sections
+    const matches = html.match(/<div class="print-block">/g) || [];
+    expect(matches.length).toBe(8);
+  });
+
+  it('renders product section titles', () => {
+    const html = renderPrintDocument(createDefaultProject());
+    expect(html).toContain('Starlink Solutions');
+    expect(html).toContain('V-Sat GEO Satellite Ku-Band');
+  });
+
+  it('renders product section bullets', () => {
+    const html = renderPrintDocument(createDefaultProject());
+    expect(html).toContain('NEW - Worldwide satellite internet.');
+  });
+
+  it('renders product section CTAs with the contact URL', () => {
+    const html = renderPrintDocument(createDefaultProject());
+    expect(html).toContain('https://www.globaltt.com/en/quickContact-GlobalTT.html');
+  });
+
+  it('alternates image-text order using middle-slice index', () => {
+    const html = renderPrintDocument(createDefaultProject());
+    expect(html).toMatch(/product-section.*reverse/);
+  });
+});

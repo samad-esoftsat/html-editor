@@ -1,4 +1,4 @@
-import type { HeaderBlock, FooterBlock, ProjectData, SocialPlatform } from '@/lib/editor/types';
+import type { Block, HeaderBlock, FooterBlock, ProductSectionBlock, ProjectData, SocialPlatform } from '@/lib/editor/types';
 import { findHeader, findFooter } from '@/lib/editor/blocks';
 import { attrEscape, htmlEscape, urlSafe } from './escape';
 
@@ -110,9 +110,55 @@ ${socials}
 </div>`;
 }
 
+function renderProductSectionForPrint(section: ProductSectionBlock, idx: number, data: ProjectData): string {
+  const reverse = idx % 2 === 1;
+  const titleSize = section.titleFontSize ?? 22;
+  const bulletSize = section.bulletFontSize ?? 16;
+  const textColor = section.textColor ?? data.global.textColor;
+  const buttonColor = section.buttonColor ?? data.global.buttonColor;
+  const bg = section.backgroundColor ?? '';
+  const ctaUrl = urlSafe(section.ctaUrl ?? data.global.contactUrl);
+  const imageSrc = urlSafe(section.imageSrc);
+
+  const bulletsHtml = section.bullets
+    .map((b) => `<li style="margin: 4px 0; font-size: ${bulletSize}px; color: ${attrEscape(textColor)};">${htmlEscape(b)}</li>`)
+    .join('');
+
+  const imageCol = `<div style="flex: 0 0 50%; padding: 12px;"><img src="${attrEscape(imageSrc)}" alt="${attrEscape(section.imageAlt)}" style="display: block; max-width: 100%; height: auto;"></div>`;
+  const textCol = `<div style="flex: 0 0 50%; padding: 12px;">
+<h2 style="margin: 0 0 6px 0; font-size: ${titleSize}px; color: ${attrEscape(textColor)};">${htmlEscape(section.title)}</h2>
+<ul style="margin: 0 0 10px 0; padding-left: 20px;">${bulletsHtml}</ul>
+<a href="${attrEscape(ctaUrl)}" target="_blank" style="display: inline-block; padding: 8px 16px; background-color: ${attrEscape(buttonColor)}; color: ${attrEscape(data.global.buttonTextColor)}; text-decoration: none; border-radius: 4px; font-weight: bold;">${htmlEscape(section.ctaText)}</a>
+</div>`;
+
+  const cells = reverse ? `${textCol}${imageCol}` : `${imageCol}${textCol}`;
+  const reverseClass = reverse ? ' reverse' : '';
+  const bgStyle = bg ? ` background-color: ${attrEscape(bg)};` : '';
+  return `<section class="product-section${reverseClass}" style="display: flex; flex-direction: row;${bgStyle}">${cells}</section>`;
+}
+
+function renderBlockForPrint(block: Block, idx: number, data: ProjectData): string {
+  switch (block.type) {
+    case 'product-section':
+      return renderProductSectionForPrint(block, idx, data);
+    case 'hero':
+    case 'article':
+    case 'cta-banner':
+      return ''; // implemented in Task 5
+    case 'header':
+    case 'footer':
+      return '';
+  }
+}
+
 export function renderPrintDocument(data: ProjectData): string {
   const header = findHeader(data.blocks);
   const footer = findFooter(data.blocks);
+  const middle = data.blocks.slice(1, -1);
+  const middleHtml = middle
+    .map((b, i) => `<div class="print-block">${renderBlockForPrint(b, i, data)}</div>`)
+    .join('\n');
+
   return `<!doctype html>
 <html lang="en">
 ${renderHead(data)}
@@ -120,6 +166,7 @@ ${renderHead(data)}
 <div class="running-header">${renderHeaderForPrint(header, data)}</div>
 <div class="running-footer">${renderFooterForPrint(footer, data)}</div>
 <main>
+${middleHtml}
 </main>
 </body>
 </html>`;
