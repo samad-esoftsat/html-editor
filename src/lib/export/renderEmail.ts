@@ -200,7 +200,7 @@ function renderArticle(block: ArticleBlock, data: ProjectData): string {
 
   let inner: string;
   if (block.imagePosition === 'top') {
-    inner = `<tr><td class="article-col article-image" valign="top" style="padding: 24px 24px 8px;">${imgHtml}</td></tr>
+    inner = `<tr><td class="article-col" valign="top" style="padding: 24px 24px 8px;">${imgHtml}</td></tr>
 <tr>${textCell}</tr>`;
   } else if (block.imagePosition === 'left') {
     inner = `<tr>${imageCell}${textCell}</tr>`;
@@ -256,29 +256,23 @@ function renderBody(data: ProjectData): string {
   const header = findHeader(data.blocks);
   const footer = findFooter(data.blocks);
 
-  let middleIndex = -1;
   const middleHtml = data.blocks
-    .map((block) => {
+    .reduce<{ idx: number; out: string[] }>((acc, block) => {
       switch (block.type) {
         case 'header':
         case 'footer':
-          return '';
-        case 'product-section': {
-          middleIndex += 1;
-          return renderSection(block, middleIndex, data);
-        }
+          return acc;
+        case 'product-section':
+          return { idx: acc.idx + 1, out: [...acc.out, renderSection(block, acc.idx, data)] };
         case 'hero':
-          middleIndex += 1;
-          return renderHero(block, data);
+          return { idx: acc.idx + 1, out: [...acc.out, renderHero(block, data)] };
         case 'article':
-          middleIndex += 1;
-          return renderArticle(block, data);
+          return { idx: acc.idx + 1, out: [...acc.out, renderArticle(block, data)] };
         case 'cta-banner':
-          middleIndex += 1;
-          return renderCTABanner(block, data);
+          return { idx: acc.idx + 1, out: [...acc.out, renderCTABanner(block, data)] };
       }
-    })
-    .filter(Boolean)
+    }, { idx: 0, out: [] })
+    .out
     .join('\n');
 
   return `<body style="margin: 0; padding: 0; background-color: ${attrEscape(bg)}; font-family: ${attrEscape(fontFamily)}; font-size: ${fontSize}px;">
