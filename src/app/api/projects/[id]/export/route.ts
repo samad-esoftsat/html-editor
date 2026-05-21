@@ -1,8 +1,8 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { migrate } from '@/lib/editor/migrate';
 import { renderEmail } from '@/lib/export/renderEmail';
 import { embedImagesInHtml } from '@/lib/export/embedImages';
-import type { ProjectData } from '@/lib/editor/types';
 
 interface Ctx {
   params: Promise<{ id: string }>;
@@ -26,7 +26,7 @@ export async function GET(req: NextRequest, { params }: Ctx) {
   if (!data) return NextResponse.json({ error: 'not_found' }, { status: 404 });
 
   const embed = req.nextUrl.searchParams.get('embed') === '1';
-  let html = renderEmail(data.data as ProjectData);
+  let html = renderEmail(migrate(data.data));
   let failures = 0;
   if (embed) {
     const result = await embedImagesInHtml(html);

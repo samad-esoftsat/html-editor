@@ -1,10 +1,10 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { migrate } from '@/lib/editor/migrate';
 import { extractTranslatable, applyTranslations } from '@/lib/translate/fields';
 import { translateStrings } from '@/lib/translate/gemini';
 import { isLanguageCode, getLanguage } from '@/lib/translate/languages';
 import { resolveMinRole, type Role } from '@/lib/auth/workspace';
-import type { ProjectData } from '@/lib/editor/types';
 
 interface Ctx {
   params: Promise<{ id: string }>;
@@ -68,7 +68,7 @@ export async function POST(req: NextRequest, { params }: Ctx) {
     return NextResponse.json({ error: 'forbidden' }, { status: 403 });
   }
 
-  const sourceData = src.data as ProjectData;
+  const sourceData = migrate(src.data);
   const strings = extractTranslatable(sourceData);
 
   let translations: Record<string, string>;
