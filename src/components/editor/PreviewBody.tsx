@@ -9,8 +9,11 @@ import { useSectionSelection } from './SectionSelectionProvider';
 import { SelectionActionBar } from './canvas/SelectionActionBar';
 import { HeaderBlockView } from './blocks/HeaderBlockView';
 import { ProductSectionView } from './blocks/ProductSectionView';
+import { HeroBlockView } from './blocks/HeroBlockView';
+import { ArticleView } from './blocks/ArticleView';
+import { CTABannerView } from './blocks/CTABannerView';
 import { FooterBlockView } from './blocks/FooterBlockView';
-import { findHeader, findFooter, productSections } from '@/lib/editor/blocks';
+import { findHeader, findFooter } from '@/lib/editor/blocks';
 
 export function PreviewBody() {
   const data = useEditor((s) => s.data);
@@ -19,7 +22,8 @@ export function PreviewBody() {
   const reorderBlocks = store.getState().reorderBlocks;
   const selection = useSectionSelection();
 
-  const sections = productSections(data.blocks);
+  // Middle slice = everything between header and footer; heterogeneous drag operates on this.
+  const middleBlocks = data.blocks.slice(1, -1);
 
   function onCanvasMouseDown(e: React.MouseEvent) {
     if (e.target === e.currentTarget) selection.clear();
@@ -36,13 +40,13 @@ export function PreviewBody() {
   function onDragEnd(e: DragEndEvent) {
     const { active, over } = e;
     if (!over || active.id === over.id) return;
-    const oldIndex = sections.findIndex((s) => s.id === active.id);
-    const newIndex = sections.findIndex((s) => s.id === over.id);
+    const oldIndex = middleBlocks.findIndex((b) => b.id === active.id);
+    const newIndex = middleBlocks.findIndex((b) => b.id === over.id);
     if (oldIndex < 0 || newIndex < 0) return;
-    const reorderedSections = arrayMove(sections, oldIndex, newIndex);
+    const reordered = arrayMove(middleBlocks, oldIndex, newIndex);
     const header = findHeader(data.blocks);
     const footer = findFooter(data.blocks);
-    reorderBlocks([header, ...reorderedSections, footer]);
+    reorderBlocks([header, ...reordered, footer]);
   }
 
   return (
@@ -52,20 +56,56 @@ export function PreviewBody() {
       style={{ background: data.global.backgroundColor, padding: 0, minHeight: '100%', fontFamily: data.global.fontFamily }}
     >
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
-        <SortableContext items={sections.map((s) => s.id)} strategy={verticalListSortingStrategy}>
+        <SortableContext items={middleBlocks.map((b) => b.id)} strategy={verticalListSortingStrategy}>
           {data.blocks.map((block) => {
             switch (block.type) {
               case 'header':
                 return <HeaderBlockView key={block.id} block={block} global={data.global} />;
               case 'product-section': {
-                const sectionIndex = sections.findIndex((s) => s.id === block.id);
+                const idx = middleBlocks.findIndex((b) => b.id === block.id);
                 return (
                   <ProductSectionView
                     key={block.id}
                     block={block}
                     global={data.global}
-                    index={sectionIndex}
-                    total={sections.length}
+                    index={idx}
+                    total={middleBlocks.length}
+                  />
+                );
+              }
+              case 'hero': {
+                const idx = middleBlocks.findIndex((b) => b.id === block.id);
+                return (
+                  <HeroBlockView
+                    key={block.id}
+                    block={block}
+                    global={data.global}
+                    index={idx}
+                    total={middleBlocks.length}
+                  />
+                );
+              }
+              case 'article': {
+                const idx = middleBlocks.findIndex((b) => b.id === block.id);
+                return (
+                  <ArticleView
+                    key={block.id}
+                    block={block}
+                    global={data.global}
+                    index={idx}
+                    total={middleBlocks.length}
+                  />
+                );
+              }
+              case 'cta-banner': {
+                const idx = middleBlocks.findIndex((b) => b.id === block.id);
+                return (
+                  <CTABannerView
+                    key={block.id}
+                    block={block}
+                    global={data.global}
+                    index={idx}
+                    total={middleBlocks.length}
                   />
                 );
               }
@@ -73,8 +113,8 @@ export function PreviewBody() {
                 return <FooterBlockView key={block.id} block={block} global={data.global} />;
             }
           })}
-          {sections.length === 0 && <SectionInsertBar atIndex={0} />}
-          {sections.length > 0 && <SectionInsertBar atIndex={sections.length} />}
+          {middleBlocks.length === 0 && <SectionInsertBar atIndex={0} />}
+          {middleBlocks.length > 0 && <SectionInsertBar atIndex={middleBlocks.length} />}
         </SortableContext>
       </DndContext>
       <SelectionActionBar />
