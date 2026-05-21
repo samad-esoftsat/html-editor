@@ -38,7 +38,7 @@ export interface EditorState {
   applyBrandKit(snapshot: BrandKitSnapshot): void;
   resetToSaved(): void;
 
-  updateBlock(id: string, patch: Partial<Block>): void;
+  updateBlock(id: string, patch: Omit<Partial<Block>, 'type' | 'id'>): void;
   addBlock(block: Block, atIndex?: number): void;
   removeBlock(id: string): void;
   moveBlock(id: string, dir: 'up' | 'down'): void;
@@ -165,6 +165,7 @@ export function createEditorStore(init: Init): EditorStore {
           const copy: ProductSectionBlock = { ...src, id: uuid(), bullets: src.bullets.slice() };
           const blocks = state.data.blocks.slice();
           blocks.splice(idx + 1, 0, copy);
+          if (!validateInvariant(blocks)) return state;
           return { data: { ...state.data, blocks } };
         }),
 
@@ -176,11 +177,13 @@ export function createEditorStore(init: Init): EditorStore {
         // Legacy wrapper actions — same call signatures, delegate to core
         setHeader: (patch) => {
           const id = findHeader(get().data.blocks).id;
-          get().updateBlock(id, patch);
+          const { type: _t, id: _i, ...rest } = patch as Partial<Block>;
+          get().updateBlock(id, rest);
         },
         setFooter: (patch) => {
           const id = findFooter(get().data.blocks).id;
-          get().updateBlock(id, patch);
+          const { type: _t, id: _i, ...rest } = patch as Partial<Block>;
+          get().updateBlock(id, rest);
         },
         addSection: (atIndex) => {
           // Legacy atIndex was section-relative. Translate to block-relative: header at 0 → block index = atIndex + 1.
@@ -196,7 +199,10 @@ export function createEditorStore(init: Init): EditorStore {
           const footer = findFooter(blocks);
           get().reorderBlocks([header, ...(next as ProductSectionBlock[]), footer]);
         },
-        setSection: (id, patch) => get().updateBlock(id, patch),
+        setSection: (id, patch) => {
+          const { type: _t, id: _i, ...rest } = patch as Partial<Block>;
+          get().updateBlock(id, rest);
+        },
 
         setProjectBrandKit: (id) => {
           flushHistoryCooldown();
