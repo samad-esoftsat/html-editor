@@ -142,7 +142,7 @@ export function EditableBulletList({
       aria-label={ariaLabel}
       data-bullet-list={ariaLabel}
       className={className}
-      style={{ margin: 0, paddingLeft: '40px' }}
+      style={{ margin: '1em 0', paddingLeft: '40px' }}
     >
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onBulletDragEnd}>
         <SortableContext items={ids} strategy={verticalListSortingStrategy}>
