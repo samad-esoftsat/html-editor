@@ -1,6 +1,7 @@
 'use client';
 import { ArrowDown, ArrowUp, Copy, X } from 'lucide-react';
 import { useEditorStore } from '@/lib/editor/StoreProvider';
+import { productSections } from '@/lib/editor/blocks';
 import { confirmDialog } from '@/lib/utils/confirm';
 import { useEditorMode } from '../EditorModeProvider';
 import { useSectionSelection } from '../SectionSelectionProvider';
@@ -13,7 +14,7 @@ export function SelectionActionBar() {
   if (mode === 'preview') return null;
   if (selected.size === 0) return null;
 
-  const stateIds = store.getState().data.sections.map((s) => s.id);
+  const stateIds = productSections(store.getState().data.blocks).map((b) => b.id);
   const ordered = stateIds.filter((id) => selected.has(id));
 
   function onDuplicate() {

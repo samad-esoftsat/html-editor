@@ -1,4 +1,5 @@
 import type { ProjectData } from '@/lib/editor/types';
+import { findHeader, findFooter, productSections } from '@/lib/editor/blocks';
 
 type StringMap = Record<string, string>;
 
@@ -10,23 +11,26 @@ function add(out: StringMap, key: string, value: unknown): void {
 
 export function extractTranslatable(data: ProjectData): StringMap {
   const out: StringMap = {};
+  const header = findHeader(data.blocks);
+  const footer = findFooter(data.blocks);
+  const sections = productSections(data.blocks);
 
-  add(out, 'header.title', data.header.title);
-  add(out, 'header.sectionHeading', data.header.sectionHeading);
-  add(out, 'header.logoAlt', data.header.logoAlt);
-  add(out, 'header.bannerAlt', data.header.bannerAlt);
+  add(out, 'header.title', header.title);
+  add(out, 'header.sectionHeading', header.sectionHeading);
+  add(out, 'header.logoAlt', header.logoAlt);
+  add(out, 'header.bannerAlt', header.bannerAlt);
 
-  data.sections.forEach((s, i) => {
+  sections.forEach((s, i) => {
     add(out, `sections.${i}.title`, s.title);
     add(out, `sections.${i}.imageAlt`, s.imageAlt);
     add(out, `sections.${i}.ctaText`, s.ctaText);
     s.bullets.forEach((b, j) => add(out, `sections.${i}.bullets.${j}`, b));
   });
 
-  add(out, 'footer.bannerAlt', data.footer.bannerAlt);
-  add(out, 'footer.companyName', data.footer.companyName);
-  add(out, 'footer.address', data.footer.address);
-  data.footer.websites.forEach((w, i) => add(out, `footer.websites.${i}.label`, w.label));
+  add(out, 'footer.bannerAlt', footer.bannerAlt);
+  add(out, 'footer.companyName', footer.companyName);
+  add(out, 'footer.address', footer.address);
+  footer.websites.forEach((w, i) => add(out, `footer.websites.${i}.label`, w.label));
 
   return out;
 }
@@ -41,13 +45,16 @@ function isUsableString(value: unknown): value is string {
 
 export function applyTranslations(data: ProjectData, translations: StringMap): ProjectData {
   const out: ProjectData = deepClone(data);
+  const header = findHeader(out.blocks);
+  const footer = findFooter(out.blocks);
+  const sections = productSections(out.blocks);
 
-  if (isUsableString(translations['header.title'])) out.header.title = translations['header.title'];
-  if (isUsableString(translations['header.sectionHeading'])) out.header.sectionHeading = translations['header.sectionHeading'];
-  if (isUsableString(translations['header.logoAlt'])) out.header.logoAlt = translations['header.logoAlt'];
-  if (isUsableString(translations['header.bannerAlt'])) out.header.bannerAlt = translations['header.bannerAlt'];
+  if (isUsableString(translations['header.title'])) header.title = translations['header.title'];
+  if (isUsableString(translations['header.sectionHeading'])) header.sectionHeading = translations['header.sectionHeading'];
+  if (isUsableString(translations['header.logoAlt'])) header.logoAlt = translations['header.logoAlt'];
+  if (isUsableString(translations['header.bannerAlt'])) header.bannerAlt = translations['header.bannerAlt'];
 
-  out.sections.forEach((s, i) => {
+  sections.forEach((s, i) => {
     const t = translations[`sections.${i}.title`];
     if (isUsableString(t)) s.title = t;
     const ia = translations[`sections.${i}.imageAlt`];
@@ -60,10 +67,10 @@ export function applyTranslations(data: ProjectData, translations: StringMap): P
     });
   });
 
-  if (isUsableString(translations['footer.bannerAlt'])) out.footer.bannerAlt = translations['footer.bannerAlt'];
-  if (isUsableString(translations['footer.companyName'])) out.footer.companyName = translations['footer.companyName'];
-  if (isUsableString(translations['footer.address'])) out.footer.address = translations['footer.address'];
-  out.footer.websites.forEach((w, i) => {
+  if (isUsableString(translations['footer.bannerAlt'])) footer.bannerAlt = translations['footer.bannerAlt'];
+  if (isUsableString(translations['footer.companyName'])) footer.companyName = translations['footer.companyName'];
+  if (isUsableString(translations['footer.address'])) footer.address = translations['footer.address'];
+  footer.websites.forEach((w, i) => {
     const lab = translations[`footer.websites.${i}.label`];
     if (isUsableString(lab)) w.label = lab;
   });

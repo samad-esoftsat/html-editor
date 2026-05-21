@@ -1,4 +1,5 @@
 import type { Footer, Header, ProductSection, ProjectData, SocialPlatform } from '@/lib/editor/types';
+import { findHeader, findFooter, productSections } from '@/lib/editor/blocks';
 import { attrEscape, htmlEscape, urlSafe } from './escape';
 
 const SOCIAL_ICON: Record<SocialPlatform, { url: string; alt: string }> = {
@@ -150,13 +151,16 @@ function renderBody(data: ProjectData): string {
   const bg = data.global.backgroundColor;
   const fontFamily = data.global.fontFamily;
   const fontSize = data.global.baseFontSize;
-  const sectionsHtml = data.sections.map((s, i) => renderSection(s, i, data)).join('\n');
+  const header = findHeader(data.blocks);
+  const footer = findFooter(data.blocks);
+  const sections = productSections(data.blocks);
+  const sectionsHtml = sections.map((s, i) => renderSection(s, i, data)).join('\n');
   return `<body style="margin: 0; padding: 0; background-color: ${attrEscape(bg)}; font-family: ${attrEscape(fontFamily)}; font-size: ${fontSize}px;">
 <table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0" style="background-color: ${attrEscape(bg)};">
 <tr><td align="center">
-${renderHeader(data.header, data.global.contactUrl)}
+${renderHeader(header, data.global.contactUrl)}
 ${sectionsHtml}
-${renderFooter(data.footer, data)}
+${renderFooter(footer, data)}
 </td></tr>
 </table>
 </body>`;

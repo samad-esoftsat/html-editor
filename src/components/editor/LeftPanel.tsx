@@ -7,33 +7,46 @@ import { ProductSectionPanel } from './panels/ProductSectionPanel';
 import { useEditor, useEditorStore } from '@/lib/editor/StoreProvider';
 import { useCanEdit } from '@/lib/editor/RoleProvider';
 import { fadeUp } from '@/lib/motion';
+import { productSections } from '@/lib/editor/blocks';
 
 export function LeftPanel() {
-  const sections = useEditor((s) => s.data.sections);
+  const blocks = useEditor((s) => s.data.blocks);
   const store = useEditorStore();
   const canEdit = useCanEdit();
+  const sectionCount = productSections(blocks).length;
+
+  let sectionIndex = -1;
 
   return (
     <aside className="w-[320px] shrink-0 overflow-y-auto border-r border-ed-rule bg-ed-panel p-3 space-y-2">
       <GlobalStylesPanel />
-      <HeaderPanel />
-      <div className="px-1 pt-3 pb-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-ed-ink-3">
-        Products{' '}
-        <span className="font-mono text-ed-ink-3">· {sections.length}</span>
-      </div>
       <AnimatePresence initial={false}>
-        {sections.map((s, idx) => (
-          <motion.div
-            key={s.id}
-            layout
-            variants={fadeUp}
-            initial="hidden"
-            animate="show"
-            exit="exit"
-          >
-            <ProductSectionPanel section={s} index={idx} total={sections.length} />
-          </motion.div>
-        ))}
+        {blocks.map((block) => {
+          if (block.type === 'product-section') sectionIndex++;
+          const idx = sectionIndex;
+          return (
+            <motion.div
+              key={block.id}
+              layout
+              variants={fadeUp}
+              initial="hidden"
+              animate="show"
+              exit="exit"
+            >
+              {block.type === 'header' && <HeaderPanel block={block} />}
+              {block.type === 'product-section' && (
+                <ProductSectionPanel block={block} index={idx} total={sectionCount} />
+              )}
+              {block.type === 'footer' && <FooterPanel block={block} />}
+              {block.type === 'header' && (
+                <div className="px-1 pt-3 pb-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-ed-ink-3">
+                  Products{' '}
+                  <span className="font-mono text-ed-ink-3">· {sectionCount}</span>
+                </div>
+              )}
+            </motion.div>
+          );
+        })}
       </AnimatePresence>
       {canEdit && (
         <button
@@ -44,7 +57,6 @@ export function LeftPanel() {
           + Add Product Section
         </button>
       )}
-      <FooterPanel />
     </aside>
   );
 }

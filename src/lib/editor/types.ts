@@ -1,11 +1,9 @@
-export const SCHEMA_VERSION = 1;
+export const SCHEMA_VERSION = 2;
 
 export interface ProjectData {
-  schemaVersion: 1;
+  schemaVersion: 2;
   global: GlobalStyles;
-  header: Header;
-  sections: ProductSection[];
-  footer: Footer;
+  blocks: Block[];
 }
 
 export interface GlobalStyles {
@@ -22,7 +20,13 @@ export interface GlobalStyles {
   contactUrl: string;
 }
 
-export interface Header {
+export interface BlockBase {
+  id: string;
+  locked?: boolean;
+}
+
+export interface HeaderBlock extends BlockBase {
+  type: 'header';
   logoSrc: string;
   logoAlt: string;
   logoWidth: number;
@@ -34,8 +38,8 @@ export interface Header {
   sectionHeadingFontSize: number;
 }
 
-export interface ProductSection {
-  id: string;
+export interface ProductSectionBlock extends BlockBase {
+  type: 'product-section';
   title: string;
   bullets: string[];
   imageSrc: string;
@@ -49,7 +53,8 @@ export interface ProductSection {
   backgroundColor?: string;
 }
 
-export interface Footer {
+export interface FooterBlock extends BlockBase {
+  type: 'footer';
   bannerSrc: string;
   bannerAlt: string;
   companyName: string;
@@ -62,6 +67,13 @@ export interface Footer {
   backgroundColor?: string;
   textColor?: string;
 }
+
+export type Block = HeaderBlock | ProductSectionBlock | FooterBlock;
+
+// Legacy aliases — preserved to minimize Phase 1 call-site churn. Phase 2 deletes these.
+export type Header = HeaderBlock;
+export type ProductSection = ProductSectionBlock;
+export type Footer = FooterBlock;
 
 export interface WebsiteLink {
   label: string;
