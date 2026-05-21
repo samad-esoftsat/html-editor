@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { createDefaultProject } from '@/lib/editor/defaultProject';
 import { SCHEMA_VERSION } from '@/lib/editor/types';
+import { findFooter, productSections } from '@/lib/editor/blocks';
 
 describe('createDefaultProject', () => {
   it('returns schemaVersion 1', () => {
@@ -18,20 +19,20 @@ describe('createDefaultProject', () => {
       'Iridium PTT',
       'Wi-Fi Long Range',
     ];
-    const titles = createDefaultProject().sections.map((section) => section.title);
+    const titles = productSections(createDefaultProject().blocks).map((section) => section.title);
     expect(titles).toEqual(expected);
   });
 
   it('section index 1 has titleFontSize 21', () => {
-    expect(createDefaultProject().sections[1].titleFontSize).toBe(21);
+    expect(productSections(createDefaultProject().blocks)[1].titleFontSize).toBe(21);
   });
 
   it('section index 6 has bulletFontSize 14', () => {
-    expect(createDefaultProject().sections[6].bulletFontSize).toBe(14);
+    expect(productSections(createDefaultProject().blocks)[6].bulletFontSize).toBe(14);
   });
 
   it('section ids are unique uuids', () => {
-    const ids = createDefaultProject().sections.map((section) => section.id);
+    const ids = productSections(createDefaultProject().blocks).map((section) => section.id);
     expect(new Set(ids).size).toBe(ids.length);
     ids.forEach((id) => expect(id).toMatch(/^[0-9a-f-]{36}$/i));
   });
@@ -44,7 +45,7 @@ describe('createDefaultProject', () => {
   });
 
   it('footer carries default GlobalTT contact info', () => {
-    const footer = createDefaultProject().footer;
+    const footer = findFooter(createDefaultProject().blocks);
     expect(footer.companyName).toBe('GlobalTT Satellite Teleport');
     expect(footer.email).toBe('info@globaltt.com');
     expect(footer.socials.length).toBe(2);

@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import { EditorShell } from '@/components/editor/EditorShell';
 import { listUserWorkspaces, requireWorkspace } from '@/lib/auth/workspace';
-import type { ProjectData } from '@/lib/editor/types';
+import { migrate } from '@/lib/editor/migrate';
 import { createClient } from '@/lib/supabase/server';
 
 interface Props {
@@ -29,7 +29,7 @@ export default async function WorkspaceEditorPage({ params }: Props) {
     <EditorShell
       projectId={project.id}
       name={project.name}
-      data={project.data as ProjectData}
+      data={migrate(project.data)}
       brandKitId={(project as { brand_kit_id?: string | null }).brand_kit_id ?? null}
       serverUpdatedAt={project.updated_at}
       workspaceSlug={slug}

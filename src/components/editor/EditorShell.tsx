@@ -13,6 +13,7 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import { Topbar } from './Topbar';
 import { LeftPanel } from './LeftPanel';
 import { Preview } from './Preview';
+import { productSections } from '@/lib/editor/blocks';
 import type { ProjectData } from '@/lib/editor/types';
 import type { Role } from '@/lib/auth/workspace';
 import type { WorkspaceOption } from '@/components/workspace/WorkspaceSwitcher';
@@ -30,8 +31,8 @@ interface Props {
 }
 
 function SelectionScope({ children }: { children: React.ReactNode }) {
-  const sections = useEditor((s) => s.data.sections);
-  const sectionIds = useMemo(() => sections.map((s) => s.id), [sections]);
+  const blocks = useEditor((s) => s.data.blocks);
+  const sectionIds = useMemo(() => productSections(blocks).map((s) => s.id), [blocks]);
   return <SectionSelectionProvider sectionIds={sectionIds}>{children}</SectionSelectionProvider>;
 }
 
