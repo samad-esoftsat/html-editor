@@ -1,5 +1,6 @@
 'use client';
 import { useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import { Upload } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
@@ -76,7 +77,7 @@ export function ImportButton({ slug }: { slug: string }) {
       </div>
       <input ref={inputRef} type="file" hidden accept=".html,text/html" onChange={onFile} />
 
-      {(stage === 'review' || stage === 'creating') && parsed && (
+      {typeof document !== 'undefined' && (stage === 'review' || stage === 'creating') && parsed && createPortal(
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-6">
           <div className="bg-bg-elevated border border-rule-strong rounded-xl p-6 w-[560px] max-h-[85vh] overflow-auto">
             <div className="text-xs uppercase tracking-widest text-brand mb-2">Step 2 of 3 — Review</div>
@@ -110,11 +111,13 @@ export function ImportButton({ slug }: { slug: string }) {
               </Button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
 
-      {stage === 'analysing' && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 text-ink text-sm">Analysing file…</div>
+      {typeof document !== 'undefined' && stage === 'analysing' && createPortal(
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 text-ink text-sm">Analysing file…</div>,
+        document.body,
       )}
     </>
   );
