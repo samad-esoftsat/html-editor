@@ -65,3 +65,40 @@ describe('renderPrintDocument — document structure', () => {
     expect(html.trimEnd().endsWith('</html>')).toBe(true);
   });
 });
+
+describe('renderPrintDocument — header and footer content', () => {
+  it('running-header div contains the header logo image', () => {
+    const html = renderPrintDocument(createDefaultProject());
+    expect(html).toContain('https://36af7d465b.imgdist.com/pub/bfra/wpnsx7uw/j2q/4ah/ptb/logo%20%282%29.png');
+  });
+
+  it('running-header div contains the header title', () => {
+    const html = renderPrintDocument(createDefaultProject());
+    expect(html).toContain('Critical communication');
+  });
+
+  it('running-header div contains the section heading', () => {
+    const html = renderPrintDocument(createDefaultProject());
+    expect(html).toContain('Satellite High Throughput Connectivity');
+  });
+
+  it('running-footer div contains the company name', () => {
+    const html = renderPrintDocument(createDefaultProject());
+    expect(html).toContain('GlobalTT Satellite Teleport');
+  });
+
+  it('running-footer div contains the email link', () => {
+    const html = renderPrintDocument(createDefaultProject());
+    expect(html).toContain('mailto:info@globaltt.com');
+  });
+
+  it('escapes XSS in header title', () => {
+    const data = createDefaultProject();
+    const header = data.blocks[0];
+    if (header.type !== 'header') throw new Error('expected header');
+    header.title = '<script>alert(1)</script>';
+    const html = renderPrintDocument(data);
+    expect(html).not.toContain('<script>alert(1)</script>');
+    expect(html).toContain('&lt;script&gt;alert(1)&lt;/script&gt;');
+  });
+});
