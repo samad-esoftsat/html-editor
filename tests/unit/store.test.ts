@@ -143,3 +143,38 @@ describe('reorderSections', () => {
     expect(next[1].id).toBe(a.id);
   });
 });
+
+import type { ArticleBlock, CTABannerBlock, HeroBlock } from '@/lib/editor/types';
+
+describe('Phase 2 block type shapes', () => {
+  it('HeroBlock has the spec-required fields', () => {
+    const h: HeroBlock = {
+      type: 'hero', id: 'h1',
+      imageSrc: '', imageAlt: '',
+      title: 't', subtitle: 's',
+      ctaText: 'c',
+    };
+    expect(h.type).toBe('hero');
+  });
+
+  it('ArticleBlock has imagePosition', () => {
+    const a: ArticleBlock = {
+      type: 'article', id: 'a1',
+      imageSrc: '', imageAlt: '',
+      title: 't', body: 'b',
+      ctaText: 'c',
+      imagePosition: 'top',
+    };
+    expect(a.imagePosition).toBe('top');
+  });
+
+  it('CTABannerBlock has align', () => {
+    const c: CTABannerBlock = {
+      type: 'cta-banner', id: 'c1',
+      title: 't', subtitle: 's',
+      ctaText: 'c',
+      align: 'center',
+    };
+    expect(c.align).toBe('center');
+  });
+});
