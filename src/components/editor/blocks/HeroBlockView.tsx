@@ -104,12 +104,14 @@ export function HeroBlockView({ block, global: g, index, total: _total }: Props)
             target="_blank"
             rel="noreferrer"
             onClick={blockNav}
+            className="cta-edit-anchor"
             style={{
               display: 'inline-block', background: buttonColor, color: g.buttonTextColor,
               padding: '14px 28px', borderRadius: 4, fontWeight: 600, textDecoration: 'none',
+              position: 'relative',
             }}
           >
-            <span className="inline-link-wrap inline-flex items-center gap-1">
+            <span className="inline-flex items-center">
               <EditableText
                 value={block.ctaText}
                 onChange={(v) => update({ ctaText: v })}
