@@ -1,43 +1,50 @@
 import { describe, expect, it } from 'vitest';
 import { extractTranslatable, applyTranslations } from '@/lib/translate/fields';
+import { findHeader, findFooter, productSections } from '@/lib/editor/blocks';
 import type { ProjectData } from '@/lib/editor/types';
 
 function sample(): ProjectData {
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     global: {
       backgroundColor: '#fff', fontFamily: 'Arial', baseFontSize: 14, headingFontSize: 24,
       textColor: '#000', buttonColor: '#0a0', buttonTextColor: '#fff', accentColor: '#999',
       footerBackgroundColor: '#222', footerTextColor: '#ddd', contactUrl: 'https://example.com/contact',
     },
-    header: {
-      logoSrc: 'https://example.com/logo.png', logoAlt: 'Logo', logoWidth: 200,
-      title: 'Welcome to our event', titleFontSize: 28,
-      bannerSrc: 'https://example.com/banner.png', bannerAlt: 'Conference banner',
-      sectionHeading: 'Our offerings', sectionHeadingFontSize: 20,
-    },
-    sections: [
+    blocks: [
       {
+        type: 'header',
+        id: 'hdr1',
+        logoSrc: 'https://example.com/logo.png', logoAlt: 'Logo', logoWidth: 200,
+        title: 'Welcome to our event', titleFontSize: 28,
+        bannerSrc: 'https://example.com/banner.png', bannerAlt: 'Conference banner',
+        sectionHeading: 'Our offerings', sectionHeadingFontSize: 20,
+      },
+      {
+        type: 'product-section',
         id: 's1', title: 'First section',
         bullets: ['Bullet one', 'Bullet two'],
         imageSrc: 'https://example.com/a.png', imageAlt: 'Product A',
         ctaText: 'Learn more', ctaUrl: 'https://example.com/a',
       },
       {
+        type: 'product-section',
         id: 's2', title: 'Second section',
         bullets: ['Only bullet'],
         imageSrc: 'https://example.com/b.png', imageAlt: 'Product B',
         ctaText: 'Order now',
       },
+      {
+        type: 'footer',
+        id: 'ftr1',
+        bannerSrc: 'https://example.com/fb.png', bannerAlt: 'Footer banner',
+        companyName: 'Acme Corp', address: '123 Main St\nLondon\nUK',
+        phone: '+44 20 1234 5678', phoneTel: '+442012345678',
+        email: 'hello@acme.example',
+        websites: [{ label: 'Visit us', url: 'https://acme.example' }],
+        socials: [{ platform: 'linkedin', url: 'https://linkedin.com/company/acme' }],
+      },
     ],
-    footer: {
-      bannerSrc: 'https://example.com/fb.png', bannerAlt: 'Footer banner',
-      companyName: 'Acme Corp', address: '123 Main St\nLondon\nUK',
-      phone: '+44 20 1234 5678', phoneTel: '+442012345678',
-      email: 'hello@acme.example',
-      websites: [{ label: 'Visit us', url: 'https://acme.example' }],
-      socials: [{ platform: 'linkedin', url: 'https://linkedin.com/company/acme' }],
-    },
   };
 }
 
@@ -81,7 +88,7 @@ describe('extractTranslatable', () => {
 
   it('omits empty strings (no point translating empty fields)', () => {
     const data = sample();
-    data.header.logoAlt = '';
+    findHeader(data.blocks).logoAlt = '';
     const map = extractTranslatable(data);
     expect(map['header.logoAlt']).toBeUndefined();
   });
@@ -95,13 +102,13 @@ describe('applyTranslations', () => {
       'sections.0.title': 'Première section',
       'sections.0.bullets.1': 'Point deux',
     });
-    expect(result.header.title).toBe('Bienvenue à notre événement');
-    expect(result.sections[0].title).toBe('Première section');
-    expect(result.sections[0].bullets[1]).toBe('Point deux');
-    expect(result.sections[0].bullets[0]).toBe('Bullet one');
-    expect(result.footer.companyName).toBe('Acme Corp');
-    expect(result.header.logoSrc).toBe('https://example.com/logo.png');
-    expect(result.footer.email).toBe('hello@acme.example');
+    expect(findHeader(result.blocks).title).toBe('Bienvenue à notre événement');
+    expect(productSections(result.blocks)[0].title).toBe('Première section');
+    expect(productSections(result.blocks)[0].bullets[1]).toBe('Point deux');
+    expect(productSections(result.blocks)[0].bullets[0]).toBe('Bullet one');
+    expect(findFooter(result.blocks).companyName).toBe('Acme Corp');
+    expect(findHeader(result.blocks).logoSrc).toBe('https://example.com/logo.png');
+    expect(findFooter(result.blocks).email).toBe('hello@acme.example');
   });
 
   it('round-trips: apply(data, extract(data)) deep-equals data', () => {
@@ -125,16 +132,16 @@ describe('applyTranslations', () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       'sections.0.title': null as any,
     });
-    expect(result.header.title).toBe('Welcome to our event');
-    expect(result.sections[0].title).toBe('First section');
+    expect(findHeader(result.blocks).title).toBe('Welcome to our event');
+    expect(productSections(result.blocks)[0].title).toBe('First section');
   });
 
   it('preserves newlines in multi-line strings', () => {
     const data = sample();
     const translated = '123 rue Principale\nLondres\nRoyaume-Uni';
     const result = applyTranslations(data, { 'footer.address': translated });
-    expect(result.footer.address).toBe(translated);
-    expect(result.footer.address.split('\n').length).toBe(3);
+    expect(findFooter(result.blocks).address).toBe(translated);
+    expect(findFooter(result.blocks).address.split('\n').length).toBe(3);
   });
 
   it('handles a translation map containing keys that no longer exist (ignored)', () => {
@@ -143,7 +150,7 @@ describe('applyTranslations', () => {
       'sections.5.title': 'Out of range',
       'sections.0.bullets.99': 'Out of range',
     });
-    expect(result.sections.length).toBe(2);
-    expect(result.sections[0].bullets.length).toBe(2);
+    expect(productSections(result.blocks).length).toBe(2);
+    expect(productSections(result.blocks)[0].bullets.length).toBe(2);
   });
 });
