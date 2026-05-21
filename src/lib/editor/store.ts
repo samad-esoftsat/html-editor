@@ -161,7 +161,7 @@ export function createEditorStore(init: Init): EditorStore {
           const idx = state.data.blocks.findIndex((b) => b.id === id);
           if (idx < 0) return state;
           const src = state.data.blocks[idx];
-          if (isLocked(src)) return state;
+          if (isLocked(src) || src.type === 'header' || src.type === 'footer') return state;
           const copy: Block = src.type === 'product-section'
             ? { ...src, id: uuid(), bullets: src.bullets.slice() }
             : { ...src, id: uuid() };

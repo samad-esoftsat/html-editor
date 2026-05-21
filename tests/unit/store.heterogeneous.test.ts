@@ -69,6 +69,7 @@ describe('heterogeneous middle slice', () => {
     const before = store.getState().data.blocks;
     store.getState().reorderBlocks([header, header, footer]);
     expect(store.getState().data.blocks).toBe(before);
+    expect(store.getState().data.blocks).toEqual(before);
   });
 
   it('duplicateBlock works on a hero block', () => {
@@ -87,6 +88,7 @@ describe('heterogeneous middle slice', () => {
     const before = store.getState().data.blocks;
     store.getState().duplicateBlock(headerId);
     expect(store.getState().data.blocks).toBe(before);
+    expect(store.getState().data.blocks).toEqual(before);
   });
 
   it('duplicateBlock still deep-copies product-section bullets', () => {
