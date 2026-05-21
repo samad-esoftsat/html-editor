@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { createDefaultProject } from '@/lib/editor/defaultProject';
 import { createEditorStore } from '@/lib/editor/store';
 import { productSections } from '@/lib/editor/blocks';
+import type { ArticleBlock, CTABannerBlock, HeroBlock } from '@/lib/editor/types';
 
 const NOW = '2026-05-05T10:00:00Z';
 
@@ -143,8 +144,6 @@ describe('reorderSections', () => {
     expect(next[1].id).toBe(a.id);
   });
 });
-
-import type { ArticleBlock, CTABannerBlock, HeroBlock } from '@/lib/editor/types';
 
 describe('Phase 2 block type shapes', () => {
   it('HeroBlock has the spec-required fields', () => {
