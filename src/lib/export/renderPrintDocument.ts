@@ -1,4 +1,4 @@
-import type { Block, HeaderBlock, FooterBlock, ProductSectionBlock, ProjectData, SocialPlatform } from '@/lib/editor/types';
+import type { ArticleBlock, Block, CTABannerBlock, FooterBlock, HeaderBlock, HeroBlock, ProductSectionBlock, ProjectData, SocialPlatform } from '@/lib/editor/types';
 import { findHeader, findFooter } from '@/lib/editor/blocks';
 import { attrEscape, htmlEscape, urlSafe } from './escape';
 
@@ -137,14 +137,90 @@ function renderProductSectionForPrint(section: ProductSectionBlock, idx: number,
   return `<section class="product-section${reverseClass}" style="display: flex; flex-direction: row;${bgStyle}">${cells}</section>`;
 }
 
+function renderHeroForPrint(block: HeroBlock, data: ProjectData): string {
+  const bg = block.backgroundColor ?? data.global.backgroundColor;
+  const fg = block.textColor ?? data.global.textColor;
+  const buttonColor = block.buttonColor ?? data.global.buttonColor;
+  const buttonTextColor = data.global.buttonTextColor;
+  const titleSize = block.titleFontSize ?? Math.max(data.global.headingFontSize, 28);
+  const subtitleSize = block.subtitleFontSize ?? data.global.baseFontSize;
+  const ctaUrl = urlSafe(block.ctaUrl ?? data.global.contactUrl);
+
+  const imageHtml = block.imageSrc
+    ? `<img src="${attrEscape(urlSafe(block.imageSrc))}" alt="${attrEscape(block.imageAlt)}" style="display: block; max-width: 100%; height: auto; margin: 0 auto 12px;">`
+    : '';
+  const subtitleHtml = block.subtitle
+    ? `<p style="font-size: ${subtitleSize}px; color: ${attrEscape(fg)}; margin: 0 0 18px;">${htmlEscape(block.subtitle)}</p>`
+    : '';
+  return `<section class="hero" style="background-color: ${attrEscape(bg)}; padding: 24px 16px; text-align: center; color: ${attrEscape(fg)};">
+${imageHtml}
+<h1 style="font-size: ${titleSize}px; font-weight: 700; margin: 0 0 8px; color: ${attrEscape(fg)};">${htmlEscape(block.title)}</h1>
+${subtitleHtml}
+<a href="${attrEscape(ctaUrl)}" target="_blank" style="display: inline-block; padding: 10px 22px; background-color: ${attrEscape(buttonColor)}; color: ${attrEscape(buttonTextColor)}; text-decoration: none; font-weight: 600; border-radius: 4px;">${htmlEscape(block.ctaText)}</a>
+</section>`;
+}
+
+function renderArticleForPrint(block: ArticleBlock, data: ProjectData): string {
+  const bg = block.backgroundColor ?? data.global.backgroundColor;
+  const fg = block.textColor ?? data.global.textColor;
+  const titleSize = block.titleFontSize ?? data.global.headingFontSize;
+  const bodySize = block.bodyFontSize ?? data.global.baseFontSize;
+  const ctaUrl = urlSafe(block.ctaUrl ?? data.global.contactUrl);
+
+  const imgHtml = block.imageSrc
+    ? `<img src="${attrEscape(urlSafe(block.imageSrc))}" alt="${attrEscape(block.imageAlt)}" style="display: block; max-width: 100%; height: auto;">`
+    : '';
+  const titleHtml = `<h2 style="margin: 0 0 6px; font-size: ${titleSize}px; color: ${attrEscape(fg)};">${htmlEscape(block.title)}</h2>`;
+  const bodyHtml = `<p style="margin: 0 0 12px; font-size: ${bodySize}px; color: ${attrEscape(fg)}; white-space: pre-wrap;">${htmlEscape(block.body)}</p>`;
+  const ctaHtml = block.ctaText
+    ? `<a href="${attrEscape(ctaUrl)}" target="_blank" style="color: ${attrEscape(data.global.buttonColor)}; font-weight: 600; text-decoration: none;">${htmlEscape(block.ctaText)}</a>`
+    : '';
+
+  if (block.imagePosition === 'top') {
+    return `<section class="article article-top" style="background-color: ${attrEscape(bg)}; padding: 16px;">
+${imgHtml ? `<div style="margin-bottom: 12px;">${imgHtml}</div>` : ''}
+${titleHtml}${bodyHtml}${ctaHtml}
+</section>`;
+  }
+  const flexDir = block.imagePosition === 'left' ? 'row' : 'row-reverse';
+  return `<section class="article article-${block.imagePosition}" style="background-color: ${attrEscape(bg)}; display: flex; flex-direction: ${flexDir}; gap: 12px; padding: 16px;">
+<div style="flex: 0 0 40%;">${imgHtml}</div>
+<div style="flex: 1;">${titleHtml}${bodyHtml}${ctaHtml}</div>
+</section>`;
+}
+
+function renderCTABannerForPrint(block: CTABannerBlock, data: ProjectData): string {
+  const bg = block.backgroundColor ?? data.global.backgroundColor;
+  const fg = block.textColor ?? data.global.textColor;
+  const buttonColor = block.buttonColor ?? data.global.buttonColor;
+  const buttonTextColor = data.global.buttonTextColor;
+  const titleSize = block.titleFontSize ?? data.global.headingFontSize;
+  const ctaUrl = urlSafe(block.ctaUrl ?? data.global.contactUrl);
+
+  const titleHtml = block.title
+    ? `<h2 style="margin: 0 0 6px; font-size: ${titleSize}px; color: ${attrEscape(fg)};">${htmlEscape(block.title)}</h2>`
+    : '';
+  const subtitleHtml = block.subtitle
+    ? `<p style="margin: 0 0 12px; color: ${attrEscape(fg)};">${htmlEscape(block.subtitle)}</p>`
+    : '';
+
+  return `<section class="cta-banner" style="background-color: ${attrEscape(bg)}; padding: 20px 16px; text-align: ${block.align};">
+${titleHtml}
+${subtitleHtml}
+<a href="${attrEscape(ctaUrl)}" target="_blank" style="display: inline-block; padding: 10px 20px; background-color: ${attrEscape(buttonColor)}; color: ${attrEscape(buttonTextColor)}; text-decoration: none; font-weight: 600; border-radius: 4px;">${htmlEscape(block.ctaText)}</a>
+</section>`;
+}
+
 function renderBlockForPrint(block: Block, idx: number, data: ProjectData): string {
   switch (block.type) {
     case 'product-section':
       return renderProductSectionForPrint(block, idx, data);
     case 'hero':
+      return renderHeroForPrint(block, data);
     case 'article':
+      return renderArticleForPrint(block, data);
     case 'cta-banner':
-      return ''; // implemented in Task 5
+      return renderCTABannerForPrint(block, data);
     case 'header':
     case 'footer':
       return '';

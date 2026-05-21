@@ -132,3 +132,62 @@ describe('renderPrintDocument — product sections', () => {
     expect(html).toMatch(/product-section.*reverse/);
   });
 });
+
+describe('renderPrintDocument — Phase 2 block types', () => {
+  function projectWithMiddle(middle: import('@/lib/editor/types').Block[]) {
+    const base = createDefaultProject();
+    const header = base.blocks[0];
+    const footer = base.blocks[base.blocks.length - 1];
+    return { ...base, blocks: [header, ...middle, footer] };
+  }
+
+  it('renders a hero block with image, title, subtitle, CTA', () => {
+    const hero: import('@/lib/editor/types').HeroBlock = {
+      type: 'hero', id: 'h', imageSrc: 'https://example.com/h.png', imageAlt: 'pic',
+      title: 'Big news', subtitle: 'Some sub', ctaText: 'Learn more', ctaUrl: 'https://example.com/x',
+    };
+    const html = renderPrintDocument(projectWithMiddle([hero]));
+    expect(html).toContain('Big news');
+    expect(html).toContain('Some sub');
+    expect(html).toContain('https://example.com/h.png');
+    expect(html).toContain('https://example.com/x');
+    expect(html).toContain('Learn more');
+  });
+
+  it('renders an article block with all imagePosition variants', () => {
+    const top: import('@/lib/editor/types').ArticleBlock = {
+      type: 'article', id: 't', imageSrc: '', imageAlt: '', title: 'Top', body: 'Line 1\nLine 2', ctaText: 'Read', imagePosition: 'top',
+    };
+    const left: import('@/lib/editor/types').ArticleBlock = {
+      type: 'article', id: 'l', imageSrc: '', imageAlt: '', title: 'Left', body: 'B', ctaText: 'Read', imagePosition: 'left',
+    };
+    const right: import('@/lib/editor/types').ArticleBlock = {
+      type: 'article', id: 'r', imageSrc: '', imageAlt: '', title: 'Right', body: 'B', ctaText: 'Read', imagePosition: 'right',
+    };
+    const html = renderPrintDocument(projectWithMiddle([top, left, right]));
+    expect(html).toContain('Top');
+    expect(html).toContain('Left');
+    expect(html).toContain('Right');
+    expect(html).toContain('Line 1');
+    expect(html).toContain('Line 2');
+  });
+
+  it('renders a cta-banner block with align', () => {
+    const c: import('@/lib/editor/types').CTABannerBlock = {
+      type: 'cta-banner', id: 'c', title: 'Ready?', subtitle: 'Sub', ctaText: 'Go', align: 'center',
+    };
+    const html = renderPrintDocument(projectWithMiddle([c]));
+    expect(html).toContain('Ready?');
+    expect(html).toContain('Sub');
+    expect(html).toContain('text-align: center');
+  });
+
+  it('XSS-escapes hero title', () => {
+    const hero: import('@/lib/editor/types').HeroBlock = {
+      type: 'hero', id: 'h', imageSrc: '', imageAlt: '', title: '<script>x()</script>', subtitle: '', ctaText: 'Go',
+    };
+    const html = renderPrintDocument(projectWithMiddle([hero]));
+    expect(html).not.toContain('<script>x()</script>');
+    expect(html).toContain('&lt;script&gt;x()&lt;/script&gt;');
+  });
+});
