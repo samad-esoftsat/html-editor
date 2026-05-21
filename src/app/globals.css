@@ -164,8 +164,29 @@ body.editor-shell,
 .editable-image-wrap:hover .editable-image-alt,
 .editable-image-wrap:focus-within .editable-image-alt { opacity: 1; }
 
-.section-insert-bar .section-insert-btn { opacity: 0; transition: opacity 100ms; }
+.section-insert-bar {
+  position: relative;
+  height: 0;
+}
+.section-insert-bar::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -12px;
+  height: 24px;
+}
+.section-insert-bar .section-insert-btn {
+  position: absolute;
+  left: 50%;
+  top: -12px;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 100ms;
+  z-index: 5;
+}
 .section-insert-bar:hover .section-insert-btn,
+.section-insert-bar:focus-within .section-insert-btn,
 .section-insert-btn:focus-visible { opacity: 1; }
 
 .section-wrap .block-toolbar { opacity: 0; transition: opacity 100ms; }
