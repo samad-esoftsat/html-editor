@@ -161,8 +161,19 @@ body.editor-shell,
 .section-wrap:hover .block-toolbar,
 .section-wrap:focus-within .block-toolbar { opacity: 1; }
 
-.bullet-row .bullet-grip { opacity: 0; transition: opacity 100ms; }
+.bullet-row {
+  position: relative;
+}
+.bullet-row .bullet-grip {
+  position: absolute;
+  left: -24px;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0;
+  transition: opacity 100ms;
+}
 .bullet-row:hover .bullet-grip,
+.bullet-row:focus-within .bullet-grip,
 .bullet-grip:focus-visible { opacity: 1; }
 
 .section-wrap.selected {
