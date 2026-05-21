@@ -50,14 +50,16 @@ export interface ImportResult {
 export function parseHtml(html: string): ImportResult {
   const warnings: ImportWarning[] = [];
   const seed = createDefaultProject();
-  const seedHeader = seed.blocks.find((b): b is HeaderBlock => b.type === 'header')!;
-  const seedFooter = seed.blocks.find((b): b is FooterBlock => b.type === 'footer')!;
+  const seedHeaderBlock = seed.blocks.find((b): b is HeaderBlock => b.type === 'header')!;
+  const seedFooterBlock = seed.blocks.find((b): b is FooterBlock => b.type === 'footer')!;
+  const { type: _seedHt, id: _seedHi, locked: _seedHl, ...seedHeaderFields } = seedHeaderBlock;
+  const { type: _seedFt, id: _seedFi, locked: _seedFl, ...seedFooterFields } = seedFooterBlock;
   const v1: V1ParseData = {
     schemaVersion: 1,
     global: { ...seed.global },
-    header: { ...seedHeader, logoSrc: '', bannerSrc: '', sectionHeading: '', title: '' },
+    header: { ...seedHeaderFields, logoSrc: '', bannerSrc: '', sectionHeading: '', title: '' },
     sections: [],
-    footer: { ...seedFooter, websites: [], socials: [] },
+    footer: { ...seedFooterFields, websites: [], socials: [] },
   };
 
   let $: CheerioAPI;
