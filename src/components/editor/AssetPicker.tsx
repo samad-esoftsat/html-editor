@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { X } from 'lucide-react';
+import { X, Search } from 'lucide-react';
 import { archiveWorkspaceAsset, listWorkspaceAssets, uploadWorkspaceAsset, type WorkspaceAsset, type AssetUsage } from '@/lib/api/assets';
 import { editImage } from '@/lib/api/images';
 import { createRequestKey } from '@/lib/images/request-key';
@@ -173,17 +173,28 @@ export function AssetPicker({ workspaceSlug, value, altText, onSelect, onClose }
         <div className="flex-1 overflow-y-auto p-4">
           {tab === 'library' && (
             <div className="space-y-4">
-              <div className="flex gap-2">
-                <Input
-                  value={search}
-                  onChange={(event) => setSearch(event.target.value)}
-                  placeholder="Search by alt text, prompt, or filename"
-                  className="flex-1"
-                />
-                {selectedPreview && <img src={selectedPreview} alt="" className="h-10 w-10 rounded border border-ed-rule-strong object-cover" />}
+              <div className="flex items-center gap-3">
+                <div className="relative flex-1">
+                  <Search size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ed-ink-3" />
+                  <Input
+                    value={search}
+                    onChange={(event) => setSearch(event.target.value)}
+                    placeholder="Search by alt text, prompt, or filename"
+                    className="pl-9"
+                  />
+                </div>
+                {selectedPreview && (
+                  <img
+                    src={selectedPreview}
+                    alt=""
+                    className="h-10 w-10 shrink-0 rounded-md border border-ed-rule-strong object-cover"
+                  />
+                )}
               </div>
               {loading ? (
-                <div className="flex items-center gap-2 text-sm text-ed-ink-3"><Spinner size={16} /> Loading assets…</div>
+                <div className="flex items-center gap-2 text-sm text-ed-ink-3">
+                  <Spinner size={16} /> Loading assets…
+                </div>
               ) : (
                 <AssetLibraryGrid
                   assets={assets}
