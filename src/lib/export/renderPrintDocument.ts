@@ -40,18 +40,23 @@ main { width: 100%; }
 
 function renderHead(data: ProjectData): string {
   const family = attrEscape(data.global.fontFamily);
+  const bg = attrEscape(data.global.backgroundColor);
   return `<head>
 <title>Print preview</title>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
 ${PRINT_CSS}
-body { font-family: ${family}; font-size: ${data.global.baseFontSize}px; color: ${attrEscape(data.global.textColor)}; background: ${attrEscape(data.global.backgroundColor)}; }
+body { font-family: ${family}; font-size: ${data.global.baseFontSize}px; color: ${attrEscape(data.global.textColor)}; background: ${bg}; }
+.pagedjs_page { background-color: ${bg}; }
+@media print { @page { background-color: ${bg}; } }
 </style>
 </head>`;
 }
 
-function renderHeaderForPrint(header: HeaderBlock, data: ProjectData): string {
+function renderHeaderRunning(header: HeaderBlock, data: ProjectData): string {
+  // Per-page repeating chrome: logo + title only. Anything taller (banner image,
+  // large heading) overflows the @page top-margin and collides with body content.
   const contactUrl = urlSafe(data.global.contactUrl);
   const logoWidth = Math.min(header.logoWidth, 600);
 
@@ -59,16 +64,23 @@ function renderHeaderForPrint(header: HeaderBlock, data: ProjectData): string {
     ? `<a href="${attrEscape(contactUrl)}" target="_blank"><img src="${attrEscape(urlSafe(header.logoSrc))}" alt="${attrEscape(header.logoAlt)}" width="${logoWidth}" style="display: block; max-width: 100%; height: auto; margin: 0 auto;"></a>`
     : '';
   const title = header.title
-    ? `<div style="text-align: center; padding: 6px 0; font-size: ${header.titleFontSize}px; font-weight: bold;">${htmlEscape(header.title)}</div>`
+    ? `<div style="text-align: center; padding: 4px 0; font-size: ${header.titleFontSize}px; font-weight: bold;">${htmlEscape(header.title)}</div>`
     : '';
+
+  return `<div class="print-header" style="text-align: center; max-width: 710px; margin: 0 auto;">${logo}${title}</div>`;
+}
+
+function renderHeaderCover(header: HeaderBlock): string {
+  // Page-1 cover area: banner image + section heading. Rendered once at the top
+  // of the body so the giant Coverage Map / hero banner doesn't repeat every page.
+  if (!header.bannerSrc && !header.sectionHeading) return '';
   const banner = header.bannerSrc
-    ? `<img src="${attrEscape(urlSafe(header.bannerSrc))}" alt="${attrEscape(header.bannerAlt)}" style="display: block; max-width: 100%; height: auto; margin: 4px auto;">`
+    ? `<img src="${attrEscape(urlSafe(header.bannerSrc))}" alt="${attrEscape(header.bannerAlt)}" style="display: block; max-width: 100%; height: auto; margin: 0 auto 8px;">`
     : '';
   const sectionHeading = header.sectionHeading
     ? `<div style="text-align: center; padding: 6px 0; font-size: ${header.sectionHeadingFontSize}px; font-weight: bold;">${htmlEscape(header.sectionHeading)}</div>`
     : '';
-
-  return `<div class="print-header" style="text-align: center; max-width: 710px; margin: 0 auto;">${logo}${title}${banner}${sectionHeading}</div>`;
+  return `<div class="print-cover" style="text-align: center; max-width: 710px; margin: 0 auto 12px;">${banner}${sectionHeading}</div>`;
 }
 
 function renderFooterForPrint(footer: FooterBlock, data: ProjectData): string {
@@ -247,9 +259,10 @@ export function renderPrintDocument(data: ProjectData): string {
 <html lang="en">
 ${renderHead(data)}
 <body>
-<div class="running-header">${renderHeaderForPrint(header, data)}</div>
+<div class="running-header">${renderHeaderRunning(header, data)}</div>
 <div class="running-footer">${renderFooterForPrint(footer, data)}</div>
 <main>
+${renderHeaderCover(header)}
 ${middleHtml}
 </main>
 </body>

@@ -76,9 +76,11 @@ export function parseHtml(html: string): ImportResult {
     if (bg) v1.global.backgroundColor = bg;
     else warnings.push({ kind: 'no_bg_color', severity: 'info', message: 'Background color not detected; using default.' });
 
-    const allImgs = $('img').toArray();
-    const logo = allImgs.find((el) => isLogoImg($, el));
-    const banner = allImgs.find((el) => el !== logo && isBannerImg($, el));
+    const headerTableEl = findHeaderTable($, body);
+    const headerImgs = headerTableEl ? $(headerTableEl).find('img').toArray() : [];
+    const logo = headerImgs.find((el) => isLogoImg($, el)) ?? $('img').toArray().find((el) => isLogoImg($, el));
+    const banner = headerImgs.find((el) => el !== logo)
+      ?? $('img').toArray().find((el) => el !== logo && isBannerImg($, el));
     if (logo) {
       const logoEl = $(logo);
       v1.header.logoSrc = logoEl.attr('src') ?? '';
@@ -96,15 +98,41 @@ export function parseHtml(html: string): ImportResult {
       warnings.push({ kind: 'no_banner', severity: 'warn', message: 'Banner image not detected.' });
     }
 
-    const firstH1 = $('h1').first();
-    if (firstH1.length && firstH1.text()) v1.header.title = firstH1.text().trim();
-    const firstSubHeading = $('h3, h2').first();
-    if (firstSubHeading.length && firstSubHeading.text().trim() !== v1.header.title) {
-      v1.header.sectionHeading = firstSubHeading.text().trim();
+    if (headerTableEl) {
+      // Inside the header table only: classify text cells by font-size.
+      // Largest non-image cell = sectionHeading, smaller = title. Falls back to <h1>/<h2> if no styled cells.
+      const headerTextCells = $(headerTableEl).find('td').toArray()
+        .map((td) => {
+          const $td = $(td);
+          if ($td.find('img').length > 0) return null;
+          const text = $td.text().trim();
+          if (!text) return null;
+          const style = parseInlineStyle($td.attr('style') ?? '');
+          const fontSize = parseInt((style['font-size'] ?? '').replace('px', ''), 10);
+          if (!Number.isFinite(fontSize) || fontSize <= 0) return null;
+          return { text, fontSize };
+        })
+        .filter((x): x is { text: string; fontSize: number } => x !== null);
+
+      if (headerTextCells.length > 0) {
+        const sorted = [...headerTextCells].sort((a, b) => b.fontSize - a.fontSize);
+        v1.header.sectionHeading = sorted[0].text;
+        v1.header.sectionHeadingFontSize = sorted[0].fontSize;
+        if (sorted.length > 1) {
+          const titleCell = sorted[sorted.length - 1];
+          v1.header.title = titleCell.text;
+          v1.header.titleFontSize = titleCell.fontSize;
+        }
+      }
+    }
+    if (!v1.header.title) {
+      const firstH1 = $('h1').first();
+      if (firstH1.length && firstH1.text()) v1.header.title = firstH1.text().trim();
     }
 
     const rows = $('table.row, table[class*="row"]').toArray();
-    const candidates = rows.length > 0 ? rows : $('table').toArray();
+    const candidates = (rows.length > 0 ? rows : $('table').toArray())
+      .filter((t) => t !== headerTableEl);
     const usedHeadingHtml = new Set<string>();
 
     for (const tbl of candidates) {
@@ -193,6 +221,24 @@ function isLogoImg($: CheerioAPI, el: Element): boolean {
 function isBannerImg($: CheerioAPI, el: Element): boolean {
   const w = parseInt($(el).attr('width') ?? '', 10);
   return Number.isFinite(w) && w >= 600;
+}
+
+function findHeaderTable($: CheerioAPI, body: Cheerio<Element>): Element | null {
+  const explicit = body.find('table.row-header, table[class*="row-header"]').toArray();
+  if (explicit.length > 0) return explicit[0];
+  // Fallback: the outermost table that contains a logo-looking image.
+  // Prefers an inner content table (class*="row-content") if available so we
+  // capture the cells with title/sectionHeading rather than the wrapper.
+  const allTables = body.find('table').toArray();
+  for (const t of allTables) {
+    const $t = $(t);
+    if ($t.find('img').toArray().some((im) => isLogoImg($, im))) {
+      const inner = $t.find('table[class*="row-content"]').first();
+      if (inner.length) return inner.get(0) ?? t;
+      return t;
+    }
+  }
+  return null;
 }
 
 function extractBgColor($: CheerioAPI, el: Cheerio<Element>): string | null {
