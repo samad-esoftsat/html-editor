@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { X, Search } from 'lucide-react';
+import { X, Search, UploadCloud } from 'lucide-react';
 import { archiveWorkspaceAsset, listWorkspaceAssets, uploadWorkspaceAsset, type WorkspaceAsset, type AssetUsage } from '@/lib/api/assets';
 import { editImage } from '@/lib/api/images';
 import { createRequestKey } from '@/lib/images/request-key';
@@ -221,7 +221,7 @@ export function AssetPicker({ workspaceSlug, value, altText, onSelect, onClose }
           )}
 
           {tab === 'upload' && (
-            <div className="space-y-4">
+            <div className="flex h-full items-center justify-center">
               <div
                 role="button"
                 tabIndex={0}
@@ -232,9 +232,18 @@ export function AssetPicker({ workspaceSlug, value, altText, onSelect, onClose }
                     uploadRef.current?.click();
                   }
                 }}
-                className="rounded-lg border border-dashed border-ed-rule-strong p-10 text-center text-sm text-ed-ink-3 hover:border-brand hover:text-ed-ink"
+                className="flex w-full max-w-xl cursor-pointer flex-col items-center gap-4 rounded-xl border-2 border-dashed border-ed-rule-strong bg-ed-panel-2 px-8 py-14 text-center transition-colors hover:border-brand"
               >
-                {uploadBusy ? 'Uploading…' : 'Click to choose an image from your computer'}
+                <UploadCloud size={40} className="text-ed-ink-3" strokeWidth={1.5} />
+                <div className="space-y-1">
+                  <div className="text-base font-medium text-ed-ink">
+                    {uploadBusy ? 'Uploading…' : 'Drop an image here, or click to browse'}
+                  </div>
+                  <div className="text-xs text-ed-ink-3">PNG, JPG, WebP, or GIF. Max 10 MB.</div>
+                </div>
+                <span className="rounded-md border border-brand bg-brand/15 px-4 py-2 text-[13px] font-medium text-brand">
+                  Choose file
+                </span>
               </div>
               <input
                 ref={uploadRef}
