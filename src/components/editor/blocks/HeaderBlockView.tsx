@@ -58,7 +58,7 @@ export function HeaderBlockView({ block, global: g }: Props) {
               objectFit: 'cover',
               margin: '0 auto',
             }}
-            width={block.bannerWidth ?? 670}
+            width={block.bannerWidth ?? 500}
             onWidthChange={(w) => setHeader({ bannerWidth: w })}
             aspectRatio={670 / 120}
             altLabel="Header banner alt text"
