@@ -80,6 +80,9 @@ export function HeroBlockView({ block, global: g, index, total: _total }: Props)
             imgStyle={{ maxWidth: '100%', height: 'auto', marginBottom: 16 }}
             altLabel="Hero image alt"
             onAltChange={(v) => update({ imageAlt: v })}
+            width={block.imageWidth ?? 710}
+            onWidthChange={(w) => update({ imageWidth: w })}
+            aspectRatio={710 / 400}
           />
           <h1 style={{ fontSize: titleSize, color: fg, fontWeight: 700, margin: '0 0 12px' }}>
             <EditableText

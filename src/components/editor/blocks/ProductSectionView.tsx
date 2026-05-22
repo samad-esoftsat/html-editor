@@ -62,6 +62,9 @@ export function ProductSectionView({ block, global: g, index, total }: Props) {
         imgStyle={{ maxWidth: 355, width: '100%' }}
         altLabel={`Section ${index + 1} image alt text`}
         onAltChange={(v) => setSection(block.id, { imageAlt: v })}
+        width={block.imageWidth ?? 355}
+        onWidthChange={(w) => setSection(block.id, { imageWidth: w })}
+        aspectRatio={355 / 266}
       />
     </div>
   );

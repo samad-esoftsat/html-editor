@@ -58,6 +58,9 @@ export function ArticleView({ block, global: g, index, total: _total }: Props) {
       imgStyle={{ maxWidth: '100%', height: 'auto' }}
       altLabel="Article image alt"
       onAltChange={(v) => update({ imageAlt: v })}
+      width={block.imageWidth ?? 400}
+      onWidthChange={(w) => update({ imageWidth: w })}
+      aspectRatio={400 / 260}
     />
   );
 
