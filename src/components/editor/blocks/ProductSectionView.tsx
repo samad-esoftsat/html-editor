@@ -42,8 +42,10 @@ export function ProductSectionView({ block, global: g, index, total }: Props) {
     background: block.backgroundColor,
     maxWidth: 710,
     margin: '0 auto',
-    whiteSpace: 'nowrap',
     position: 'relative',
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'stretch',
   };
 
   function onMouseDown(e: React.MouseEvent) {
@@ -52,24 +54,25 @@ export function ProductSectionView({ block, global: g, index, total }: Props) {
     toggle(block.id, e.shiftKey ? 'range' : 'single');
   }
 
+  const imageWidth = block.imageWidth ?? 355;
   const ImageCol = (
-    <div style={{ width: '50%', padding: 20, verticalAlign: 'middle', display: 'inline-block' }}>
+    <div style={{ flex: '0 0 auto', padding: 20, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <EditableImage
         value={block.imageSrc}
         onChange={(v) => setSection(block.id, { imageSrc: v })}
         alt={block.imageAlt}
         placeholderLabel="Section image - click to add"
-        imgStyle={{ maxWidth: 355, width: '100%' }}
+        imgStyle={{ display: 'block', height: 'auto' }}
         altLabel={`Section ${index + 1} image alt text`}
         onAltChange={(v) => setSection(block.id, { imageAlt: v })}
-        width={block.imageWidth ?? 355}
+        width={imageWidth}
         onWidthChange={(w) => setSection(block.id, { imageWidth: w })}
         aspectRatio={355 / 266}
       />
     </div>
   );
   const TextCol = (
-    <div style={{ width: '50%', padding: 20, verticalAlign: 'middle', display: 'inline-block' }}>
+    <div style={{ flex: '1 1 0', minWidth: 0, padding: 20, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
       <h1 style={{ fontSize: titleSize, color: textColor, fontWeight: 700, margin: 0 }}>
         <EditableText
           value={block.title}

@@ -95,26 +95,43 @@ export function ResizableImage({
         />
       ))}
       {dragWidth !== null && (
-        <span
-          data-resize-badge
-          className="resize-badge"
-          style={{
-            position: 'absolute',
-            top: -28,
-            right: 0,
-            background: 'var(--color-ed-panel-2)',
-            color: 'var(--color-brand)',
-            fontFamily: 'JetBrains Mono, monospace',
-            fontSize: 11,
-            padding: '2px 6px',
-            borderRadius: 4,
-            border: '1px solid var(--color-ed-rule-strong)',
-            whiteSpace: 'nowrap',
-            zIndex: 5,
-          }}
-        >
-          {dragWidth} × {displayHeight}
-        </span>
+        <>
+          <span
+            data-resize-ghost
+            aria-hidden="true"
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: dragWidth,
+              height: displayHeight,
+              border: '2px dashed var(--color-brand)',
+              background: 'color-mix(in oklab, var(--color-brand) 12%, transparent)',
+              pointerEvents: 'none',
+              zIndex: 3,
+            }}
+          />
+          <span
+            data-resize-badge
+            className="resize-badge"
+            style={{
+              position: 'absolute',
+              top: -28,
+              right: 0,
+              background: 'var(--color-ed-panel-2)',
+              color: 'var(--color-brand)',
+              fontFamily: 'JetBrains Mono, monospace',
+              fontSize: 11,
+              padding: '2px 6px',
+              borderRadius: 4,
+              border: '1px solid var(--color-ed-rule-strong)',
+              whiteSpace: 'nowrap',
+              zIndex: 5,
+            }}
+          >
+            {dragWidth} × {displayHeight}
+          </span>
+        </>
       )}
     </span>
   );
