@@ -1,5 +1,5 @@
 'use client';
-import { useCallback, useRef, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 
 interface ResizableImageProps {
   width: number;
@@ -26,6 +26,26 @@ export function ResizableImage({
 }: ResizableImageProps) {
   const wrapRef = useRef<HTMLSpanElement | null>(null);
   const [dragWidth, setDragWidth] = useState<number | null>(null);
+  const [naturalRatio, setNaturalRatio] = useState<number | null>(null);
+
+  // Watch the wrapped <img> for natural dimensions so the ghost overlay matches
+  // the real image instead of the caller-supplied aspectRatio fallback.
+  useEffect(() => {
+    const wrap = wrapRef.current;
+    if (!wrap) return;
+    const img = wrap.querySelector('img');
+    if (!img) return;
+    const capture = () => {
+      if (img.naturalWidth > 0 && img.naturalHeight > 0) {
+        setNaturalRatio(img.naturalWidth / img.naturalHeight);
+      }
+    };
+    if (img.complete) capture();
+    img.addEventListener('load', capture);
+    return () => img.removeEventListener('load', capture);
+  }, [children]);
+
+  const effectiveRatio = naturalRatio ?? aspectRatio;
 
   const startDrag = useCallback(
     (corner: Corner) => (event: React.PointerEvent<HTMLSpanElement>) => {
@@ -64,14 +84,14 @@ export function ResizableImage({
   );
 
   const displayWidth = dragWidth ?? width;
-  const displayHeight = Math.round(displayWidth / aspectRatio);
+  const displayHeight = Math.round(displayWidth / effectiveRatio);
 
   return (
     <span
       ref={wrapRef}
       data-resizable-wrap
       className="resizable-image"
-      style={{ display: 'inline-block', position: 'relative', maxWidth: '100%' }}
+      style={{ display: 'inline-block', position: 'relative' }}
     >
       {children}
       {(['tl', 'tr', 'bl', 'br'] as Corner[]).map((corner) => (

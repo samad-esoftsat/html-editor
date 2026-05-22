@@ -13,13 +13,13 @@ const SOCIAL_ICON: Record<SocialPlatform, { url: string; alt: string }> = {
 const PRINT_CSS = `
 @page {
   size: A4 portrait;
-  margin: 32mm 12mm 48mm 12mm;
+  margin: 32mm 12mm 64mm 12mm;
   @top-center    { content: element(header-region); }
   @bottom-center { content: element(footer-region); }
 }
 @page :first { margin-top: 32mm; }
-.print-footer { font-size: 11px; line-height: 1.35; }
-.print-footer img { max-height: 40px; }
+.print-footer { font-size: 13px; line-height: 1.4; }
+.print-footer img { max-height: 60px; }
 
 * { box-sizing: border-box; }
 body { margin: 0; padding: 0; }

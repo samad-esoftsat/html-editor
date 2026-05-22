@@ -61,11 +61,14 @@ export function EditableLink({
   const visibilityClass = alwaysVisible ? 'opacity-100' : 'editable-link-icon';
 
   const wrapperClass = floating
-    ? `absolute -right-6 top-1/2 -translate-y-1/2 inline-flex items-center ${className ?? ''}`
+    ? `inline-flex items-center ${className ?? ''}`
     : `relative inline-flex items-center ${className ?? ''}`;
+  const wrapperStyle: React.CSSProperties | undefined = floating
+    ? { position: 'absolute', right: -24, top: '50%', transform: 'translateY(-50%)' }
+    : undefined;
 
   return (
-    <span ref={rootRef} className={wrapperClass}>
+    <span ref={rootRef} className={wrapperClass} style={wrapperStyle}>
       <Tooltip open={open ? false : undefined}>
         <TooltipTrigger asChild>
           <button
