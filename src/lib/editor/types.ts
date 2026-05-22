@@ -44,6 +44,7 @@ export interface ProductSectionBlock extends BlockBase {
   bullets: string[];
   imageSrc: string;
   imageAlt: string;
+  imageWidth?: number;
   ctaText: string;
   ctaUrl?: string;
   titleFontSize?: number;
@@ -57,6 +58,7 @@ export interface FooterBlock extends BlockBase {
   type: 'footer';
   bannerSrc: string;
   bannerAlt: string;
+  bannerWidth?: number;
   companyName: string;
   address: string;
   phone: string;
@@ -72,6 +74,7 @@ export interface HeroBlock extends BlockBase {
   type: 'hero';
   imageSrc: string;
   imageAlt: string;
+  imageWidth?: number;
   title: string;
   subtitle: string;
   ctaText: string;
@@ -87,6 +90,7 @@ export interface ArticleBlock extends BlockBase {
   type: 'article';
   imageSrc: string;
   imageAlt: string;
+  imageWidth?: number;
   title: string;
   body: string;
   ctaText: string;
