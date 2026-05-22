@@ -145,14 +145,19 @@ export function AssetPicker({ workspaceSlug, value, altText, onSelect, onClose }
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/70 p-4 backdrop-blur-sm">
-      <div className="mx-auto flex h-full max-w-5xl flex-col overflow-hidden rounded-xl border border-ed-rule bg-ed-panel-2 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.6)]">
+    <div className="fixed inset-0 z-50 flex items-stretch justify-center bg-black/70 p-8 backdrop-blur-sm">
+      <div className="flex h-full w-full max-w-[1024px] flex-col overflow-hidden rounded-[12px] border border-ed-rule bg-ed-panel-2 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.6)]">
         <div className="flex items-center justify-between border-b border-ed-rule px-4 py-3">
-          <div>
+          <div className="space-y-0.5">
             <div className="text-sm font-semibold text-ed-ink">Asset Picker</div>
             <div className="text-xs text-ed-ink-3">Workspace library, uploads, and AI generation in one place.</div>
           </div>
-          <button type="button" className="text-ed-ink-3 hover:text-ed-ink" onClick={onClose}>
+          <button
+            type="button"
+            aria-label="Close asset picker"
+            className="rounded-md p-1.5 text-ed-ink-3 transition-colors hover:bg-ed-panel-3 hover:text-ed-ink"
+            onClick={onClose}
+          >
             <X size={18} />
           </button>
         </div>
