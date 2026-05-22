@@ -36,6 +36,9 @@ export function FooterBlockView({ block, global: g }: Props) {
           alt={block.bannerAlt}
           placeholderLabel="Footer banner - click to add"
           placeholderWidth={710}
+          width={block.bannerWidth ?? 710}
+          onWidthChange={(w) => setFooter({ bannerWidth: w })}
+          aspectRatio={710 / 120}
           imgStyle={{ maxWidth: 710, width: '100%' }}
           altLabel="Footer banner alt text"
           onAltChange={(v) => setFooter({ bannerAlt: v })}

@@ -27,6 +27,9 @@ export function HeaderBlockView({ block, global: g }: Props) {
             alt={block.logoAlt}
             placeholderLabel="Logo image - click to add"
             placeholderWidth={block.logoWidth}
+            width={block.logoWidth}
+            onWidthChange={(w) => setHeader({ logoWidth: w })}
+            aspectRatio={block.logoWidth / 80}
             imgStyle={{ maxWidth: block.logoWidth, width: '100%' }}
             altLabel="Header logo alt text"
             onAltChange={(v) => setHeader({ logoAlt: v })}
