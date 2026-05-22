@@ -1,6 +1,7 @@
 'use client';
 import { useAssetPicker } from '../AssetPickerProvider';
 import { useEditorMode } from '../EditorModeProvider';
+import { ResizableImage } from '../canvas/ResizableImage';
 import { EditableText } from './EditableText';
 
 export interface EditableImageProps {
@@ -13,6 +14,9 @@ export interface EditableImageProps {
   imgStyle?: React.CSSProperties;
   altLabel?: string;
   onAltChange?: (next: string) => void;
+  width?: number;
+  onWidthChange?: (next: number) => void;
+  aspectRatio?: number;
 }
 
 export function EditableImage({
@@ -25,13 +29,17 @@ export function EditableImage({
   imgStyle,
   altLabel,
   onAltChange,
+  width,
+  onWidthChange,
+  aspectRatio,
 }: EditableImageProps) {
   const { openAssetPicker } = useAssetPicker();
   const { mode } = useEditorMode();
 
   if (mode === 'preview') {
     if (!value) return null;
-    return <img src={value} alt={alt} style={imgStyle} />;
+    const previewStyle: React.CSSProperties = width ? { ...imgStyle, width } : imgStyle ?? {};
+    return <img src={value} alt={alt} style={previewStyle} />;
   }
 
   function open() {
@@ -43,19 +51,33 @@ export function EditableImage({
   }
 
   if (value) {
+    const renderedWidth = width;
     const img = (
       <img
         src={value}
         alt={alt}
         onClick={open}
         className="inline-editable-image"
-        style={{ cursor: 'pointer', ...imgStyle }}
+        style={{ cursor: 'pointer', ...(renderedWidth ? { width: renderedWidth } : {}), ...imgStyle }}
       />
     );
-    if (!onAltChange) return img;
+
+    const wrapped = onWidthChange && renderedWidth && aspectRatio
+      ? (
+        <ResizableImage
+          width={renderedWidth}
+          onWidthChange={onWidthChange}
+          aspectRatio={aspectRatio}
+        >
+          {img}
+        </ResizableImage>
+      )
+      : img;
+
+    if (!onAltChange) return wrapped;
     return (
       <span className="editable-image-wrap">
-        {img}
+        {wrapped}
         <span className="editable-image-alt text-[12px] text-ed-ink-3 px-1">
           Alt:{' '}
           <EditableText
