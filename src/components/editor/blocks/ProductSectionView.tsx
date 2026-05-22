@@ -72,7 +72,7 @@ export function ProductSectionView({ block, global: g, index, total }: Props) {
     </div>
   );
   const TextCol = (
-    <div style={{ flex: '1 1 0', minWidth: 0, padding: 20, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+    <div style={{ flex: '1 1 0', minWidth: 0, padding: 20, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'flex-start' }}>
       <h1 style={{ fontSize: titleSize, color: textColor, fontWeight: 700, margin: 0 }}>
         <EditableText
           value={block.title}
