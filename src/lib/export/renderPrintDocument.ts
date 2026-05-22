@@ -75,8 +75,9 @@ function renderFooterForPrint(footer: FooterBlock, data: ProjectData): string {
   const bg = footer.backgroundColor ?? data.global.footerBackgroundColor;
   const fg = footer.textColor ?? data.global.footerTextColor;
 
+  const bannerWidthStyle = footer.bannerWidth ? `width: ${footer.bannerWidth}px;` : '';
   const banner = footer.bannerSrc
-    ? `<img src="${attrEscape(urlSafe(footer.bannerSrc))}" alt="${attrEscape(footer.bannerAlt)}" style="display: block; max-width: 100%; height: auto; margin: 0 auto 6px;">`
+    ? `<img src="${attrEscape(urlSafe(footer.bannerSrc))}" alt="${attrEscape(footer.bannerAlt)}" style="display: block; max-width: 100%; height: auto; margin: 0 auto 6px;${bannerWidthStyle ? ` ${bannerWidthStyle}` : ''}">`
     : '';
   const address = (footer.address || '')
     .split('\n')
@@ -124,8 +125,9 @@ function renderProductSectionForPrint(section: ProductSectionBlock, idx: number,
     .join('');
 
   const hasImage = !!section.imageSrc;
+  const widthStyle = section.imageWidth ? `width: ${section.imageWidth}px;` : '';
   const imageCol = hasImage
-    ? `<div style="flex: 0 0 50%; padding: 12px;"><img src="${attrEscape(urlSafe(section.imageSrc))}" alt="${attrEscape(section.imageAlt)}" style="display: block; max-width: 100%; height: auto;"></div>`
+    ? `<div style="flex: 0 0 50%; padding: 12px;"><img src="${attrEscape(urlSafe(section.imageSrc))}" alt="${attrEscape(section.imageAlt)}" style="display: block; max-width: 100%; height: auto;${widthStyle ? ` ${widthStyle}` : ''}"></div>`
     : '';
   const textFlex = hasImage ? 'flex: 0 0 50%;' : 'flex: 1 1 100%;';
   const textCol = `<div style="${textFlex} padding: 12px;">
@@ -148,9 +150,10 @@ function renderHeroForPrint(block: HeroBlock, data: ProjectData): string {
   const titleSize = block.titleFontSize ?? Math.max(data.global.headingFontSize, 28);
   const subtitleSize = block.subtitleFontSize ?? data.global.baseFontSize;
   const ctaUrl = urlSafe(block.ctaUrl ?? data.global.contactUrl);
+  const widthStyle = block.imageWidth ? `width: ${block.imageWidth}px;` : '';
 
   const imageHtml = block.imageSrc
-    ? `<img src="${attrEscape(urlSafe(block.imageSrc))}" alt="${attrEscape(block.imageAlt)}" style="display: block; max-width: 100%; height: auto; margin: 0 auto 12px;">`
+    ? `<img src="${attrEscape(urlSafe(block.imageSrc))}" alt="${attrEscape(block.imageAlt)}" style="display: block; max-width: 100%; height: auto; margin: 0 auto 12px;${widthStyle ? ` ${widthStyle}` : ''}">`
     : '';
   const subtitleHtml = block.subtitle
     ? `<p style="font-size: ${subtitleSize}px; color: ${attrEscape(fg)}; margin: 0 0 18px;">${htmlEscape(block.subtitle)}</p>`
@@ -169,9 +172,10 @@ function renderArticleForPrint(block: ArticleBlock, data: ProjectData): string {
   const titleSize = block.titleFontSize ?? data.global.headingFontSize;
   const bodySize = block.bodyFontSize ?? data.global.baseFontSize;
   const ctaUrl = urlSafe(block.ctaUrl ?? data.global.contactUrl);
+  const widthStyle = block.imageWidth ? `width: ${block.imageWidth}px;` : '';
 
   const imgHtml = block.imageSrc
-    ? `<img src="${attrEscape(urlSafe(block.imageSrc))}" alt="${attrEscape(block.imageAlt)}" style="display: block; max-width: 100%; height: auto;">`
+    ? `<img src="${attrEscape(urlSafe(block.imageSrc))}" alt="${attrEscape(block.imageAlt)}" style="display: block; max-width: 100%; height: auto;${widthStyle ? ` ${widthStyle}` : ''}">`
     : '';
   const titleHtml = `<h2 style="margin: 0 0 6px; font-size: ${titleSize}px; color: ${attrEscape(fg)};">${htmlEscape(block.title)}</h2>`;
   const bodyHtml = `<p style="margin: 0 0 12px; font-size: ${bodySize}px; color: ${attrEscape(fg)}; white-space: pre-wrap;">${htmlEscape(block.body)}</p>`;

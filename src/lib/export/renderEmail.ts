@@ -72,13 +72,14 @@ function renderSection(section: ProductSection, idx: number, data: ProjectData):
   const bg = section.backgroundColor ?? '';
   const ctaUrl = urlSafe(section.ctaUrl ?? data.global.contactUrl);
   const imageSrc = urlSafe(section.imageSrc);
+  const widthStyle = section.imageWidth ? `width: ${section.imageWidth}px;` : '';
 
   const bulletsHtml = section.bullets
     .map((b) => `<li style="margin: 4px 0; font-size: ${bulletSize}px; color: ${attrEscape(textColor)};">${htmlEscape(b)}</li>`)
     .join('');
 
   const imageCell = `<td class="column column-1" width="50%" valign="top" style="padding: 16px;">
-<div style="max-width: 339px; margin: 0 auto;"><img src="${attrEscape(imageSrc)}" alt="${attrEscape(section.imageAlt)}" width="339" style="display: block; width: 100%; max-width: 100%; height: auto; border: 0;"></div>
+<div style="max-width: 339px; margin: 0 auto;"><img src="${attrEscape(imageSrc)}" alt="${attrEscape(section.imageAlt)}" width="339" style="display: block; width: 100%; max-width: 100%; height: auto; border: 0;${widthStyle ? ` ${widthStyle}` : ''}"></div>
 </td>`;
 
   const textCell = `<td class="column column-2" width="50%" valign="top" style="padding: 16px;">
@@ -106,6 +107,7 @@ function renderFooter(footer: Footer, data: ProjectData): string {
   const bg = footer.backgroundColor ?? data.global.footerBackgroundColor;
   const fg = footer.textColor ?? data.global.footerTextColor;
   const bannerSrc = urlSafe(footer.bannerSrc);
+  const bannerWidthStyle = footer.bannerWidth ? `width: ${footer.bannerWidth}px;` : '';
   const addressLines = (footer.address || '')
     .split('\n')
     .map((line) => `<p style="margin: 0; color: ${attrEscape(fg)};">${htmlEscape(line)}</p>`)
@@ -135,7 +137,7 @@ function renderFooter(footer: Footer, data: ProjectData): string {
 <tr><td>
 ${MSO_OPEN}
 <table role="presentation" class="row-content" width="710" border="0" cellpadding="0" cellspacing="0" align="center">
-<tr><td align="center" style="padding: 16px;"><img src="${attrEscape(bannerSrc)}" alt="${attrEscape(footer.bannerAlt)}" style="display: block; max-width: 100%; height: auto; border: 0;"></td></tr>
+<tr><td align="center" style="padding: 16px;"><img src="${attrEscape(bannerSrc)}" alt="${attrEscape(footer.bannerAlt)}" style="display: block; max-width: 100%; height: auto; border: 0;${bannerWidthStyle ? ` ${bannerWidthStyle}` : ''}"></td></tr>
 <tr><td align="center" style="padding: 16px; color: ${attrEscape(fg)}; font-family: ${attrEscape(data.global.fontFamily)}; font-size: ${data.global.baseFontSize}px;">
 <p style="margin: 0;"><strong>${htmlEscape(footer.companyName)}</strong></p>
 ${addressLines}
@@ -158,8 +160,9 @@ function renderHero(block: HeroBlock, data: ProjectData): string {
   const titleSize = block.titleFontSize ?? Math.max(data.global.headingFontSize, 28);
   const subtitleSize = block.subtitleFontSize ?? data.global.baseFontSize;
   const ctaUrl = urlSafe(block.ctaUrl ?? data.global.contactUrl);
+  const widthStyle = block.imageWidth ? `width: ${block.imageWidth}px;` : '';
   const imageHtml = block.imageSrc
-    ? `<img src="${attrEscape(urlSafe(block.imageSrc))}" alt="${attrEscape(block.imageAlt)}" style="display: block; max-width: 100%; height: auto; border: 0; margin: 0 auto 16px;">`
+    ? `<img src="${attrEscape(urlSafe(block.imageSrc))}" alt="${attrEscape(block.imageAlt)}" style="display: block; max-width: 100%; height: auto; border: 0; margin: 0 auto 16px;${widthStyle ? ` ${widthStyle}` : ''}">`
     : '';
   const subtitleHtml = block.subtitle
     ? `<p style="font-size: ${subtitleSize}px; color: ${attrEscape(fg)}; margin: 0 0 24px;">${htmlEscape(block.subtitle)}</p>`
@@ -186,9 +189,10 @@ function renderArticle(block: ArticleBlock, data: ProjectData): string {
   const titleSize = block.titleFontSize ?? data.global.headingFontSize;
   const bodySize = block.bodyFontSize ?? data.global.baseFontSize;
   const ctaUrl = urlSafe(block.ctaUrl ?? data.global.contactUrl);
+  const widthStyle = block.imageWidth ? `width: ${block.imageWidth}px;` : '';
 
   const imgHtml = block.imageSrc
-    ? `<img src="${attrEscape(urlSafe(block.imageSrc))}" alt="${attrEscape(block.imageAlt)}" style="display: block; max-width: 100%; height: auto; border: 0;">`
+    ? `<img src="${attrEscape(urlSafe(block.imageSrc))}" alt="${attrEscape(block.imageAlt)}" style="display: block; max-width: 100%; height: auto; border: 0;${widthStyle ? ` ${widthStyle}` : ''}">`
     : '';
   const titleHtml = `<h2 style="margin: 0 0 8px; font-size: ${titleSize}px; color: ${attrEscape(fg)};">${htmlEscape(block.title)}</h2>`;
   const bodyHtml = `<p style="margin: 0 0 16px; font-size: ${bodySize}px; color: ${attrEscape(fg)}; white-space: pre-wrap;">${htmlEscape(block.body)}</p>`;
