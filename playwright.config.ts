@@ -3,8 +3,6 @@ import dotenv from 'dotenv';
 
 dotenv.config({ path: '.env.local' });
 
-const hasE2EEnv = Boolean(process.env.E2E_EMAIL && process.env.E2E_PASSWORD);
-
 export default defineConfig({
   testDir: './tests/e2e',
   timeout: 30_000,
@@ -18,12 +16,10 @@ export default defineConfig({
   projects: [
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
   ],
-  webServer: hasE2EEnv
-    ? {
-        command: 'npm.cmd run dev',
-        url: 'http://localhost:3000',
-        reuseExistingServer: true,
-        timeout: 60_000,
-      }
-    : undefined,
+  webServer: {
+    command: process.platform === 'win32' ? 'npm.cmd run dev' : 'npm run dev',
+    url: 'http://localhost:3000',
+    reuseExistingServer: true,
+    timeout: 120_000,
+  },
 });

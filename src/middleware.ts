@@ -30,11 +30,13 @@ export async function middleware(req: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
+  const isDevRoute = process.env.NODE_ENV !== 'production' && path.startsWith('/dev/');
   const isPublic = path.startsWith('/login')
                 || path.startsWith('/signup')
                 || path.startsWith('/reset')
                 || path.startsWith('/auth')
-                || path.startsWith('/invite');
+                || path.startsWith('/invite')
+                || isDevRoute;
 
   if (!user && !isPublic) {
     const url = req.nextUrl.clone();

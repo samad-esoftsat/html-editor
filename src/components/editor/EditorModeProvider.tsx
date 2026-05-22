@@ -10,8 +10,14 @@ interface EditorModeContextValue {
 
 const EditorModeContext = createContext<EditorModeContextValue | null>(null);
 
-export function EditorModeProvider({ children }: { children: ReactNode }) {
-  const [mode, setMode] = useState<EditorMode>('edit');
+export function EditorModeProvider({
+  children,
+  initialMode = 'edit',
+}: {
+  children: ReactNode;
+  initialMode?: EditorMode;
+}) {
+  const [mode, setMode] = useState<EditorMode>(initialMode);
   return (
     <EditorModeContext.Provider value={{ mode, setMode }}>
       {children}
