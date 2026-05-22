@@ -47,6 +47,7 @@ function renderHeader(header: Header, contactUrl: string): string {
   const bannerSrc = urlSafe(header.bannerSrc);
   const cu = urlSafe(contactUrl);
   const logoWidth = Math.min(header.logoWidth, 600);
+  const bannerWidthStyle = header.bannerWidth ? `width: ${header.bannerWidth}px;` : '';
   return `<table role="presentation" class="row row-header" width="100%" border="0" cellpadding="0" cellspacing="0">
 <tr><td>
 ${MSO_OPEN}
@@ -55,7 +56,7 @@ ${MSO_OPEN}
 <a href="${attrEscape(cu)}" target="_blank"><img src="${attrEscape(logoSrc)}" alt="${attrEscape(header.logoAlt)}" width="${logoWidth}" style="display: block; max-width: 100%; height: auto; border: 0;"></a>
 </td></tr>
 <tr><td align="center" style="padding: 8px 16px; font-size: ${header.titleFontSize}px; font-weight: bold;">${htmlEscape(header.title)}</td></tr>
-<tr><td align="center" style="padding: 8px 16px;"><img src="${attrEscape(bannerSrc)}" alt="${attrEscape(header.bannerAlt)}" style="display: block; max-width: 100%; height: auto; border: 0;"></td></tr>
+<tr><td align="center" style="padding: 8px 16px;"><img src="${attrEscape(bannerSrc)}" alt="${attrEscape(header.bannerAlt)}" style="display: block; max-width: 100%; height: auto; border: 0;${bannerWidthStyle ? ` ${bannerWidthStyle}` : ''}"></td></tr>
 <tr><td align="center" style="padding: 16px; font-size: ${header.sectionHeadingFontSize}px; font-weight: bold;">${htmlEscape(header.sectionHeading)}</td></tr>
 </table>
 ${MSO_CLOSE}

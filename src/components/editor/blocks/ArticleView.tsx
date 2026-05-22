@@ -104,6 +104,7 @@ export function ArticleView({ block, global: g, index, total: _total }: Props) {
               value={block.ctaUrl ?? ''}
               onChange={(v) => update({ ctaUrl: v || undefined })}
               ariaLabel="Edit article CTA URL"
+              floating
             />
           </span>
         </a>

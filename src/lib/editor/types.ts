@@ -34,6 +34,7 @@ export interface HeaderBlock extends BlockBase {
   titleFontSize: number;
   bannerSrc: string;
   bannerAlt: string;
+  bannerWidth?: number;
   sectionHeading: string;
   sectionHeadingFontSize: number;
 }

@@ -115,6 +115,7 @@ export function CTABannerView({ block, global: g, index, total: _total }: Props)
                 value={block.ctaUrl ?? ''}
                 onChange={(v) => update({ ctaUrl: v || undefined })}
                 ariaLabel="Edit CTA banner URL"
+                floating
               />
             </span>
           </a>

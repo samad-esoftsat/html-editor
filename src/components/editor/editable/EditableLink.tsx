@@ -9,6 +9,10 @@ export interface EditableLinkProps {
   onChange: (next: string) => void;
   ariaLabel: string;
   alwaysVisible?: boolean;
+  /** When true, the trigger floats outside the normal inline flow so it does not
+   *  contribute to its parent's width. Use this for CTA pencil icons where the
+   *  edit affordance must not change the rendered button width vs preview. */
+  floating?: boolean;
   className?: string;
 }
 
@@ -17,6 +21,7 @@ export function EditableLink({
   onChange,
   ariaLabel,
   alwaysVisible,
+  floating,
   className,
 }: EditableLinkProps) {
   const { mode } = useEditorMode();
@@ -55,8 +60,12 @@ export function EditableLink({
 
   const visibilityClass = alwaysVisible ? 'opacity-100' : 'editable-link-icon';
 
+  const wrapperClass = floating
+    ? `absolute -right-6 top-1/2 -translate-y-1/2 inline-flex items-center ${className ?? ''}`
+    : `relative inline-flex items-center ${className ?? ''}`;
+
   return (
-    <span ref={rootRef} className={`relative inline-flex items-center ${className ?? ''}`}>
+    <span ref={rootRef} className={wrapperClass}>
       <Tooltip open={open ? false : undefined}>
         <TooltipTrigger asChild>
           <button

@@ -74,8 +74,9 @@ function renderHeaderCover(header: HeaderBlock): string {
   // Page-1 cover area: banner image + section heading. Rendered once at the top
   // of the body so the giant Coverage Map / hero banner doesn't repeat every page.
   if (!header.bannerSrc && !header.sectionHeading) return '';
+  const headerBannerWidthStyle = header.bannerWidth ? `width: ${header.bannerWidth}px;` : '';
   const banner = header.bannerSrc
-    ? `<img src="${attrEscape(urlSafe(header.bannerSrc))}" alt="${attrEscape(header.bannerAlt)}" style="display: block; max-width: 100%; height: auto; margin: 0 auto 8px;">`
+    ? `<img src="${attrEscape(urlSafe(header.bannerSrc))}" alt="${attrEscape(header.bannerAlt)}" style="display: block; max-width: 100%; height: auto; margin: 0 auto 8px;${headerBannerWidthStyle ? ` ${headerBannerWidthStyle}` : ''}">`
     : '';
   const sectionHeading = header.sectionHeading
     ? `<div style="text-align: center; padding: 6px 0; font-size: ${header.sectionHeadingFontSize}px; font-weight: bold;">${htmlEscape(header.sectionHeading)}</div>`

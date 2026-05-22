@@ -127,6 +127,7 @@ export function HeroBlockView({ block, global: g, index, total: _total }: Props)
                 value={block.ctaUrl ?? ''}
                 onChange={(v) => update({ ctaUrl: v || undefined })}
                 ariaLabel="Edit hero CTA URL"
+                floating
               />
             </span>
           </a>

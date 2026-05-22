@@ -54,9 +54,20 @@ export function ProductSectionView({ block, global: g, index, total }: Props) {
     toggle(block.id, e.shiftKey ? 'range' : 'single');
   }
 
-  const imageWidth = block.imageWidth ?? 355;
+  const customImageWidth = block.imageWidth;
+  const renderImageWidth = customImageWidth ?? 315;
+  const imageColFlex = customImageWidth !== undefined
+    ? `0 0 ${customImageWidth + 40}px`
+    : '0 0 50%';
   const ImageCol = (
-    <div style={{ flex: '0 0 auto', padding: 20, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <div style={{
+      flex: imageColFlex,
+      boxSizing: 'border-box',
+      padding: 20,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    }}>
       <EditableImage
         value={block.imageSrc}
         onChange={(v) => setSection(block.id, { imageSrc: v })}
@@ -65,7 +76,7 @@ export function ProductSectionView({ block, global: g, index, total }: Props) {
         imgStyle={{ display: 'block', height: 'auto' }}
         altLabel={`Section ${index + 1} image alt text`}
         onAltChange={(v) => setSection(block.id, { imageAlt: v })}
-        width={imageWidth}
+        width={renderImageWidth}
         onWidthChange={(w) => setSection(block.id, { imageWidth: w })}
         aspectRatio={355 / 266}
       />
@@ -112,6 +123,7 @@ export function ProductSectionView({ block, global: g, index, total }: Props) {
             value={block.ctaUrl ?? ''}
             onChange={(v) => setSection(block.id, { ctaUrl: v })}
             ariaLabel={`Edit section ${index + 1} CTA URL`}
+            floating
           />
         </span>
       </a>

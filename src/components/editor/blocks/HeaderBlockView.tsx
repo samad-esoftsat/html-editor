@@ -51,6 +51,9 @@ export function HeaderBlockView({ block, global: g }: Props) {
             alt={block.bannerAlt}
             placeholderLabel="Header banner - click to add"
             imgStyle={{ width: '100%' }}
+            width={block.bannerWidth ?? 670}
+            onWidthChange={(w) => setHeader({ bannerWidth: w })}
+            aspectRatio={3}
             altLabel="Header banner alt text"
             onAltChange={(v) => setHeader({ bannerAlt: v })}
           />
