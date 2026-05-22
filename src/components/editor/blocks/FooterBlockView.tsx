@@ -24,11 +24,17 @@ export function FooterBlockView({ block, global: g }: Props) {
 
   return (
     <>
-      {/* Footer */}
+      {/* Footer — geometry mirrors renderPrintDocument's print-footer so the
+          edit view shows what the PDF will actually look like. */}
       <div style={{
         background: block.backgroundColor ?? g.footerBackgroundColor,
         color: block.textColor ?? g.footerTextColor,
-        textAlign: 'center', padding: '20px',
+        maxWidth: 710,
+        margin: '0 auto',
+        textAlign: 'center',
+        padding: '12px 16px',
+        fontSize: 13,
+        lineHeight: 1.4,
       }}>
         <EditableImage
           value={block.bannerSrc}
@@ -39,11 +45,11 @@ export function FooterBlockView({ block, global: g }: Props) {
           width={block.bannerWidth ?? 710}
           onWidthChange={(w) => setFooter({ bannerWidth: w })}
           aspectRatio={710 / 120}
-          imgStyle={{ maxWidth: 710, width: '100%' }}
+          imgStyle={{ maxWidth: 710, maxHeight: 60, width: '100%', objectFit: 'contain' }}
           altLabel="Footer banner alt text"
           onAltChange={(v) => setFooter({ bannerAlt: v })}
         />
-        <p style={{ fontWeight: 700, margin: '12px 0 0' }}>
+        <p style={{ fontWeight: 700, margin: '8px 0 0' }}>
           <EditableText
             value={block.companyName}
             onChange={(v) => setFooter({ companyName: v })}
@@ -60,7 +66,7 @@ export function FooterBlockView({ block, global: g }: Props) {
             ariaLabel="Footer address"
           />
         </p>
-        <p style={{ marginTop: 12 }}>
+        <p style={{ marginTop: 8 }}>
           Tel:{' '}
           <a href={`tel:${block.phoneTel}`} onClick={blockNav} style={{ color: g.accentColor, textDecoration: 'none' }}>
             <span className="inline-link-wrap inline-flex items-center gap-1">
@@ -123,13 +129,13 @@ export function FooterBlockView({ block, global: g }: Props) {
             </span>
           ))}
         </p>
-        <div style={{ marginTop: 16 }}>
+        <div style={{ marginTop: 8 }}>
           {block.socials.map((s, i) => {
             const Icon = ICONS[s.platform];
             return (
-              <span key={i} className="relative inline-block" style={{ margin: '0 10px' }}>
+              <span key={i} className="relative inline-block" style={{ margin: '0 6px' }}>
                 <a href={s.url} onClick={blockNav} target="_blank" rel="noreferrer" style={{ display: 'inline-block' }}>
-                  <Icon size={32} color={g.footerTextColor} />
+                  <Icon size={24} color={g.footerTextColor} />
                 </a>
                 <EditableLink
                   value={s.url}

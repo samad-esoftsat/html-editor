@@ -253,6 +253,22 @@ function extractFooter($: CheerioAPI, root: Cheerio<Element>, footer: V1ParseDat
   const firstStrong = strongs.first();
   if (firstStrong.length && firstStrong.text()) footer.companyName = firstStrong.text().trim();
 
+  // Footer banner: first non-social-icon image. Social icons live under
+  // app-rsrc.getbee.io or have a width attribute <= 48 — skip those.
+  const bannerImg = root.find('img').toArray().find((el) => {
+    const $el = $(el);
+    const src = $el.attr('src') ?? '';
+    if (src.includes('app-rsrc.getbee.io')) return false;
+    const w = parseInt($el.attr('width') ?? '', 10);
+    if (Number.isFinite(w) && w > 0 && w <= 64) return false;
+    return Boolean(src);
+  });
+  if (bannerImg) {
+    const $b = $(bannerImg);
+    footer.bannerSrc = $b.attr('src') ?? '';
+    footer.bannerAlt = $b.attr('alt') ?? '';
+  }
+
   const paragraphs = root.find('p').toArray().map((p) => textWithLineBreaks($, $(p))).filter(Boolean);
   if (paragraphs.length > 1) footer.address = normalizeFooterAddress(paragraphs[1]);
 
