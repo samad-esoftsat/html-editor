@@ -24,11 +24,15 @@ export function FooterBlockView({ block, global: g }: Props) {
 
   return (
     <>
-      {/* Footer — geometry mirrors renderPrintDocument's print-footer so the
-          edit view shows what the PDF will actually look like. */}
+      {/* Footer — outer dark band stretches the full canvas (matches email's
+          <table width="100%" bgcolor> pattern); inner wrapper is 710-wide
+          centered so the actual content geometry mirrors renderPrintDocument. */}
       <div style={{
         background: block.backgroundColor ?? g.footerBackgroundColor,
         color: block.textColor ?? g.footerTextColor,
+        width: '100%',
+      }}>
+      <div style={{
         maxWidth: 710,
         margin: '0 auto',
         textAlign: 'center',
@@ -152,6 +156,7 @@ export function FooterBlockView({ block, global: g }: Props) {
             );
           })}
         </div>
+      </div>
       </div>
     </>
   );
