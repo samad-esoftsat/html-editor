@@ -91,7 +91,7 @@ export function ResizableImage({
       ref={wrapRef}
       data-resizable-wrap
       className="resizable-image"
-      style={{ display: 'inline-block', position: 'relative' }}
+      style={{ display: 'inline-block', position: 'relative', maxWidth: '100%' }}
     >
       {children}
       {(['tl', 'tr', 'bl', 'br'] as Corner[]).map((corner) => (

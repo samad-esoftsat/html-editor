@@ -38,7 +38,9 @@ export function EditableImage({
 
   if (mode === 'preview') {
     if (!value) return null;
-    const previewStyle: React.CSSProperties = width ? { ...imgStyle, width, maxWidth: 'none' } : imgStyle ?? {};
+    const previewStyle: React.CSSProperties = width
+      ? { ...imgStyle, width, maxWidth: imgStyle?.maxWidth ?? '100%' }
+      : imgStyle ?? {};
     return <img src={value} alt={alt} style={previewStyle} />;
   }
 
@@ -58,7 +60,13 @@ export function EditableImage({
         alt={alt}
         onClick={open}
         className="inline-editable-image"
-        style={{ cursor: 'pointer', ...imgStyle, ...(renderedWidth ? { width: renderedWidth, maxWidth: 'none' } : {}) }}
+        style={{
+          cursor: 'pointer',
+          ...imgStyle,
+          ...(renderedWidth
+            ? { width: renderedWidth, maxWidth: imgStyle?.maxWidth ?? '100%' }
+            : {}),
+        }}
       />
     );
 
