@@ -101,22 +101,31 @@ export function GenerateImageForm({ workspaceSlug, canEdit, onUse, onGenerated }
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
+      {/* Prompt */}
       <Textarea
         rows={4}
         value={prompt}
         onChange={(event) => setPrompt(event.target.value)}
         placeholder="Describe the image you want to create..."
         disabled={!canEdit || busy}
+        className="text-[13px]"
       />
-      <div className="space-y-1.5">
+
+      {/* References */}
+      <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <div className="text-xs font-medium text-ed-ink">Reference images (optional)</div>
-          <div className="text-xs text-ed-ink-3">{references.length}/{MAX_REFERENCES}</div>
+          <div className="text-[11px] font-medium uppercase tracking-wider text-ed-ink-3">
+            Reference images (optional)
+          </div>
+          <div className="text-[11px] text-ed-ink-3">{references.length}/{MAX_REFERENCES}</div>
         </div>
         <div className="flex flex-wrap gap-2">
           {references.map((ref) => (
-            <div key={ref.assetId} className="relative h-16 w-16 overflow-hidden rounded-md border border-ed-rule-strong bg-ed-panel-2">
+            <div
+              key={ref.assetId}
+              className="relative h-16 w-16 overflow-hidden rounded-md border border-ed-rule-strong bg-ed-panel-2"
+            >
               <img src={ref.url} alt="" className="h-full w-full object-cover" />
               <button
                 type="button"
@@ -134,7 +143,7 @@ export function GenerateImageForm({ workspaceSlug, canEdit, onUse, onGenerated }
               type="button"
               onClick={() => refInputRef.current?.click()}
               disabled={!canEdit || busy || refUploadBusy}
-              className="flex h-16 w-16 items-center justify-center rounded-md border border-dashed border-ed-rule-strong bg-ed-panel-2 text-xs text-ed-ink-3 hover:border-brand hover:text-ed-ink disabled:cursor-not-allowed disabled:opacity-40"
+              className="flex h-16 w-16 items-center justify-center rounded-md border border-dashed border-ed-rule-strong bg-ed-panel-2 text-[11px] text-ed-ink-3 hover:border-brand hover:text-ed-ink disabled:cursor-not-allowed disabled:opacity-40"
             >
               {refUploadBusy ? <Spinner size={14} /> : '+ Add'}
             </button>
@@ -151,9 +160,11 @@ export function GenerateImageForm({ workspaceSlug, canEdit, onUse, onGenerated }
           }}
         />
         {references.length > 0 && (
-          <div className="text-xs text-ed-ink-3">References guide the style or subject of the output.</div>
+          <div className="text-[11px] text-ed-ink-3">References guide the style or subject of the output.</div>
         )}
       </div>
+
+      {/* Aspect ratio + variant count */}
       <div className="grid grid-cols-2 gap-2">
         <Select
           value={aspectRatio}
@@ -175,7 +186,9 @@ export function GenerateImageForm({ workspaceSlug, canEdit, onUse, onGenerated }
           <option value="4">4 variants</option>
         </Select>
       </div>
-      <label className="flex items-start gap-2 text-xs text-ed-ink">
+
+      {/* Google Search */}
+      <label className="flex items-start gap-2 rounded-md border border-ed-rule bg-ed-panel/40 px-3 py-2 text-[12px] text-ed-ink">
         <input
           type="checkbox"
           checked={useGoogleSearch}
@@ -188,29 +201,38 @@ export function GenerateImageForm({ workspaceSlug, canEdit, onUse, onGenerated }
           <span className="ml-1 text-ed-ink-3">— ground in web + image search results (slower; great for current events, brands, real places).</span>
         </span>
       </label>
+
+      {/* Primary CTA */}
       <Button
         type="button"
         variant="secondary"
         onClick={onSubmit}
         disabled={!canEdit || busy || !prompt.trim()}
-        className="w-full"
+        className="w-full bg-brand text-white hover:bg-brand-ink"
       >
         {busy ? <><Spinner size={14} /> Generating {elapsed > 0 ? `(${elapsed}s)` : ''}</> : 'Generate'}
       </Button>
-      {error && <div className="text-xs text-danger">{error}</div>}
+      {error && <div className="text-[11px] text-danger">{error}</div>}
+
+      {/* Results */}
       {assets.length > 0 && (
-        <div className="grid grid-cols-2 gap-2">
-          {assets.map((asset) => (
-            <button
-              key={asset.assetId}
-              type="button"
-              className="overflow-hidden rounded-md border border-ed-rule-strong bg-ed-panel-2 text-left"
-              onClick={() => onUse(asset)}
-            >
-              <img src={asset.url} alt="" className="h-28 w-full object-cover" />
-              <div className="px-2 py-1 text-xs text-ed-ink-3">Use image</div>
-            </button>
-          ))}
+        <div className="space-y-2 pt-2">
+          <div className="text-[11px] font-medium uppercase tracking-wider text-ed-ink-3">Results</div>
+          <div className="grid grid-cols-2 gap-3">
+            {assets.map((asset) => (
+              <button
+                key={asset.assetId}
+                type="button"
+                className="group overflow-hidden rounded-lg border border-ed-rule-strong bg-ed-panel-2 text-left transition-colors hover:border-brand/50"
+                onClick={() => onUse(asset)}
+              >
+                <div className="aspect-[16/10] overflow-hidden bg-ed-panel">
+                  <img src={asset.url} alt="" className="h-full w-full object-cover" />
+                </div>
+                <div className="px-3 py-2 text-[11px] font-medium text-ed-ink-3 group-hover:text-brand">Use image →</div>
+              </button>
+            ))}
+          </div>
         </div>
       )}
     </div>
