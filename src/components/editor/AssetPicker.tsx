@@ -282,26 +282,39 @@ export function AssetPicker({ workspaceSlug, value, altText, onSelect, onClose }
           )}
 
           {tab === 'edit' && editingAsset && (
-            <div className="space-y-3">
-              <MaskCanvas ref={maskRef} imageUrl={editingAsset.url} />
+            <div className="space-y-4">
+              <div className="overflow-hidden rounded-lg border border-ed-rule-strong bg-ed-panel">
+                <MaskCanvas ref={maskRef} imageUrl={editingAsset.url} />
+              </div>
               <Textarea
                 rows={3}
                 value={editPrompt}
                 onChange={(event) => setEditPrompt(event.target.value)}
                 placeholder="Describe how the masked area should change..."
                 disabled={!canEdit || editBusy}
+                className="text-[13px]"
               />
-              <div className="flex flex-wrap gap-2">
-                <Button type="button" variant="secondary" onClick={() => void onRunEdit('inpaint')} disabled={!canEdit || editBusy || !editPrompt.trim()}>
+              <div className="flex flex-wrap items-center gap-2">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  className="bg-brand text-white hover:bg-brand-ink"
+                  onClick={() => void onRunEdit('inpaint')}
+                  disabled={!canEdit || editBusy || !editPrompt.trim()}
+                >
                   {editBusy ? 'Processing…' : 'Regenerate masked area'}
                 </Button>
                 <Button type="button" variant="ghost" onClick={() => maskRef.current?.clear()} disabled={editBusy}>
                   Clear mask
                 </Button>
-                <Button type="button" variant="ghost" onClick={() => {
-                  setEditingAsset(null);
-                  setTab('library');
-                }}>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => {
+                    setEditingAsset(null);
+                    setTab('library');
+                  }}
+                >
                   Back to library
                 </Button>
               </div>
