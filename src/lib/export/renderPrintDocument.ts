@@ -19,7 +19,7 @@ const PRINT_CSS = `
 }
 @page :first { margin-top: 32mm; }
 .print-footer { font-size: 13px; line-height: 1.4; }
-.print-footer img { max-height: 60px; }
+.print-footer .print-footer-banner { display: block; width: 100%; max-width: 710px; height: 60px; object-fit: cover; margin: 0 auto 6px; }
 
 * { box-sizing: border-box; }
 body { margin: 0; padding: 0; }
@@ -88,9 +88,8 @@ function renderFooterForPrint(footer: FooterBlock, data: ProjectData): string {
   const bg = footer.backgroundColor ?? data.global.footerBackgroundColor;
   const fg = footer.textColor ?? data.global.footerTextColor;
 
-  const bannerWidthStyle = footer.bannerWidth ? `width: ${footer.bannerWidth}px;` : '';
   const banner = footer.bannerSrc
-    ? `<img src="${attrEscape(urlSafe(footer.bannerSrc))}" alt="${attrEscape(footer.bannerAlt)}" style="display: block; max-width: 100%; height: auto; margin: 0 auto 6px;${bannerWidthStyle ? ` ${bannerWidthStyle}` : ''}">`
+    ? `<img class="print-footer-banner" src="${attrEscape(urlSafe(footer.bannerSrc))}" alt="${attrEscape(footer.bannerAlt)}">`
     : '';
   const address = (footer.address || '')
     .split('\n')
