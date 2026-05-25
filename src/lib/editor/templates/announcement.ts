@@ -1,12 +1,17 @@
-import type { ProjectData } from '../types';
-import { SCHEMA_VERSION } from '../types';
+import { migrateV2ToV3 } from '../migrate';
 import {
-  makeHeaderBlock, makeFooterBlock, makeHeroBlock, makeArticleBlock, makeCTABannerBlock,
-} from '../blocks';
+  makeLegacyArticleBlock,
+  makeLegacyCTABannerBlock,
+  makeLegacyFooterBlock,
+  makeLegacyHeaderBlock,
+  makeLegacyHeroBlock,
+  type LegacyProjectData,
+} from '../legacy';
+import type { ProjectData } from '../types';
 
-export function createAnnouncementTemplate(): ProjectData {
+function createLegacyAnnouncementTemplate(): LegacyProjectData {
   return {
-    schemaVersion: SCHEMA_VERSION,
+    schemaVersion: 2,
     global: {
       backgroundColor: '#ffffff',
       fontFamily: 'Arial, Helvetica Neue, Helvetica, sans-serif',
@@ -21,25 +26,29 @@ export function createAnnouncementTemplate(): ProjectData {
       contactUrl: '',
     },
     blocks: [
-      makeHeaderBlock({ title: 'Big news', sectionHeading: '' }),
-      makeHeroBlock({
+      makeLegacyHeaderBlock({ title: 'Big news', sectionHeading: '' }),
+      makeLegacyHeroBlock({
         title: "We're launching something new",
         subtitle: 'A short, punchy sentence about why this matters.',
         ctaText: 'Get the details',
       }),
-      makeArticleBlock({
+      makeLegacyArticleBlock({
         title: 'Why this matters',
         body: 'A few sentences of supporting context. Lead with the customer benefit; explain the mechanism second.',
         ctaText: 'Read the post',
         imagePosition: 'left',
       }),
-      makeCTABannerBlock({
+      makeLegacyCTABannerBlock({
         title: 'Ready to try it?',
         subtitle: '',
         ctaText: 'Get started',
         align: 'center',
       }),
-      makeFooterBlock(),
+      makeLegacyFooterBlock(),
     ],
   };
+}
+
+export function createAnnouncementTemplate(): ProjectData {
+  return migrateV2ToV3(createLegacyAnnouncementTemplate());
 }

@@ -32,7 +32,7 @@ export async function GET(_req: NextRequest, { params }: Ctx) {
 
   if (!data) return notFoundResponse();
 
-  const printHtml = buildPrintHtml(migrate(data.data));
+  const printHtml = await buildPrintHtml(migrate(data.data));
 
   return new NextResponse(printHtml, {
     status: 200,

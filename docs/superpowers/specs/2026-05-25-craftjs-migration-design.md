@@ -1,9 +1,9 @@
 # Craft.js Migration — v3 Tree Model & Email Templating Engine
 
-**Status:** Design approved, awaiting implementation plan
+**Status:** Design approved, implementation-ready with Phase 0 validation gate
 **Author:** Jorge (jlgarcia@esoftsat.com), with Claude
 **Date:** 2026-05-25
-**Branch (proposed):** `feat/craftjs-migration` (off `main`, after `feat/asset-picker-resize` is merged)
+**Branch (execution):** implement on a separate local branch; commit locally; do not push until explicitly approved
 **Supersedes:** the deferred SaaS roadmap items in [memory](../../../../.claude/projects/C--Users-Developer2-Documents-html-editor/memory/project_saas_architectural_direction.md). Builds on the v2 block-model foundation (`feat/block-model-foundation`).
 
 ## 1. Motivation
@@ -19,6 +19,8 @@ This spec covers the full migration to a tree model backed by [Craft.js](https:/
 A primitives-first editor. Users drag `Text`, `Image`, `Button`, `Heading`, `Divider`, `Spacer`, `List` into `Row`s with 1–4 `Column`s, grouped into `Section` bands. Existing branded blocks (Hero, Article, ProductSection, CTABanner) become **code-defined presets** — toolbox items that insert a pre-built Craft subtree the user can then edit at primitive granularity.
 
 Header and footer remain locked top-level sections: their position is fixed, but their contents are editable as primitives.
+
+Acceptance target: v3 editor output does not need byte-identical DOM to v2, but migrated templates must preserve user-visible content, section ordering, locked header/footer behavior, and materially equivalent email/print layout.
 
 ## 3. Architecture
 
@@ -95,6 +97,12 @@ Containment is enforced by Craft's `craft.rules` (`canMoveIn` / `canDrop`) decla
 - 1 locked `Section` (last child) with `custom.role: 'footer'` and `props.locked: true`
 
 Lock rules forbid: deleting locked sections, moving them, inserting siblings before the header or after the footer. Inside a locked section the user freely edits children.
+
+Invariant enforcement points:
+- New project creation must always seed `header -> user sections -> footer`.
+- `migrateV2toV3` must always emit exactly one locked header section and one locked footer section, even when the v2 payload is partially malformed.
+- Preset insertion may only create user sections between the locked header and footer.
+- Deleting the last user section is allowed only if the product still supports a header/footer-only document; otherwise the editor must auto-seed one empty user section. Implementation should choose one behavior and test it explicitly.
 
 ### 4.3 Typed props per node
 
@@ -240,9 +248,16 @@ A `RenderContext` (`'editor' | 'email' | 'print'`) is read via `useContext` insi
 
 `renderEmail.snapshot.test.ts` and `renderPrintDocument.snapshot.test.ts` regenerate baselines once against migrated v3 trees from the preset templates. Visual parity verified by Playwright `blocks-parity` against the canvas.
 
+Parity criteria:
+- Content parity is strict: no user-authored text, links, alt text, or section ordering may be lost during migration or export.
+- Layout parity is visual, not byte-for-byte HTML parity. Minor DOM/CSS differences are acceptable if screenshots remain within the agreed diff threshold and locked/preset behaviors are preserved.
+- Email-specific markup may diverge from editor/print markup when required for Outlook/MSO compatibility.
+
 ### 6.6 Risk: API drift
 
 dbousamra's pattern was demonstrated on 2020-era Craft.js. Phase 0 clones his codesandbox and verifies against the currently-installed `@craftjs/core` (~v0.2.10). If `NodeContext` / `Resolver` shapes drifted, the *shape* of the solution (SSR-aware Element wrapper + manual tree walk + disabled Editor wrapper) still applies — only the import paths and types change. Estimated mapping cost if drift: 1–2 days.
+
+Implementation note: code snippets in this spec are architectural sketches, not copy-paste production code. Repository conventions, current Craft.js exports, and actual SSR constraints win over the illustrative snippets.
 
 ## 7. Data migration (v2 → v3)
 

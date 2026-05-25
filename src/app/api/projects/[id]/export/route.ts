@@ -26,7 +26,7 @@ export async function GET(req: NextRequest, { params }: Ctx) {
   if (!data) return NextResponse.json({ error: 'not_found' }, { status: 404 });
 
   const embed = req.nextUrl.searchParams.get('embed') === '1';
-  let html = renderEmail(migrate(data.data));
+  let html = await renderEmail(migrate(data.data));
   let failures = 0;
   if (embed) {
     const result = await embedImagesInHtml(html);

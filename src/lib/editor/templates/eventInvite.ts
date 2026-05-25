@@ -1,13 +1,18 @@
-import type { ProjectData } from '../types';
-import { SCHEMA_VERSION } from '../types';
+import { migrateV2ToV3 } from '../migrate';
 import {
-  makeHeaderBlock, makeFooterBlock,
-  makeHeroBlock, makeArticleBlock, makeCTABannerBlock, makeProductSectionBlock,
-} from '../blocks';
+  makeLegacyArticleBlock,
+  makeLegacyCTABannerBlock,
+  makeLegacyFooterBlock,
+  makeLegacyHeaderBlock,
+  makeLegacyHeroBlock,
+  makeLegacyProductSectionBlock,
+  type LegacyProjectData,
+} from '../legacy';
+import type { ProjectData } from '../types';
 
-export function createEventInviteTemplate(): ProjectData {
+function createLegacyEventInviteTemplate(): LegacyProjectData {
   return {
-    schemaVersion: SCHEMA_VERSION,
+    schemaVersion: 2,
     global: {
       backgroundColor: '#ffffff',
       fontFamily: 'Arial, Helvetica Neue, Helvetica, sans-serif',
@@ -22,40 +27,44 @@ export function createEventInviteTemplate(): ProjectData {
       contactUrl: '',
     },
     blocks: [
-      makeHeaderBlock({ title: "You're invited", sectionHeading: '' }),
-      makeHeroBlock({
+      makeLegacyHeaderBlock({ title: "You're invited", sectionHeading: '' }),
+      makeLegacyHeroBlock({
         title: 'Our annual event',
-        subtitle: 'Date · Location · Format',
+        subtitle: 'Date - Location - Format',
         ctaText: 'RSVP',
       }),
-      makeArticleBlock({
+      makeLegacyArticleBlock({
         title: 'What to expect',
         body: 'A short description of the day. Cover format, audience, and what attendees will leave with.',
         ctaText: 'View agenda',
         imagePosition: 'left',
       }),
-      makeProductSectionBlock({
+      makeLegacyProductSectionBlock({
         title: 'Session one',
         bullets: ['Speaker name', 'Topic summary', 'Time'],
         ctaText: 'Add to calendar',
       }),
-      makeProductSectionBlock({
+      makeLegacyProductSectionBlock({
         title: 'Session two',
         bullets: ['Speaker name', 'Topic summary', 'Time'],
         ctaText: 'Add to calendar',
       }),
-      makeProductSectionBlock({
+      makeLegacyProductSectionBlock({
         title: 'Session three',
         bullets: ['Speaker name', 'Topic summary', 'Time'],
         ctaText: 'Add to calendar',
       }),
-      makeCTABannerBlock({
+      makeLegacyCTABannerBlock({
         title: 'See you there?',
-        subtitle: 'Reserve your spot — seats are limited.',
-        ctaText: 'Reserve your spot →',
+        subtitle: 'Reserve your spot - seats are limited.',
+        ctaText: 'Reserve your spot ->',
         align: 'center',
       }),
-      makeFooterBlock(),
+      makeLegacyFooterBlock(),
     ],
   };
+}
+
+export function createEventInviteTemplate(): ProjectData {
+  return migrateV2ToV3(createLegacyEventInviteTemplate());
 }

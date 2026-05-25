@@ -196,6 +196,25 @@ export function GlobalStylesPanel() {
               <Input value={g.contactUrl} onChange={(e) => setGlobal({ contactUrl: e.target.value })} />
             </Field>
           </div>
+          <div className="col-span-2">
+            <Field label="Paper size (PDF / canvas)">
+              <Select value={g.paperSize ?? 'A4'} onChange={(e) => setGlobal({ paperSize: e.target.value as 'A4' | 'A3' | 'A5' })}>
+                <option value="A4">A4 — 210 × 297 mm</option>
+                <option value="A3">A3 — 297 × 420 mm</option>
+                <option value="A5">A5 — 148 × 210 mm</option>
+              </Select>
+            </Field>
+          </div>
+          <div className="col-span-2">
+            <label className="flex items-center gap-2 text-xs text-ed-ink-2">
+              <input
+                type="checkbox"
+                checked={g.repeatHeaderFooter === true}
+                onChange={(e) => setGlobal({ repeatHeaderFooter: e.target.checked })}
+              />
+              Repeat header & footer on every PDF page
+            </label>
+          </div>
         </fieldset>
       )}
     </div>

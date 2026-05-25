@@ -1,116 +1,85 @@
 'use client';
-import { useEffect } from 'react';
-import { useEditor, useEditorStore } from '@/lib/editor/StoreProvider';
-import { DndContext, closestCenter, type DragEndEvent } from '@dnd-kit/core';
-import { SortableContext, arrayMove, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { useDragSensors } from './canvas/useDragSensors';
-import { SectionInsertBar } from './canvas/SectionInsertBar';
-import { useSectionSelection } from './SectionSelectionProvider';
-import { SelectionActionBar } from './canvas/SelectionActionBar';
-import { HeaderBlockView } from './blocks/HeaderBlockView';
-import { ProductSectionView } from './blocks/ProductSectionView';
-import { HeroBlockView } from './blocks/HeroBlockView';
-import { ArticleView } from './blocks/ArticleView';
-import { CTABannerView } from './blocks/CTABannerView';
-import { FooterBlockView } from './blocks/FooterBlockView';
-import { findHeader, findFooter } from '@/lib/editor/blocks';
+import { useEffect, useRef, useState } from 'react';
+import { Frame } from '@craftjs/core';
+import type { SerializedNodes as CraftSerializedNodes } from '@craftjs/core';
+import { useEditor as useStoreEditor, useEditorStore } from '@/lib/editor/StoreProvider';
+import { paperMetricsFor } from '@/lib/editor/types';
+import { PageBreakOverlay } from './canvas/PageBreakOverlay';
+
+// Strip orphan child-id references and unreachable nodes from a serialized
+// tree. Defensive: an earlier crash class persisted partial-mutation trees
+// (a parent's `nodes` array pointing at a child that was never written) and
+// Craft.js's <Frame> deserialize crashes opaquely on those.
+function sanitizeTree(raw: CraftSerializedNodes): CraftSerializedNodes {
+  const ids = new Set(Object.keys(raw));
+  const cleaned: CraftSerializedNodes = {};
+  for (const [id, node] of Object.entries(raw)) {
+    if (!node) continue;
+    const safeNodes = Array.isArray(node.nodes) ? node.nodes.filter((c) => ids.has(c)) : [];
+    cleaned[id] = {
+      ...node,
+      props: node.props && typeof node.props === 'object' ? node.props : {},
+      nodes: safeNodes,
+      linkedNodes: node.linkedNodes ?? {},
+    };
+  }
+  // Drop unreachable nodes (parent removed but child still in the map).
+  const reachable = new Set<string>();
+  const stack = ['ROOT'];
+  while (stack.length > 0) {
+    const id = stack.pop()!;
+    if (reachable.has(id)) continue;
+    reachable.add(id);
+    const node = cleaned[id];
+    if (node) {
+      for (const child of node.nodes) stack.push(child);
+      for (const linked of Object.values(node.linkedNodes ?? {})) stack.push(linked as string);
+    }
+  }
+  const final: CraftSerializedNodes = {};
+  for (const id of reachable) {
+    if (cleaned[id]) final[id] = cleaned[id];
+  }
+  return final;
+}
 
 export function PreviewBody() {
-  const data = useEditor((s) => s.data);
+  // Capture the initial tree exactly once on mount. After that, Craft owns the
+  // live tree state; the store is a downstream mirror (autosave/export/translate)
+  // populated via EditorShell's `onNodesChange`. Re-passing `data` to <Frame>
+  // on every store change re-initializes the editor and produces duplicate
+  // React keys mid-mutation (e.g. when deleting a node).
   const store = useEditorStore();
-  const sensors = useDragSensors();
-  const reorderBlocks = store.getState().reorderBlocks;
-  const selection = useSectionSelection();
+  const global = useStoreEditor((state) => state.data.global);
+  const [initialTree] = useState<CraftSerializedNodes | null>(() => {
+    const raw = store.getState().data.tree as unknown as CraftSerializedNodes | undefined;
+    if (!raw || !raw.ROOT) return null;
+    return sanitizeTree(raw);
+  });
 
-  // Middle slice = everything between header and footer; heterogeneous drag operates on this.
-  const middleBlocks = data.blocks.slice(1, -1);
+  // Craft.js's <Frame> mounts hooks that are not SSR-safe in Next 15's
+  // 'use client' SSR pass. Defer the Frame render until after mount so SSR
+  // produces an empty preview shell and the client takes over.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
 
-  function onCanvasMouseDown(e: React.MouseEvent) {
-    if (e.target === e.currentTarget) selection.clear();
-  }
-
-  useEffect(() => {
-    function onKey(e: KeyboardEvent) {
-      if (e.key === 'Escape' && selection.selected.size > 0) selection.clear();
-    }
-    document.addEventListener('keydown', onKey);
-    return () => document.removeEventListener('keydown', onKey);
-  }, [selection]);
-
-  function onDragEnd(e: DragEndEvent) {
-    const { active, over } = e;
-    if (!over || active.id === over.id) return;
-    const oldIndex = middleBlocks.findIndex((b) => b.id === active.id);
-    const newIndex = middleBlocks.findIndex((b) => b.id === over.id);
-    if (oldIndex < 0 || newIndex < 0) return;
-    const reordered = arrayMove(middleBlocks, oldIndex, newIndex);
-    const header = findHeader(data.blocks);
-    const footer = findFooter(data.blocks);
-    reorderBlocks([header, ...reordered, footer]);
-  }
+  const canvasRef = useRef<HTMLDivElement | null>(null);
+  const paper = paperMetricsFor(global);
 
   return (
     <div
-      className="preview-canvas"
-      onMouseDown={onCanvasMouseDown}
-      style={{ background: data.global.backgroundColor, padding: 0, minHeight: '100%', fontFamily: data.global.fontFamily }}
+      ref={canvasRef}
+      className="preview-canvas mx-auto w-full"
+      style={{
+        background: global.backgroundColor,
+        fontFamily: global.fontFamily,
+        minHeight: '100%',
+        position: 'relative',
+        maxWidth: paper.widthPx,
+      }}
     >
-      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
-        <SortableContext items={middleBlocks.map((b) => b.id)} strategy={verticalListSortingStrategy}>
-          {data.blocks.map((block) => {
-            const idx = middleBlocks.findIndex((b) => b.id === block.id);
-            switch (block.type) {
-              case 'header':
-                return <HeaderBlockView key={block.id} block={block} global={data.global} />;
-              case 'product-section':
-                return (
-                  <ProductSectionView
-                    key={block.id}
-                    block={block}
-                    global={data.global}
-                    index={idx}
-                    total={middleBlocks.length}
-                  />
-                );
-              case 'hero':
-                return (
-                  <HeroBlockView
-                    key={block.id}
-                    block={block}
-                    global={data.global}
-                    index={idx}
-                    total={middleBlocks.length}
-                  />
-                );
-              case 'article':
-                return (
-                  <ArticleView
-                    key={block.id}
-                    block={block}
-                    global={data.global}
-                    index={idx}
-                    total={middleBlocks.length}
-                  />
-                );
-              case 'cta-banner':
-                return (
-                  <CTABannerView
-                    key={block.id}
-                    block={block}
-                    global={data.global}
-                    index={idx}
-                    total={middleBlocks.length}
-                  />
-                );
-              case 'footer':
-                return <FooterBlockView key={block.id} block={block} global={data.global} />;
-            }
-          })}
-          {middleBlocks.length === 0 && <SectionInsertBar atIndex={0} />}
-          {middleBlocks.length > 0 && <SectionInsertBar atIndex={middleBlocks.length} />}
-        </SortableContext>
-      </DndContext>
-      <SelectionActionBar />
+      {mounted && initialTree ? <Frame data={initialTree} /> : null}
+      {mounted ? <PageBreakOverlay targetRef={canvasRef} /> : null}
     </div>
   );
 }

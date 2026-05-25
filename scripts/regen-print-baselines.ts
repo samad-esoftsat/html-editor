@@ -16,7 +16,11 @@ const targets = [
   { path: 'src/lib/export/__fixtures__/print-baseline-event-invite.html', factory: createEventInviteTemplate },
 ];
 
-for (const t of targets) {
-  writeFileSync(t.path, renderPrintDocument(t.factory()));
-  console.log('wrote', t.path);
+async function main() {
+  for (const t of targets) {
+    writeFileSync(t.path, await renderPrintDocument(t.factory()));
+    console.log('wrote', t.path);
+  }
 }
+
+void main();

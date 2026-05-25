@@ -10,7 +10,7 @@
 
 **Spec:** `docs/superpowers/specs/2026-05-25-craftjs-migration-design.md`
 
-**Branch:** Create `feat/craftjs-migration` off `main` after `feat/asset-picker-resize` merges.
+**Branch:** Create a separate local branch for the migration work. Commit locally as needed, but do not push or open a PR until explicitly approved.
 
 ---
 
@@ -18,10 +18,12 @@
 
 - All paths are relative to the repo root (`C:\Users\Developer2\Documents\html-editor`).
 - Test commands assume `npm test` (Vitest) and `npm run e2e` (Playwright). Run from repo root.
-- Each task ends with a `git commit`. Commits use Conventional Commits (the repo's convention — see `git log --oneline`).
+- Each task should be implemented as a small, reviewable logical increment. Local commits are recommended, but exact commit boundaries may flex if the repository is temporarily non-compilable between tightly coupled steps.
 - Co-author tag on commits: `Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>`.
 - **TDD discipline:** every new module gets a failing test first. Settings panels (UI-heavy) are exempt — those get manual verification + an E2E test in Phase 11.
 - **Type-checking:** after any task that adds new types, run `npm run typecheck` before committing.
+- Treat code snippets in this plan as implementation guidance, not guaranteed drop-in source. The spec and the repository's current code are the source of truth if a snippet is too optimistic about Craft.js internals or React constraints.
+- Preserve the repository in a runnable state at the end of each major phase, but it is acceptable for intermediate sub-steps inside a tightly scoped phase to be temporarily broken while the coupled files are being migrated together.
 
 ---
 
@@ -117,7 +119,7 @@ console.log('NodeProvider exists:', typeof NodeProvider);
 console.log('useEditor exists:', typeof useEditor);
 ```
 
-Expected: both log `function`. If either is `undefined`, the API has drifted and `renderTreeToReact` will need a refactor — escalate to user before proceeding.
+Expected: both log `function`. If either is `undefined`, the API has drifted and `renderTreeToReact` will need a refactor. Do not assume the exact internal API from the spike survives unchanged; adapt the approach, record the deviation, and continue if the repository still permits a robust SSR walker.
 
 - [ ] **Step 5: Document the result**
 
@@ -127,13 +129,13 @@ Append to `docs/superpowers/specs/2026-05-25-craftjs-migration-design.md` under 
 **Phase 0 verification result (YYYY-MM-DD):** SSR Element wrapper renders correctly on @craftjs/core@X.Y.Z. NodeProvider/useEditor exports present. [Or: drift found in X — see follow-up.]
 ```
 
-- [ ] **Step 6: Delete the spike directory and commit the spec note**
+- [ ] **Step 6: Delete the spike directory and keep only the spec note**
 
 ```bash
 rm -rf spike/craftjs-ssr
-git add docs/superpowers/specs/2026-05-25-craftjs-migration-design.md
-git commit -m "docs(spec): Phase 0 SSR-pattern verification result"
 ```
+
+If the spec note is the only change at this point, it may be committed immediately or batched into the first implementation commit.
 
 ---
 
@@ -3659,7 +3661,7 @@ test('rendered email matches canvas text content for newsletter template', async
 });
 ```
 
-(If `/api/render/email` does not exist, skip the second test or add the endpoint as a separate sub-task.)
+(If `/api/render/email` does not exist, add a repository-local way to validate export parity automatically. Do not leave parity as a manual-only check.)
 
 - [ ] **Step 5: Run E2E**
 
@@ -3775,7 +3777,7 @@ git add -A
 git commit -m "chore(migrate): drop unused downgradeV2ToV1"
 ```
 
-### Task 13.2: Full test run + manual smoke
+### Task 13.2: Full test run + local smoke verification
 
 - [ ] **Step 1: Run everything**
 
@@ -3788,7 +3790,7 @@ npm run e2e
 
 All must pass.
 
-- [ ] **Step 2: Manual smoke checklist**
+- [ ] **Step 2: Local smoke checklist**
 
 Open `npm run dev` and verify:
 
@@ -3802,15 +3804,13 @@ Open `npm run dev` and verify:
 - [ ] Download → Print exports a PDF matching canvas content
 - [ ] Translate menu produces an extract → apply round-trip with no lost text
 
-### Task 13.3: PR
+### Task 13.3: Prepare for eventual push/PR, but do not push yet
 
-- [ ] **Step 1: Push the branch**
+- [ ] **Step 1: Do not push without explicit approval**
 
-```bash
-git push -u origin feat/craftjs-migration
-```
+Record the branch name, local commit state, and any operational follow-ups needed before a future push.
 
-- [ ] **Step 2: Open PR linking the spec**
+- [ ] **Step 2: Draft PR notes locally only**
 
 PR description: link `docs/superpowers/specs/2026-05-25-craftjs-migration-design.md`, list the phases done, list the manual smoke results, flag the optional backfill script as a follow-up operational step.
 

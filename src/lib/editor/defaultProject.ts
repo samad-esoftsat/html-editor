@@ -1,10 +1,15 @@
-import type { ProjectData, ProductSectionBlock } from './types';
-import { SCHEMA_VERSION } from './types';
-import { makeHeaderBlock, makeFooterBlock, makeProductSectionBlock } from './blocks';
+import type { LegacyProjectData, LegacyProductSectionBlock } from './legacy';
+import {
+  makeLegacyFooterBlock,
+  makeLegacyHeaderBlock,
+  makeLegacyProductSectionBlock,
+} from './legacy';
+import { migrateV2ToV3 } from './migrate';
+import type { ProjectData } from './types';
 
 const CONTACT_URL = 'https://www.globaltt.com/en/quickContact-GlobalTT.html';
 
-const SECTION_BLUEPRINTS: Array<Omit<ProductSectionBlock, 'type' | 'id'>> = [
+const SECTION_BLUEPRINTS: Array<Omit<LegacyProductSectionBlock, 'type' | 'id'>> = [
   {
     title: 'Starlink Solutions',
     bullets: [
@@ -112,9 +117,9 @@ const SECTION_BLUEPRINTS: Array<Omit<ProductSectionBlock, 'type' | 'id'>> = [
   },
 ];
 
-export function createDefaultProject(): ProjectData {
+export function createDefaultLegacyProject(): LegacyProjectData {
   return {
-    schemaVersion: SCHEMA_VERSION,
+    schemaVersion: 2,
     global: {
       backgroundColor: '#d0d0d0',
       fontFamily: 'Arial, Helvetica Neue, Helvetica, sans-serif',
@@ -129,7 +134,7 @@ export function createDefaultProject(): ProjectData {
       contactUrl: CONTACT_URL,
     },
     blocks: [
-      makeHeaderBlock({
+      makeLegacyHeaderBlock({
         logoSrc: 'https://36af7d465b.imgdist.com/pub/bfra/wpnsx7uw/j2q/4ah/ptb/logo%20%282%29.png',
         logoAlt: 'GlobalTT Logo',
         logoWidth: 390,
@@ -140,8 +145,8 @@ export function createDefaultProject(): ProjectData {
         sectionHeading: 'Satellite High Throughput Connectivity',
         sectionHeadingFontSize: 25,
       }),
-      ...SECTION_BLUEPRINTS.map((s) => makeProductSectionBlock(s)),
-      makeFooterBlock({
+      ...SECTION_BLUEPRINTS.map((section) => makeLegacyProductSectionBlock(section)),
+      makeLegacyFooterBlock({
         bannerSrc: 'https://ipseos.eu/wp-content/uploads/2024/05/TELEPORT-8-Copy.png',
         bannerAlt: 'Teleport',
         companyName: 'GlobalTT Satellite Teleport',
@@ -154,10 +159,17 @@ export function createDefaultProject(): ProjectData {
           { label: 'www.Ipseos.eu', url: 'https://www.ipseos.eu' },
         ],
         socials: [
-          { platform: 'facebook', url: 'https://www.facebook.com/pages/GlobalTT-Broadband-High-Speed-Internet-Satellite/182799832710' },
+          {
+            platform: 'facebook',
+            url: 'https://www.facebook.com/pages/GlobalTT-Broadband-High-Speed-Internet-Satellite/182799832710',
+          },
           { platform: 'linkedin', url: 'https://www.linkedin.com/company/globaltt?trk=top_nav_home' },
         ],
       }),
     ],
   };
+}
+
+export function createDefaultProject(): ProjectData {
+  return migrateV2ToV3(createDefaultLegacyProject());
 }

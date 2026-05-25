@@ -1,6 +1,6 @@
 'use client';
 import Link from 'next/link';
-import { ArrowLeft, PanelLeftClose, PanelLeftOpen, Redo2, RotateCcw, Undo2 } from 'lucide-react';
+import { ArrowLeft, PanelLeftClose, PanelLeftOpen, PanelRightClose, PanelRightOpen, Redo2, RotateCcw, Undo2 } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useEditor, useEditorStore, useTemporal } from '@/lib/editor/StoreProvider';
 import { useCanEdit } from '@/lib/editor/RoleProvider';
@@ -12,6 +12,7 @@ import { BrandMark } from '@/components/ui/BrandMark';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { DownloadMenu } from './DownloadMenu';
+import { ProjectActionsMenu } from './ProjectActionsMenu';
 import { TranslateMenu } from './TranslateMenu';
 import { useEditorMode } from './EditorModeProvider';
 
@@ -21,11 +22,25 @@ interface TopbarProps {
   workspaces: WorkspaceOption[];
   leftPanelOpen: boolean;
   setLeftPanelOpen: (open: boolean) => void;
+  rightPanelOpen: boolean;
+  setRightPanelOpen: (open: boolean) => void;
+  busy: 'duplicating' | 'deleting' | null;
+  setBusy: (value: 'duplicating' | 'deleting' | null) => void;
 }
 
 type SaveTone = 'saved' | 'pending' | 'saving' | 'error';
 
-export function Topbar({ slug, currentWorkspace, workspaces, leftPanelOpen, setLeftPanelOpen }: TopbarProps) {
+export function Topbar({
+  slug,
+  currentWorkspace,
+  workspaces,
+  leftPanelOpen,
+  setLeftPanelOpen,
+  rightPanelOpen,
+  setRightPanelOpen,
+  busy,
+  setBusy,
+}: TopbarProps) {
   const name = useEditor((s) => s.name);
   const projectId = useEditor((s) => s.projectId);
   const saving = useEditor((s) => s.saving);
@@ -45,10 +60,14 @@ export function Topbar({ slug, currentWorkspace, workspaces, leftPanelOpen, setL
         e.preventDefault();
         setLeftPanelOpen(!leftPanelOpen);
       }
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === '\\') {
+        e.preventDefault();
+        setRightPanelOpen(!rightPanelOpen);
+      }
     }
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
-  }, [canEdit, leftPanelOpen, setLeftPanelOpen]);
+  }, [canEdit, leftPanelOpen, setLeftPanelOpen, rightPanelOpen, setRightPanelOpen]);
 
   const onUndo = () => { store.flushHistoryCooldown(); undo(); };
   const onRedo = () => { store.flushHistoryCooldown(); redo(); };
@@ -122,6 +141,16 @@ export function Topbar({ slug, currentWorkspace, workspaces, leftPanelOpen, setL
       )}
 
       {canEdit && (
+        <ProjectActionsMenu
+          projectId={projectId}
+          projectName={name}
+          slug={slug}
+          busy={busy}
+          setBusy={setBusy}
+        />
+      )}
+
+      {canEdit && (
         <AnimatePresence mode="wait" initial={false}>
           <motion.span
             key={saving}
@@ -149,7 +178,7 @@ export function Topbar({ slug, currentWorkspace, workspaces, leftPanelOpen, setL
               <button
                 type="button"
                 onClick={() => setLeftPanelOpen(!leftPanelOpen)}
-                aria-label={leftPanelOpen ? 'Hide sidebar' : 'Show sidebar'}
+                aria-label={leftPanelOpen ? 'Hide inspector' : 'Show inspector'}
                 className={cn(
                   'inline-flex h-8 w-8 items-center justify-center rounded-md text-ed-ink-2 transition-colors hover:bg-ed-panel-3 hover:text-ed-ink',
                   leftPanelOpen && 'bg-ed-brand-soft text-brand hover:bg-ed-brand-soft',
@@ -158,7 +187,26 @@ export function Topbar({ slug, currentWorkspace, workspaces, leftPanelOpen, setL
                 {leftPanelOpen ? <PanelLeftClose size={14} /> : <PanelLeftOpen size={14} />}
               </button>
             </TooltipTrigger>
-            <TooltipContent>{leftPanelOpen ? 'Hide sidebar' : 'Show sidebar'} (Ctrl/Cmd+\)</TooltipContent>
+            <TooltipContent>{leftPanelOpen ? 'Hide inspector' : 'Show inspector'} (Ctrl/Cmd+\)</TooltipContent>
+          </Tooltip>
+        )}
+
+        {canEdit && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                onClick={() => setRightPanelOpen(!rightPanelOpen)}
+                aria-label={rightPanelOpen ? 'Hide insert panel' : 'Show insert panel'}
+                className={cn(
+                  'inline-flex h-8 w-8 items-center justify-center rounded-md text-ed-ink-2 transition-colors hover:bg-ed-panel-3 hover:text-ed-ink',
+                  rightPanelOpen && 'bg-ed-brand-soft text-brand hover:bg-ed-brand-soft',
+                )}
+              >
+                {rightPanelOpen ? <PanelRightClose size={14} /> : <PanelRightOpen size={14} />}
+              </button>
+            </TooltipTrigger>
+            <TooltipContent>{rightPanelOpen ? 'Hide insert panel' : 'Show insert panel'} (Ctrl/Cmd+Shift+\)</TooltipContent>
           </Tooltip>
         )}
 

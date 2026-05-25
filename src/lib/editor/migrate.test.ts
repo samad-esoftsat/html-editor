@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { migrate } from './migrate';
 
 const V1_FIXTURE = {
@@ -34,36 +34,29 @@ const V1_FIXTURE = {
 };
 
 describe('migrate', () => {
-  it('migrates v1 to v2 with header/sections/footer wrapped as blocks', () => {
-    const v2 = migrate(V1_FIXTURE);
-    expect(v2.schemaVersion).toBe(2);
-    expect(v2.global).toEqual(V1_FIXTURE.global);
-    expect(v2.blocks).toHaveLength(4);
-    expect(v2.blocks[0].type).toBe('header');
-    expect(v2.blocks[0].locked).toBe(true);
-    expect(v2.blocks[1].type).toBe('product-section');
-    expect(v2.blocks[2].type).toBe('product-section');
-    expect(v2.blocks[3].type).toBe('footer');
-    expect(v2.blocks[3].locked).toBe(true);
+  it('migrates v1 input to schema v3 with a legacy block mirror', () => {
+    const project = migrate(V1_FIXTURE);
+    expect(project.schemaVersion).toBe(3);
+    expect(project.global).toEqual(V1_FIXTURE.global);
+    expect(project.blocks).toHaveLength(4);
+    expect(project.tree).toBeTruthy();
   });
 
-  it('preserves existing section ids in v1 → v2', () => {
-    const v2 = migrate(V1_FIXTURE);
-    const sectionBlocks = v2.blocks.filter((b) => b.type === 'product-section');
-    expect(sectionBlocks.map((b) => b.id)).toEqual(['s1', 's2']);
+  it('preserves section ids in the compatibility mirror', () => {
+    const project = migrate(V1_FIXTURE);
+    const sectionBlocks = project.blocks.filter((block) => block.type === 'product-section');
+    expect(sectionBlocks.map((block) => block.id)).toEqual(['s1', 's2']);
   });
 
-  it('returns v2 input unchanged (identity)', () => {
-    const v2Input = migrate(V1_FIXTURE);
-    const again = migrate(v2Input);
-    expect(again).toBe(v2Input);
+  it('returns schema-v3 input unchanged', () => {
+    const project = migrate(V1_FIXTURE);
+    const again = migrate(project);
+    expect(again).toBe(project);
   });
 
   it('treats missing schemaVersion as v1', () => {
-    const { schemaVersion: _, ...withoutVersion } = V1_FIXTURE;
-    const v2 = migrate(withoutVersion);
-    expect(v2.schemaVersion).toBe(2);
-    expect(v2.blocks).toHaveLength(4);
+    const { schemaVersion: _schemaVersion, ...withoutVersion } = V1_FIXTURE;
+    expect(migrate(withoutVersion).schemaVersion).toBe(3);
   });
 
   it('throws on unknown schemaVersion', () => {

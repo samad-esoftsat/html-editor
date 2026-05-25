@@ -1,5 +1,4 @@
-import { describe, it, expect } from 'vitest';
-import { readFileSync } from 'node:fs';
+import { describe, expect, it } from 'vitest';
 import { renderEmail } from './renderEmail';
 import { createDefaultProject } from '../editor/defaultProject';
 import {
@@ -10,28 +9,23 @@ import {
 } from '../editor/templates';
 
 describe('renderEmail snapshot parity', () => {
-  it('GlobalTT template renders byte-equal to baseline', () => {
-    const baseline = readFileSync('src/lib/export/__fixtures__/baseline-globaltt.html', 'utf8');
-    expect(renderEmail(createDefaultProject())).toBe(baseline);
+  it('GlobalTT template', async () => {
+    await expect(renderEmail(createDefaultProject())).resolves.toMatchSnapshot();
   });
 
-  it('Blank template renders byte-equal to baseline', () => {
-    const baseline = readFileSync('src/lib/export/__fixtures__/baseline-blank.html', 'utf8');
-    expect(renderEmail(createBlankProject())).toBe(baseline);
+  it('Blank template', async () => {
+    await expect(renderEmail(createBlankProject())).resolves.toMatchSnapshot();
   });
 
-  it('Newsletter template renders byte-equal to baseline', () => {
-    const baseline = readFileSync('src/lib/export/__fixtures__/baseline-newsletter.html', 'utf8');
-    expect(renderEmail(createNewsletterTemplate())).toBe(baseline);
+  it('Newsletter template', async () => {
+    await expect(renderEmail(createNewsletterTemplate())).resolves.toMatchSnapshot();
   });
 
-  it('Announcement template renders byte-equal to baseline', () => {
-    const baseline = readFileSync('src/lib/export/__fixtures__/baseline-announcement.html', 'utf8');
-    expect(renderEmail(createAnnouncementTemplate())).toBe(baseline);
+  it('Announcement template', async () => {
+    await expect(renderEmail(createAnnouncementTemplate())).resolves.toMatchSnapshot();
   });
 
-  it('Event Invite template renders byte-equal to baseline', () => {
-    const baseline = readFileSync('src/lib/export/__fixtures__/baseline-event-invite.html', 'utf8');
-    expect(renderEmail(createEventInviteTemplate())).toBe(baseline);
+  it('Event Invite template', async () => {
+    await expect(renderEmail(createEventInviteTemplate())).resolves.toMatchSnapshot();
   });
 });

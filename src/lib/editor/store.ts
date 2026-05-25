@@ -1,8 +1,10 @@
 import { createStore, type StoreApi } from 'zustand/vanilla';
 import { temporal, type TemporalState } from 'zundo';
 import { v4 as uuid } from 'uuid';
+import type { SerializedNodes } from './craftSchema';
 import type { Block, Footer, GlobalStyles, Header, ProductSection, ProductSectionBlock, ProjectData } from './types';
 import { findHeader, findFooter, makeProductSectionBlock } from './blocks';
+import { cloneTree, findNodeBySlot, getFooterSectionId, setNodeProps, visitTree } from './tree';
 
 export type SaveStatus = 'idle' | 'pending' | 'saving' | 'error';
 
@@ -25,6 +27,7 @@ export interface EditorState {
   lastSavedBrandKitId: string | null;
 
   setName(name: string): void;
+  setTree(tree: SerializedNodes): void;
   setGlobal(patch: Partial<GlobalStyles>): void;
   setHeader(patch: Partial<Header>): void;
   setFooter(patch: Partial<Footer>): void;
@@ -112,6 +115,9 @@ export function createEditorStore(init: Init): EditorStore {
         lastSavedBrandKitId: init.brandKitId,
 
         setName: (name) => set({ name }),
+        setTree: (tree) => set((state) => ({
+          data: { ...state.data, tree },
+        })),
         setGlobal: (patch) => set((state) => ({
           data: { ...state.data, global: { ...state.data.global, ...patch } },
         })),
@@ -221,7 +227,14 @@ export function createEditorStore(init: Init): EditorStore {
           const blocks = state.data.blocks.map((b) =>
             b.id === footerId ? ({ ...b, ...snapshot.footer } as Block) : b,
           );
-          return { data: { ...state.data, global: nextGlobal, blocks } };
+          return {
+            data: {
+              ...state.data,
+              global: nextGlobal,
+              blocks,
+              tree: applyFooterSnapshotToTree(state.data.tree, snapshot.footer),
+            },
+          };
         }),
         resetToSaved: () => set((state) => ({
           data: state.lastSavedData,
@@ -253,4 +266,67 @@ export function createEditorStore(init: Init): EditorStore {
   ) as EditorStoreApi;
 
   return Object.assign(store, { flushHistoryCooldown });
+}
+
+function applyFooterSnapshotToTree(tree: SerializedNodes, footer: Partial<Footer>): SerializedNodes {
+  let next = cloneTree(tree);
+
+  if (footer.bannerSrc !== undefined) {
+    const id = findNodeBySlot(next, 'footer.banner');
+    if (id) {
+      next = setNodeProps(next, id, (props) => ({ ...props, src: footer.bannerSrc }));
+    }
+  }
+  if (footer.bannerAlt !== undefined) {
+    const id = findNodeBySlot(next, 'footer.banner');
+    if (id) {
+      next = setNodeProps(next, id, (props) => ({ ...props, alt: footer.bannerAlt }));
+    }
+  }
+  if (footer.companyName !== undefined) {
+    const id = findNodeBySlot(next, 'footer.companyName');
+    if (id) {
+      next = setNodeProps(next, id, (props) => ({ ...props, text: footer.companyName }));
+    }
+  }
+  if (footer.address !== undefined) {
+    const id = findNodeBySlot(next, 'footer.address');
+    if (id) {
+      next = setNodeProps(next, id, (props) => ({ ...props, text: footer.address }));
+    }
+  }
+  if (footer.phone !== undefined || footer.phoneTel !== undefined) {
+    const id = findNodeBySlot(next, 'footer.phone');
+    if (id) {
+      next = setNodeProps(next, id, (props) => ({
+        ...props,
+        linkHref: footer.phoneTel ? `tel:${footer.phoneTel}` : props.linkHref,
+        text: footer.phone ?? props.text,
+      }));
+    }
+  }
+  if (footer.email !== undefined) {
+    const id = findNodeBySlot(next, 'footer.email');
+    if (id) {
+      next = setNodeProps(next, id, (_props) => ({
+        linkHref: footer.email ? `mailto:${footer.email}` : undefined,
+        text: footer.email,
+      }));
+    }
+  }
+  if (footer.backgroundColor !== undefined) {
+    const sectionId = getFooterSectionId(next);
+    if (sectionId) {
+      next = setNodeProps(next, sectionId, (props) => ({ ...props, backgroundColor: footer.backgroundColor }));
+    }
+  }
+  if (footer.textColor !== undefined) {
+    visitTree(next, (id, node) => {
+      if (typeof node.custom?.slot === 'string' && node.custom.slot.startsWith('footer.')) {
+        next = setNodeProps(next, id, (props) => ({ ...props, color: footer.textColor }));
+      }
+    });
+  }
+
+  return next;
 }

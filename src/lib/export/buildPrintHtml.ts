@@ -51,8 +51,8 @@ window.addEventListener('load', function () {
 });
 </script>`;
 
-export function buildPrintHtml(data: ProjectData): string {
-  const document = renderPrintDocument(data);
+export async function buildPrintHtml(data: ProjectData): Promise<string> {
+  const document = await renderPrintDocument(data);
   const withCss = document.replace('</head>', `${TOOLBAR_CSS}</head>`);
   const withToolbar = withCss.replace(/<body([^>]*)>/, (_match, attrs) => `<body${attrs}>${TOOLBAR_HTML}`);
   return withToolbar.replace('</body>', `${PAGED_SCRIPT}${AUTO_PRINT_SCRIPT}</body>`);

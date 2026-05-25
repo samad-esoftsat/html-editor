@@ -1,12 +1,17 @@
-import type { ProjectData } from '../types';
-import { SCHEMA_VERSION } from '../types';
+import { migrateV2ToV3 } from '../migrate';
 import {
-  makeHeaderBlock, makeFooterBlock, makeHeroBlock, makeArticleBlock, makeCTABannerBlock,
-} from '../blocks';
+  makeLegacyArticleBlock,
+  makeLegacyCTABannerBlock,
+  makeLegacyFooterBlock,
+  makeLegacyHeaderBlock,
+  makeLegacyHeroBlock,
+  type LegacyProjectData,
+} from '../legacy';
+import type { ProjectData } from '../types';
 
-export function createNewsletterTemplate(): ProjectData {
+function createLegacyNewsletterTemplate(): LegacyProjectData {
   return {
-    schemaVersion: SCHEMA_VERSION,
+    schemaVersion: 2,
     global: {
       backgroundColor: '#ffffff',
       fontFamily: 'Arial, Helvetica Neue, Helvetica, sans-serif',
@@ -21,37 +26,41 @@ export function createNewsletterTemplate(): ProjectData {
       contactUrl: '',
     },
     blocks: [
-      makeHeaderBlock({ title: 'Monthly update', sectionHeading: 'What we shipped this month' }),
-      makeHeroBlock({
+      makeLegacyHeaderBlock({ title: 'Monthly update', sectionHeading: 'What we shipped this month' }),
+      makeLegacyHeroBlock({
         title: 'This month at our company',
-        subtitle: 'A short note from the team — the highlights, in one place.',
+        subtitle: 'A short note from the team - the highlights, in one place.',
         ctaText: 'See the full update',
       }),
-      makeArticleBlock({
+      makeLegacyArticleBlock({
         title: 'Story one',
         body: 'A short paragraph or two about the first story. Keep it under five lines.',
         ctaText: 'Read more',
         imagePosition: 'top',
       }),
-      makeArticleBlock({
+      makeLegacyArticleBlock({
         title: 'Story two',
-        body: 'Another short paragraph. Newsletter readers skim — short beats long.',
+        body: 'Another short paragraph. Newsletter readers skim - short beats long.',
         ctaText: 'Read more',
         imagePosition: 'top',
       }),
-      makeArticleBlock({
+      makeLegacyArticleBlock({
         title: 'Story three',
         body: 'Wrap up with a third item that nudges readers toward the next step.',
         ctaText: 'Read more',
         imagePosition: 'top',
       }),
-      makeCTABannerBlock({
+      makeLegacyCTABannerBlock({
         title: 'Want more?',
         subtitle: 'Get future editions straight to your inbox.',
-        ctaText: 'Subscribe →',
+        ctaText: 'Subscribe ->',
         align: 'center',
       }),
-      makeFooterBlock(),
+      makeLegacyFooterBlock(),
     ],
   };
+}
+
+export function createNewsletterTemplate(): ProjectData {
+  return migrateV2ToV3(createLegacyNewsletterTemplate());
 }
