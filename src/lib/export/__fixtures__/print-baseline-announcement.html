@@ -7,13 +7,13 @@
 <style>
 @page {
   size: A4 portrait;
-  margin: 32mm 12mm 64mm 12mm;
+  margin: 32mm 0 64mm 0;
   @top-center    { content: element(header-region); }
   @bottom-center { content: element(footer-region); }
 }
 @page :first { margin-top: 32mm; }
 .print-footer { font-size: 13px; line-height: 1.4; }
-.print-footer .print-footer-banner { display: block; width: 100%; max-width: 710px; height: 80px; object-fit: cover; margin: 0 auto 8px; }
+.print-footer .print-footer-banner { display: block; width: 100%; height: 80px; object-fit: cover; margin: 0 auto 8px; }
 .print-cover .print-cover-banner { display: block; width: 100%; max-width: 710px; height: 120px; object-fit: cover; margin: 0 auto 10px; }
 
 * { box-sizing: border-box; }
@@ -38,14 +38,16 @@ body { font-family: Arial, Helvetica Neue, Helvetica, sans-serif; font-size: 16p
 </head>
 <body>
 <div class="running-header"><div class="print-header" style="text-align: center; max-width: 710px; margin: 0 auto;"><div style="text-align: center; padding: 4px 0; font-size: 18px; font-weight: bold;">Big news</div></div></div>
-<div class="running-footer"><div class="print-footer" style="text-align: center; max-width: 710px; margin: 0 auto; background-color: #000000; color: #fafafa; padding: 8px 12px;">
+<div class="running-footer"><div class="print-footer" style="text-align: center; background-color: #000000; color: #fafafa;">
 
+<div style="max-width: 710px; margin: 0 auto; padding: 8px 16px;">
 <div style="font-weight: bold;"></div>
 <div style="margin: 0; color: #fafafa;"></div>
 
 
 
 
+</div>
 </div></div>
 <main>
 

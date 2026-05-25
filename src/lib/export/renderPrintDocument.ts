@@ -13,13 +13,13 @@ const SOCIAL_ICON: Record<SocialPlatform, { url: string; alt: string }> = {
 const PRINT_CSS = `
 @page {
   size: A4 portrait;
-  margin: 32mm 12mm 64mm 12mm;
+  margin: 32mm 0 64mm 0;
   @top-center    { content: element(header-region); }
   @bottom-center { content: element(footer-region); }
 }
 @page :first { margin-top: 32mm; }
 .print-footer { font-size: 13px; line-height: 1.4; }
-.print-footer .print-footer-banner { display: block; width: 100%; max-width: 710px; height: 80px; object-fit: cover; margin: 0 auto 8px; }
+.print-footer .print-footer-banner { display: block; width: 100%; height: 80px; object-fit: cover; margin: 0 auto 8px; }
 .print-cover .print-cover-banner { display: block; width: 100%; max-width: 710px; height: 120px; object-fit: cover; margin: 0 auto 10px; }
 
 * { box-sizing: border-box; }
@@ -112,14 +112,16 @@ function renderFooterForPrint(footer: FooterBlock, data: ProjectData): string {
       }).join('')}</div>`
     : '';
 
-  return `<div class="print-footer" style="text-align: center; max-width: 710px; margin: 0 auto; background-color: ${attrEscape(bg)}; color: ${attrEscape(fg)}; padding: 8px 12px;">
+  return `<div class="print-footer" style="text-align: center; background-color: ${attrEscape(bg)}; color: ${attrEscape(fg)};">
 ${banner}
+<div style="max-width: 710px; margin: 0 auto; padding: 8px 16px;">
 <div style="font-weight: bold;">${htmlEscape(footer.companyName)}</div>
 ${address}
 ${phone}
 ${email}
 ${websites}
 ${socials}
+</div>
 </div>`;
 }
 
