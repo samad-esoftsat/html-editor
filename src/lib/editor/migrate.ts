@@ -102,15 +102,39 @@ export function migrate(raw: unknown): ProjectData {
 // so corrections to the migration logic apply retroactively without forcing
 // a re-migration.
 function rescueV3(data: ProjectData): ProjectData {
+  // Self-healing rebuild path. If the persisted tree is missing, missing
+  // ROOT, or ROOT has no children, but the v2 `blocks` snapshot is still
+  // present (which migrateV2ToV3 always preserves), rebuild the entire
+  // tree from blocks. This recovers projects whose `tree` was saved in a
+  // bad state — e.g., an autosave that fired before Craft populated the
+  // tree, or a translate/duplicate that copied a partially-built record.
+  const legacyBlocks = (data as { blocks?: unknown }).blocks;
+  const hasBlocks = Array.isArray(legacyBlocks) && legacyBlocks.length > 0;
+  const treeRoot = data.tree?.ROOT;
+  const treeIsBroken =
+    !data.tree
+    || !treeRoot
+    || !Array.isArray(treeRoot.nodes)
+    || treeRoot.nodes.length === 0;
+  if (treeIsBroken && hasBlocks) {
+    return migrateV2ToV3({
+      schemaVersion: 2,
+      global: data.global,
+      blocks: legacyBlocks as LegacyBlock[],
+    });
+  }
   if (!data.tree) return data;
 
   // If the persisted tree has an old-shape footer (no labelPrefix on the phone
   // text), rebuild the entire tree from the preserved legacy blocks. The
   // preserved `data.blocks` is a v2 snapshot kept on migration specifically
   // for retroactive structural fixes like this one.
-  if (hasLegacyFooterShape(data.tree) && Array.isArray((data as { blocks?: unknown }).blocks)) {
-    const legacyBlocks = (data as unknown as { blocks: LegacyBlock[] }).blocks;
-    return migrateV2ToV3({ schemaVersion: 2, global: data.global, blocks: legacyBlocks });
+  if (hasLegacyFooterShape(data.tree) && hasBlocks) {
+    return migrateV2ToV3({
+      schemaVersion: 2,
+      global: data.global,
+      blocks: legacyBlocks as LegacyBlock[],
+    });
   }
 
   let mutated = false;
