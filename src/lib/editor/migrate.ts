@@ -43,12 +43,19 @@ interface V1ProjectData {
   footer: V1Footer;
 }
 
+interface V3CompatProjectData {
+  schemaVersion: 3;
+  global: GlobalStyles;
+  blocks?: ProjectData['blocks'];
+}
+
 export function migrate(raw: unknown): ProjectData {
   if (raw == null || typeof raw !== 'object') {
     throw new Error('migrate: input must be an object');
   }
   const v = (raw as { schemaVersion?: number }).schemaVersion;
   if (v === 2) return raw as ProjectData;
+  if (v === 3) return v3ToV2(raw as V3CompatProjectData);
   if (v === 1 || v === undefined) return v1ToV2(raw as V1ProjectData);
   throw new Error(`Unsupported schemaVersion: ${v}`);
 }
@@ -74,6 +81,17 @@ function v1ToV2(v1: V1ProjectData): ProjectData {
     schemaVersion: 2,
     global: v1.global,
     blocks: [headerBlock, ...sectionBlocks, footerBlock],
+  };
+}
+
+function v3ToV2(v3: V3CompatProjectData): ProjectData {
+  if (!Array.isArray(v3.blocks)) {
+    throw new Error('migrate: v3 project is missing legacy blocks');
+  }
+  return {
+    schemaVersion: 2,
+    global: v3.global,
+    blocks: v3.blocks,
   };
 }
 

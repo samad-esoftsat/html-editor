@@ -59,6 +59,18 @@ describe('migrate', () => {
     expect(again).toBe(v2Input);
   });
 
+  it('downgrades compatible v3 input to v2 using preserved legacy blocks', () => {
+    const v2Input = migrate(V1_FIXTURE);
+    const v3Input = {
+      schemaVersion: 3 as const,
+      global: v2Input.global,
+      tree: { ROOT: { type: { resolvedName: 'Page' }, isCanvas: true, props: {}, displayName: 'Page', custom: {}, hidden: false, nodes: [], linkedNodes: {} } },
+      blocks: v2Input.blocks,
+    };
+    const downgraded = migrate(v3Input);
+    expect(downgraded).toEqual(v2Input);
+  });
+
   it('treats missing schemaVersion as v1', () => {
     const { schemaVersion: _, ...withoutVersion } = V1_FIXTURE;
     const v2 = migrate(withoutVersion);
