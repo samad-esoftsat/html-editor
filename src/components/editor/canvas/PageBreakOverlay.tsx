@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useEditor as useStoreEditor } from '@/lib/editor/StoreProvider';
 import { paperMetricsFor } from '@/lib/editor/types';
 
@@ -15,11 +15,25 @@ interface BreakMarker {
   pageNumber: number;
 }
 
+interface Layout {
+  breaks: BreakMarker[];
+  pageCount: number;
+}
+
+function layoutsEqual(a: Layout, b: Layout): boolean {
+  if (a.pageCount !== b.pageCount) return false;
+  if (a.breaks.length !== b.breaks.length) return false;
+  for (let i = 0; i < a.breaks.length; i++) {
+    if (a.breaks[i].y !== b.breaks[i].y) return false;
+    if (a.breaks[i].pageNumber !== b.breaks[i].pageNumber) return false;
+  }
+  return true;
+}
+
 export function PageBreakOverlay({ targetRef }: Props) {
-  const [layout, setLayout] = useState<{ breaks: BreakMarker[]; pageCount: number }>({
-    breaks: [],
-    pageCount: 1,
-  });
+  const [layout, setLayout] = useState<Layout>({ breaks: [], pageCount: 1 });
+  const layoutRef = useRef<Layout>(layout);
+  layoutRef.current = layout;
   const repeatHeaderFooter = useStoreEditor((s) => s.data.global.repeatHeaderFooter === true);
   const global = useStoreEditor((s) => s.data.global);
   const paper = paperMetricsFor(global);
@@ -34,6 +48,21 @@ export function PageBreakOverlay({ targetRef }: Props) {
     // on) and emit a break BEFORE any section that won't fit in the
     // remaining page space. The break y-position is the section's top, not
     // an arbitrary mid-section pixel.
+    //
+    // IMPORTANT: this overlay's own DOM lives inside `el` (the canvas
+    // card). The observers below would otherwise see our own re-renders
+    // (marker count change, page-count text change) and fire `measure`
+    // forever, freezing the page. Three guards protect against the loop:
+    //   1. rAF coalescing — multiple back-to-back mutations from one
+    //      Craft mutation/typing batch collapse into a single measure.
+    //   2. Integer y-rounding — eliminates sub-pixel measurement noise
+    //      that would otherwise produce a slightly different layout each
+    //      cycle.
+    //   3. Value-equality bail — skip setState entirely when the new
+    //      layout matches the previous one. React would otherwise schedule
+    //      a re-render for a same-shape object, triggering more
+    //      mutations.
+    let rafHandle: number | null = null;
     const measure = () => {
       const containerTop = el.getBoundingClientRect().top;
       const sections = Array.from(
@@ -52,11 +81,9 @@ export function PageBreakOverlay({ targetRef }: Props) {
 
       for (const section of bodySections) {
         const rect = section.getBoundingClientRect();
-        const sectionTop = rect.top - containerTop;
+        const sectionTop = Math.round(rect.top - containerTop);
         const sectionHeight = section.offsetHeight;
 
-        // If this section won't fit in what's left of the current page, push
-        // it to the next page and draw the break marker right above it.
         if (usedOnPage > 0 && usedOnPage + sectionHeight > pageHeight) {
           breaks.push({ y: sectionTop, pageNumber });
           pageNumber += 1;
@@ -66,17 +93,31 @@ export function PageBreakOverlay({ targetRef }: Props) {
         }
       }
 
-      setLayout({ breaks, pageCount: pageNumber });
+      const next: Layout = { breaks, pageCount: pageNumber };
+      if (!layoutsEqual(layoutRef.current, next)) {
+        setLayout(next);
+      }
     };
 
-    measure();
-    const observer = new ResizeObserver(measure);
+    const schedule = () => {
+      if (rafHandle !== null) return;
+      rafHandle = requestAnimationFrame(() => {
+        rafHandle = null;
+        measure();
+      });
+    };
+
+    schedule();
+    const observer = new ResizeObserver(schedule);
     observer.observe(el);
-    const mo = new MutationObserver(measure);
-    mo.observe(el, { childList: true, subtree: true, characterData: true });
+    const mo = new MutationObserver(schedule);
+    // `subtree: true` watches descendants, but we drop `characterData` to
+    // avoid waking on every keystroke inside contentEditable text.
+    mo.observe(el, { childList: true, subtree: true });
     return () => {
       observer.disconnect();
       mo.disconnect();
+      if (rafHandle !== null) cancelAnimationFrame(rafHandle);
     };
   }, [targetRef, repeatHeaderFooter, pageHeight]);
 
