@@ -27,12 +27,20 @@ export function Image({ src, alt, width, height, align = 'center', linkHref }: I
     const img = imgRef.current;
     if (!img) return;
     const update = () => {
+      if (img.naturalWidth > 0 && img.naturalHeight > 0) {
+        const nextWidth = width ?? img.clientWidth ?? img.naturalWidth;
+        const nextHeight = Math.round((img.naturalHeight / img.naturalWidth) * nextWidth);
+        if (nextHeight > 0) {
+          setMeasuredHeight(nextHeight);
+          return;
+        }
+      }
       if (img.clientHeight > 0) setMeasuredHeight(img.clientHeight);
     };
     if (img.complete) update();
     img.addEventListener('load', update);
     return () => img.removeEventListener('load', update);
-  }, [height, src]);
+  }, [height, src, width]);
 
   const handleResize = useCallback((next: { width: number; height: number }) => {
     actions.setProp((props: ImageProps) => {
