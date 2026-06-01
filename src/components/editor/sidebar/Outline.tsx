@@ -1,51 +1,110 @@
 import { useEffect, useState } from 'react';
 import { ROOT_NODE, useEditor as useCraftEditor } from '@craftjs/core';
 
-function OutlineNode({ id, depth }: { id: string; depth: number }) {
-  const { actions, label, children } = useCraftEditor((state, query) => {
-    try {
-      const node = query.node(id).get();
-      const kids = node?.data?.nodes;
-      return {
-        label: node?.data?.displayName ?? '',
-        children: Array.isArray(kids) ? kids : [],
+interface OutlineItem {
+  id: string;
+  label: string;
+  children: OutlineItem[];
+}
+
+interface OutlineQuery {
+  node(id: string): {
+    get(): {
+      data?: {
+        displayName?: string;
+        nodes?: string[];
       };
-    } catch {
-      return { label: '', children: [] as string[] };
-    }
-  });
+    };
+  };
+  getEvent(eventType: 'selected'): {
+    first(): string | null;
+  };
+}
 
-  if (!label) return null;
+function buildOutlineItem(query: OutlineQuery, id: string): OutlineItem | null {
+  try {
+    const node = query.node(id).get();
+    const label = typeof node?.data?.displayName === 'string' ? node.data.displayName : '';
+    if (!label) return null;
+    const childIds = Array.isArray(node?.data?.nodes) ? node.data.nodes : [];
+    return {
+      id,
+      label,
+      children: childIds
+        .map((childId: string) => buildOutlineItem(query, childId))
+        .filter((child: OutlineItem | null): child is OutlineItem => child !== null),
+    };
+  } catch {
+    return null;
+  }
+}
 
+function OutlineTree({
+  items,
+  depth,
+  selectedId,
+  onSelect,
+}: {
+  items: OutlineItem[];
+  depth: number;
+  selectedId: string | null;
+  onSelect: (id: string) => void;
+}) {
   return (
-    <div>
-      <button
-        type="button"
-        className="w-full rounded px-2 py-1 text-left text-sm text-ed-ink-2 hover:bg-ed-panel-3 hover:text-ed-ink"
-        style={{ paddingLeft: depth * 14 + 8 }}
-        onClick={() => actions.selectNode(id)}
-      >
-        {label}
-      </button>
-      {children.map((child) => <OutlineNode key={child} id={child} depth={depth + 1} />)}
-    </div>
+    <>
+      {items.map((item) => {
+        const selected = item.id === selectedId;
+        return (
+          <div key={item.id}>
+            <button
+              type="button"
+              className={`w-full rounded px-2 py-1 text-left text-sm transition-colors ${
+                selected
+                  ? 'bg-ed-brand-soft text-brand'
+                  : 'text-ed-ink-2 hover:bg-ed-panel-3 hover:text-ed-ink'
+              }`}
+              style={{ paddingLeft: depth * 14 + 8 }}
+              onClick={() => onSelect(item.id)}
+            >
+              {item.label}
+            </button>
+            {item.children.length > 0 ? (
+              <OutlineTree
+                items={item.children}
+                depth={depth + 1}
+                selectedId={selectedId}
+                onSelect={onSelect}
+              />
+            ) : null}
+          </div>
+        );
+      })}
+    </>
   );
 }
 
 function OutlineBody() {
-  const rootChildren = useCraftEditor((state, query) => {
-    try {
-      const root = query.node(ROOT_NODE).get();
-      const kids = root?.data?.nodes;
-      return Array.isArray(kids) ? kids : [];
-    } catch {
-      return [] as string[];
-    }
+  const { actions, items, selectedId } = useCraftEditor((_state, query) => {
+    const rootChildren = (() => {
+      try {
+        const root = query.node(ROOT_NODE).get();
+        return Array.isArray(root?.data?.nodes) ? root.data.nodes : [];
+      } catch {
+        return [] as string[];
+      }
+    })();
+
+    return {
+      items: rootChildren
+        .map((id) => buildOutlineItem(query, id))
+        .filter((item): item is OutlineItem => item !== null),
+      selectedId: query.getEvent('selected').first() ?? null,
+    };
   });
-  const list = Array.isArray(rootChildren) ? rootChildren : [];
+
   return (
     <div className="space-y-1">
-      {list.map((id) => <OutlineNode key={id} id={id} depth={0} />)}
+      <OutlineTree items={items} depth={0} selectedId={selectedId} onSelect={actions.selectNode} />
     </div>
   );
 }
