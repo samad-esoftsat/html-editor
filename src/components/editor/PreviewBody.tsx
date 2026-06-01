@@ -82,7 +82,16 @@ export function PreviewBody() {
           minHeight: '100%',
         }}
       >
-        {mounted && initialTree ? <Frame data={initialTree} /> : null}
+        {mounted && initialTree ? (
+          <Frame data={initialTree} />
+        ) : (
+          <div
+            className="flex min-h-[480px] items-center justify-center rounded border border-dashed border-ed-rule-strong bg-white/70 text-sm text-ed-ink-3"
+            aria-live="polite"
+          >
+            Loading editor content…
+          </div>
+        )}
       </div>
       {mounted ? <PageBreakOverlay targetRef={canvasRef} /> : null}
     </div>
