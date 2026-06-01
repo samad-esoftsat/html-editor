@@ -1,6 +1,6 @@
 'use client';
 import { Editor } from '@craftjs/core';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { StoreProvider } from '@/lib/editor/StoreProvider';
 import { RoleProvider } from '@/lib/editor/RoleProvider';
 import { useAutosave } from '@/lib/editor/autosave';
@@ -105,21 +105,34 @@ function CraftWorkspace({
   const store = useEditorStore();
   const data = useStoreEditor((state) => state.data);
   const { mode } = useEditorMode();
+  const pendingTreeSyncRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastSerializedTreeRef = useRef(JSON.stringify(store.getState().data.tree));
+
+  useEffect(() => {
+    return () => {
+      if (pendingTreeSyncRef.current) {
+        clearTimeout(pendingTreeSyncRef.current);
+      }
+    };
+  }, []);
 
   return (
     <Editor
       enabled={canEdit && mode === 'edit'}
       resolver={RESOLVERS}
       onNodesChange={(query) => {
-        // Defer the store write out of Craft's render commit. Craft fires
-        // onNodesChange synchronously during its own state transitions; writing
-        // to Zustand here would trigger subscribers (Outline, etc.) to update
-        // mid-render and crash React 19 with "Cannot update a component while
-        // rendering a different component".
-        const snapshot = query.getSerializedNodes();
-        queueMicrotask(() => {
-          store.getState().setTree(snapshot);
-        });
+        const serialized = query.serialize();
+        if (serialized === lastSerializedTreeRef.current) {
+          return;
+        }
+        lastSerializedTreeRef.current = serialized;
+        if (pendingTreeSyncRef.current) {
+          clearTimeout(pendingTreeSyncRef.current);
+        }
+        pendingTreeSyncRef.current = setTimeout(() => {
+          store.getState().setTree(JSON.parse(serialized));
+          pendingTreeSyncRef.current = null;
+        }, 120);
       }}
     >
       <RenderContextProvider value={{ global: data.global, target: mode === 'preview' ? 'print' : 'editor' }}>
