@@ -106,6 +106,7 @@ function CraftWorkspace({
   const data = useStoreEditor((state) => state.data);
   const { mode } = useEditorMode();
   const pendingTreeSyncRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pendingQueryRef = useRef<Parameters<NonNullable<React.ComponentProps<typeof Editor>['onNodesChange']>>[0] | null>(null);
   const lastSerializedTreeRef = useRef(JSON.stringify(store.getState().data.tree));
 
   useEffect(() => {
@@ -130,9 +131,20 @@ function CraftWorkspace({
           clearTimeout(pendingTreeSyncRef.current);
         }
         pendingTreeSyncRef.current = setTimeout(() => {
-          store.getState().setTree(JSON.parse(serialized));
+          const latestQuery = pendingQueryRef.current;
+          if (!latestQuery) {
+            pendingTreeSyncRef.current = null;
+            return;
+          }
+          const nextSerialized = latestQuery.serialize();
+          if (nextSerialized !== lastSerializedTreeRef.current) {
+            lastSerializedTreeRef.current = nextSerialized;
+            store.getState().setTree(JSON.parse(nextSerialized));
+          }
           pendingTreeSyncRef.current = null;
-        }, 120);
+          pendingQueryRef.current = null;
+        }, 600);
+        pendingQueryRef.current = query;
       }}
     >
       <RenderContextProvider value={{ global: data.global, target: mode === 'preview' ? 'print' : 'editor' }}>
