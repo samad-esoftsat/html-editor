@@ -66,19 +66,24 @@ export function PreviewBody() {
   const canvasRef = useRef<HTMLDivElement | null>(null);
   const paper = paperMetricsFor(global);
 
+  // The page-break overlay observes `canvasRef` for size/mutation
+  // changes. If it rendered as a *child* of that ref, its own DOM
+  // updates would trigger its own observer (infinite measure loop that
+  // freezes the page). Wrap canvas + overlay in a relative positioning
+  // parent so the overlay sits as a sibling, not a descendant.
   return (
-    <div
-      ref={canvasRef}
-      className="preview-canvas mx-auto w-full"
-      style={{
-        background: global.backgroundColor,
-        fontFamily: global.fontFamily,
-        minHeight: '100%',
-        position: 'relative',
-        maxWidth: paper.widthPx,
-      }}
-    >
-      {mounted && initialTree ? <Frame data={initialTree} /> : null}
+    <div className="relative mx-auto w-full" style={{ maxWidth: paper.widthPx }}>
+      <div
+        ref={canvasRef}
+        className="preview-canvas w-full"
+        style={{
+          background: global.backgroundColor,
+          fontFamily: global.fontFamily,
+          minHeight: '100%',
+        }}
+      >
+        {mounted && initialTree ? <Frame data={initialTree} /> : null}
+      </div>
       {mounted ? <PageBreakOverlay targetRef={canvasRef} /> : null}
     </div>
   );
